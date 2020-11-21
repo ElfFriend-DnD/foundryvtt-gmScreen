@@ -6,7 +6,19 @@
 [![ko-fi](https://img.shields.io/badge/-buy%20me%20a%20coke-%23FF5E5B)](https://ko-fi.com/elffriend)
 
 
-This module allows a GM to define custom Ability Scores and Skills for the dnd5e system. The goal is to allow other alternative rulesets to be configured in this module as well.
+Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, etc.
+
+## To Do
+- Create an `Application` for the GM Screen
+- Leverage CSS grids for the table's layout
+- Allow user to select a Journal Entry for each table cell
+- Allow user to select a Rollable Table for any given cell
+- Render the following in a read-only mode:
+  - Journal Entries
+  - Rollable Tables
+- Allow user to change the selected entity for a given cell
+- Allow user to configure the row/column layout
+- Allow user to span a cell across multiple cells
 
 ## Installation
 
