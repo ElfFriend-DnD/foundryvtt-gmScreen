@@ -9,15 +9,15 @@
 Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, etc.
 
 ## To Do
-- Create an `Application` for the GM Screen
-- Leverage CSS grids for the table's layout
-- Allow user to select a Journal Entry for each table cell
+- ~~Create an `Application` for the GM Screen~~
+- ~~Leverage CSS grids for the table's layout~~
+- ~~Allow user to select a Journal Entry for each table cell~~
 - Allow user to select a Rollable Table for any given cell
 - Render the following in a read-only mode:
-  - Journal Entries
+  - ~~Journal Entries~~
   - Rollable Tables
-- Allow user to change the selected entity for a given cell
-- Allow user to configure the row/column layout
+- ~~Allow user to change the selected entity for a given cell~~
+- ~~Allow user to configure the row/column layout~~
 - Allow user to span a cell across multiple cells
 
 ## Installation
@@ -39,13 +39,14 @@ https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/mo
 
 I'm honestly not sure how well this will play with modules that make changes to how journal articles or roll tables interact.
 
-| **Name**                                                      |  Works  | Notes |
-| ------------------------------------------------------------- | :-----: | ----- |
-| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal) | :shrug: |       |
+| **Name**                                                      |       Works        | Notes |
+| ------------------------------------------------------------- | :----------------: | ----- |
+| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal) | :heavy-check-mark: |       |
+| [MEME](https://github.com/Moerill/fvtt-markdown-editor)       | :heavy-check-mark: |       |
 
 ## Known Issues
 
-- Doesn't do anything at the moment.
+- Plenty.
 
 ## Acknowledgements
 
