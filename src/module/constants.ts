@@ -11,3 +11,5 @@ export enum MySettings {
 }
 
 export enum MyFlags {}
+
+export const numberRegex = /([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?/;

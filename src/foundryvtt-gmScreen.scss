@@ -1,5 +1,40 @@
-/* ------------------------------------ */
-/*				   Sass					*/
-/* This is your Sass entry file			*/
-/* ------------------------------------ */
+@import './styles/variables.scss';
+@import './styles/mixins.scss';
 
+.gm-screen {
+  .window-content {
+    @include spaced-vertical($space / 2);
+
+    padding: $space / 2;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(1, 1fr);
+    gap: $space / 2;
+    width: 100%;
+    height: 100%;
+  }
+
+  .grid-cell {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset 0 0 $space / 2 rgba(255, 255, 255, 0.2), 0 0 $space / 2 rgba(0, 0, 0, 0.2);
+    padding: $space / 5;
+    border-radius: $space / 2;
+  }
+
+  .grid-cell-content {
+    overflow: overlay;
+    flex: 1;
+    padding: $space / 5;
+  }
+
+  .gm-screen-actions {
+    @include spaced($space / 2);
+
+    flex: 0 0 auto;
+  }
+}

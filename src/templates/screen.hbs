@@ -1,5 +1,28 @@
-<form class="{{classes}}" autocomplete="off">
-  <div>
-    <h2>{{localize 'GMSCR.Grid'}}</h2>
+{{log data}}
+
+<div class="grid"
+  style="grid-template-columns: repeat({{data.grid.columns}}, 1fr); grid-template-rows: repeat({{data.grid.rows}}, 1fr)">
+
+  {{#each gridEntries}}
+  <div class="grid-cell" id="gm-screen-cell-{{@index}}"
+    style="{{#if this.x}}grid-column: {{this.x}};{{/if}} {{#if this.y}}grid-row:{{this.y}}{{/if}}">
+    <select>
+      {{#select this.journalId}}
+      <option value="">None</option>
+      {{selectOptions ../journalOptions}}
+      {{/select}}
+    </select>
+
+    <div class="grid-cell-content">
+      {{#if this.journalContent}}
+      {{this.journalContent}}
+      {{/if}}
+    </div>
   </div>
-</form>
+  {{/each}}
+</div>
+
+<div class='gm-screen-actions flexrow'>
+  <button type='button' data-action="clearGrid">Clear Grid</button>
+  <button type='button' data-action="refresh">Refresh</button>
+</div>
