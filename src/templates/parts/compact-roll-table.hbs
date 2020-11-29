@@ -1,0 +1,47 @@
+{{log 'gm-screen' 'compact-roll-table' this}}
+
+<article class="disabled" autocomplete="off">
+  <p>{{ entity.description }}</p>
+
+  <!-- Roll Table Results Loop -->
+  <table class="results">
+    <thead>
+      <tr>
+        <th>
+          {{#if entity.displayRoll}}
+          <a data-action="rolltable" data-entity-uuid="{{entityUuid}}" title="{{ entity.formula }}"><i
+              class="fas fa-dice-d20"></i></a>
+          {{else}}
+          {{ entity.formula }}
+          {{/if}}
+        </th>
+        <th>{{ localize "TABLE.ResultDetails" }}</th>
+        <th>{{ localize "TABLE.ResultWeight" }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each results as |result i|}}
+
+      <tr>
+        <td>
+          {{result.range.[0]}} - {{result.range.[1]}}
+        </td>
+        <td>
+          {{#if result.isText}}
+          {{result.text}}
+          {{else if result.isEntity}}
+          {{result.collection}}
+          {{else if result.isCompendium}}
+          {{result.collection}}
+          {{/if}}
+        </td>
+        <td>
+          {{result.weight}}
+        </td>
+      </tr>
+
+      {{/each}}
+    </tbody>
+
+  </table>
+</article>

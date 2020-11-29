@@ -9,7 +9,7 @@ export interface GmScreenGrid {
 }
 
 export interface GmScreenGridEntry {
-  x: number;
-  y: number;
-  journalId: string;
+  x?: number;
+  y?: number;
+  entityUuid?: string;
 }

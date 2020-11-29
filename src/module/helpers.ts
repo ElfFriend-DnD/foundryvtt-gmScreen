@@ -47,3 +47,13 @@ export function getGridElementsPosition(element: JQuery<HTMLElement>) {
   //Return an object with properties row and column
   return { y: elementRow, x: elementColumn };
 }
+
+export function getRollTableTemplateData(rollTable: RollTable) {
+  const data = new RollTableConfig(rollTable).getData();
+  log(false, 'getRollTableTemplateData', {
+    rollTable,
+    data,
+  });
+
+  return data;
+}

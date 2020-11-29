@@ -1,5 +1,8 @@
 {
   "GMSCR": {
-    "Grid": "Grid"
+    "Grid": "Grid",
+    "gmScreen": {
+      "Open": "Open"
+    }
   }
 }

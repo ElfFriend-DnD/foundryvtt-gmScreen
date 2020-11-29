@@ -26,6 +26,28 @@
     border-radius: $space / 2;
   }
 
+  .grid-cell-header {
+    @include spaced($space / 2);
+
+    align-items: center;
+    display: flex;
+    width: 100%;
+
+    > select {
+      flex: 1 1 100%;
+      width: 100%;
+    }
+
+    > a {
+      display: block;
+      flex: 0 0 auto;
+      line-height: normal;
+      margin: 0;
+      padding: 0 ($space / 5);
+      width: auto;
+    }
+  }
+
   .grid-cell-content {
     overflow: overlay;
     flex: 1;
