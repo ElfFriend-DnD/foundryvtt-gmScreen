@@ -61,5 +61,7 @@ Hooks.once('ready', function () {
 // Add any additional hooks if necessary
 
 Hooks.on('renderJournalDirectory', (app, html, data) => {
-  _addGmScreenButton(html);
+  if (game.user.isGM) {
+    _addGmScreenButton(html);
+  }
 });

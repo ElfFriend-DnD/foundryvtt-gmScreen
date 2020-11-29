@@ -16,14 +16,13 @@
           {{/if}}
         </th>
         <th>{{ localize "TABLE.ResultDetails" }}</th>
-        <th>{{ localize "TABLE.ResultWeight" }}</th>
       </tr>
     </thead>
     <tbody>
       {{#each results as |result i|}}
 
       <tr>
-        <td>
+        <td title="{{ localize "TABLE.ResultWeight" }}: {{result.weight}}">
           {{result.range.[0]}} - {{result.range.[1]}}
         </td>
         <td>
@@ -34,9 +33,6 @@
           {{else if result.isCompendium}}
           {{result.collection}}
           {{/if}}
-        </td>
-        <td>
-          {{result.weight}}
         </td>
       </tr>
 
