@@ -95,8 +95,8 @@ export class GmScreenApplication extends Application {
   }
 
   activateListeners(html) {
-    $('button').on('click', handleClickEvents.bind(this));
-    $('a').on('click', handleClickEvents.bind(this));
+    $(html).on('click', 'button', handleClickEvents.bind(this));
+    $(html).on('click', 'a', handleClickEvents.bind(this));
 
     // handle select of an entity
     $(html).on('change', 'select', async (e) => {
