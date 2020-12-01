@@ -1,11 +1,66 @@
 @import './styles/variables.scss';
 @import './styles/mixins.scss';
 
-.gm-screen {
-  .window-content {
-    @include spaced-vertical($space / 2);
+$transition-timing: 400ms;
 
+.sidebar-tab .directory-footer .gm-screen-button {
+  margin-top: 5px;
+}
+
+.gm-screen-app {
+  width: calc(100vw - 310px);
+  height: 60vh;
+  top: 100%;
+  position: fixed;
+  left: 0;
+  transform: translateY(0);
+  transition: transform $transition-timing ease-in-out;
+
+  &.expanded {
+    transform: translateY(-100%);
+
+    .gm-screen-actions {
+      .clear,
+      .refresh {
+        transform: translateY(0);
+        transition-delay: $transition-timing / 2;
+      }
+    }
+  }
+
+  .gm-screen-container {
+    @include spaced-vertical($space / 2);
     padding: $space / 2;
+  }
+
+  .gm-screen-actions {
+    @include spaced($space / 2);
+
+    display: flex;
+    position: absolute;
+    bottom: 100%;
+    width: 100%;
+    right: 0;
+    padding: 0 $space;
+    pointer-events: none;
+    justify-content: flex-end;
+    z-index: -1;
+
+    button {
+      width: auto;
+      white-space: nowrap;
+      pointer-events: all;
+    }
+
+    .clear,
+    .refresh {
+      transform: translateY(100%);
+      transition: transform $transition-timing ease-in;
+    }
+
+    .clear {
+      margin-right: auto;
+    }
   }
 
   .grid {
@@ -54,9 +109,17 @@
     padding: $space / 5;
   }
 
-  .gm-screen-actions {
-    @include spaced($space / 2);
+  .results {
+    th {
+      @include spaced(0.5em);
+    }
 
-    flex: 0 0 auto;
+    .drawn {
+      opacity: 0.5;
+    }
+
+    .range {
+      text-align: center;
+    }
   }
 }

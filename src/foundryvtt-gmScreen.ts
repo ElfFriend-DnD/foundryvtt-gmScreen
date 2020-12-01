@@ -8,23 +8,21 @@ Handlebars.registerHelper(`${MODULE_ABBREV}-path`, (relativePath: string) => {
   return `modules/${MODULE_ID}/${relativePath}`;
 });
 
-function _addGmScreenButton(html) {
-  const actionButtons = html.find('.action-buttons');
+// async function _addGmScreenButton(html) {
+//   const actionButtons = html.find('.directory-footer');
 
-  const gmScreenButtonHtml = `<button class="gm-screen-button">
-          <i class="fas fa-cog"></i> GM Screen
-      </button>`;
+//   const gmScreenButtonHtml = await renderTemplate(TEMPLATES.button, {});
 
-  actionButtons.append(gmScreenButtonHtml);
+//   actionButtons.append(gmScreenButtonHtml);
 
-  const gmScreenButton = html.find('button.gm-screen-button');
+//   const gmScreenButton = html.find('button.gm-screen-button');
 
-  gmScreenButton.on('click', (event) => {
-    event.preventDefault();
+//   gmScreenButton.on('click', (event) => {
+//     event.preventDefault();
 
-    new GmScreenApplication().render(true);
-  });
-}
+//     new GmScreenApplication().render(true);
+//   });
+// }
 
 /* ------------------------------------ */
 /* Initialize module					*/
@@ -56,12 +54,13 @@ Hooks.once('setup', function () {
 /* ------------------------------------ */
 Hooks.once('ready', function () {
   // Do anything once the module is ready
+  new GmScreenApplication().render(true);
 });
 
 // Add any additional hooks if necessary
 
-Hooks.on('renderJournalDirectory', (app, html, data) => {
-  if (game.user.isGM) {
-    _addGmScreenButton(html);
-  }
-});
+// Hooks.on('renderJournalDirectory', (app, html, data) => {
+//   if (game.user.isGM) {
+//     _addGmScreenButton(html);
+//   }
+// });

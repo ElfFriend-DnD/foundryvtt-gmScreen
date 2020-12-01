@@ -8,22 +8,28 @@
     <thead>
       <tr>
         <th>
-          {{#if entity.displayRoll}}
           <a data-action="rolltable" data-entity-uuid="{{entityUuid}}" title="{{ entity.formula }}"><i
               class="fas fa-dice-d20"></i></a>
-          {{else}}
-          {{ entity.formula }}
-          {{/if}}
         </th>
-        <th>{{ localize "TABLE.ResultDetails" }}</th>
+        <th>
+          <span>{{ localize "TABLE.ResultDetails" }}</span>
+          {{#unless entity.replacement}}
+          <a data-action="rolltable-reset" data-entity-uuid="{{entityUuid}}" title="{{ localize "TABLE.Reset" }}"><i
+              class="fas fa-undo"></i></a>
+          {{/unless}}
+        </th>
       </tr>
     </thead>
     <tbody>
       {{#each results as |result i|}}
 
-      <tr>
-        <td title="{{ localize "TABLE.ResultWeight" }}: {{result.weight}}">
+      <tr class="{{#if result.drawn}}drawn{{/if}}">
+        <td class="range" title="{{ localize "TABLE.ResultWeight" }}: {{result.weight}}">
+          {{#if (eq result.range.[0] result.range.[1])}}
+          {{result.range.[0]}}
+          {{else}}
           {{result.range.[0]}} - {{result.range.[1]}}
+          {{/if}}
         </td>
         <td>
           {{#if result.isText}}

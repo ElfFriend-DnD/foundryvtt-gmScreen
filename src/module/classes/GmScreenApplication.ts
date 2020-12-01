@@ -40,9 +40,27 @@ async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefined, HT
       const relevantRollTable = (await fromUuid(entityUuid)) as RollTable;
       log(false, 'trying to roll table', { relevantRollTable });
 
-      relevantRollTable.draw();
+      const tableRoll = relevantRollTable.roll();
+
+      // @ts-ignore
+      await relevantRollTable.draw(tableRoll);
+
+      this.render();
     } catch (e) {
       log(true, 'error rolling table', e);
+    }
+  }
+
+  if (action === 'rolltable-reset' && !!entityUuid) {
+    try {
+      const relevantRollTable = (await fromUuid(entityUuid)) as RollTable;
+      log(false, 'trying to reset roll table', { relevantRollTable });
+
+      await relevantRollTable.reset();
+
+      this.render();
+    } catch (e) {
+      log(true, 'error reseting roll table', e);
     }
   }
 
@@ -62,18 +80,30 @@ async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefined, HT
       // Otherwise render the relevantEntitySheet
       else relevantEntitySheet.render(true);
     } catch (e) {
-      log(true, 'error rolling table', e);
+      log(true, 'error opening entity sheet', e);
+    }
+  }
+
+  if (action === 'toggle-gm-screen') {
+    try {
+      this.toggleGmScreenVisibility();
+
+      // this.render();
+    } catch (e) {
+      log(true, 'error toggling GM Screen', e);
     }
   }
 }
 
 export class GmScreenApplication extends Application {
   data: any;
+  expanded: boolean;
 
   constructor(options = {}) {
     super(options);
 
     this.data = {};
+    this.expanded = false;
   }
 
   static get defaultOptions() {
@@ -82,14 +112,9 @@ export class GmScreenApplication extends Application {
     const totalCells = data.grid.columns * data.grid.rows;
 
     return mergeObject(super.defaultOptions, {
-      classes: ['app', 'gm-screen'],
-      title: 'GM Screen',
       template: TEMPLATES.screen,
       id: 'gm-screen-app',
-      minimizable: true,
-      resizable: true,
-      width: data.grid.columns * COLUMN_WIDTH,
-      height: data.grid.rows * ROW_HEIGHT,
+      popOut: false,
       scrollY: [...new Array(totalCells)].map((_, index) => `#gm-screen-cell-${index} .grid-cell-content`),
     });
   }
@@ -184,6 +209,7 @@ export class GmScreenApplication extends Application {
       rollTableOptions,
       gridEntries: await getAllGridEntries(),
       data,
+      expanded: this.expanded,
     };
 
     log(false, 'getData', {
@@ -192,5 +218,17 @@ export class GmScreenApplication extends Application {
     });
 
     return newAppData;
+  }
+
+  toggleGmScreenVisibility() {
+    this.expanded = !this.expanded;
+
+    if (this.expanded) {
+      $('.gm-screen-app').addClass('expanded');
+    } else {
+      $('.gm-screen-app').removeClass('expanded');
+    }
+
+    // this.render();
   }
 }

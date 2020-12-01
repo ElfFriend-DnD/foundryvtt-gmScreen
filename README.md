@@ -16,6 +16,11 @@ Creates a Configurable modular grid that GMs can populate with journal entries, 
 - Render the following in a read-only mode:
   - ~~Journal Entries~~
   - Rollable Tables
+  - Items
+  - See About Actors
+  - Combat Tracker?
+  - Playlist Controls?
+  - Soundboard?
 - ~~Allow user to change the selected entity for a given cell~~
 - ~~Allow user to configure the row/column layout~~
 - Allow user to span a cell across multiple cells

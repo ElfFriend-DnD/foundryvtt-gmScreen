@@ -1,58 +1,66 @@
 {{log  'gm-screen' data}}
+<div class="gm-screen-app window-app {{#if expanded}}expanded{{/if}}">
 
-<div class="grid"
-  style="grid-template-columns: repeat({{data.grid.columns}}, 1fr); grid-template-rows: repeat({{data.grid.rows}}, 1fr)">
+  <div class='gm-screen-actions'>
+    <button class="clear" type='button' data-action="clearGrid"><i class="fas fa-ban"></i>Clear Grid</button>
 
-  {{#each gridEntries}}
-  <div class="grid-cell" id="gm-screen-cell-{{@index}}"
-    style="{{#if this.x}}grid-column: {{this.x}};{{/if}} {{#if this.y}}grid-row:{{this.y}}{{/if}}">
-    <div class="grid-cell-header">
-      <select>
-        {{#select this.entityUuid}}
-        <option value="">None</option>
-        <optgroup label="{{localize "ENTITY.JournalEntry"}}">
-          {{selectOptions ../journalOptions}}
-        </optgroup>
+    <button class="refresh" type='button' data-action="refresh"><i class="fas fa-sync"></i> Refresh</button>
 
-        <optgroup label="{{localize "ENTITY.RollTable"}}">
-          {{selectOptions ../rollTableOptions}}
-        </optgroup>
-        {{/select}}
-      </select>
-
-      {{#if this.entityUuid}}
-      <a class="open-entity" data-action="open" data-entity-uuid="{{this.entityUuid}}">
-        {{#if (or this.journalContent this.rollTableTemplateData )}}
-        {{#if this.journalContent}}
-        <i class="fas fa-book-open"></i>
-        {{/if}}
-
-        {{#if this.rollTableTemplateData}}
-        <i class="fas fa-th-list"></i>
-        {{/if}}
-        {{else}} {{!-- this.journalContent || this.rollTableTemplateData --}}
-        <i class="fas fa-edit"></i>
-        {{/if}} {{!-- this.journalContent || this.rollTableTemplateData --}}
-      </a>
-      {{/if}}
-    </div>
-
-    <div class="grid-cell-content">
-      {{#if this.journalContent}}
-      {{this.journalContent}}
-      {{/if}}
-
-      {{#if this.rollTableTemplateData}}
-      {{#with this.rollTableTemplateData}}
-      {{> (GMSCR-path 'templates/parts/compact-roll-table.hbs') entityUuid=../entityUuid}}
-      {{/with}}
-      {{/if}}
-    </div>
+    <button class="gm-screen-button" data-action="toggle-gm-screen"><i class="fas fa-book-reader"></i>
+      GM Screen</button>
   </div>
-  {{/each}}
-</div>
+  <div class="gm-screen-container window-content">
+    <div class="grid"
+      style="grid-template-columns: repeat({{data.grid.columns}}, 1fr); grid-template-rows: repeat({{data.grid.rows}}, 1fr)">
 
-<div class='gm-screen-actions flexrow'>
-  <button type='button' data-action="clearGrid">Clear Grid</button>
-  <button type='button' data-action="refresh">Refresh</button>
+      {{#each gridEntries}}
+      <div class="grid-cell" id="gm-screen-cell-{{@index}}"
+        style="{{#if this.x}}grid-column: {{this.x}};{{/if}} {{#if this.y}}grid-row:{{this.y}}{{/if}}">
+        <div class="grid-cell-header">
+          <select>
+            {{#select this.entityUuid}}
+            <option value="">None</option>
+            <optgroup label="{{localize "ENTITY.JournalEntry"}}">
+              {{selectOptions ../journalOptions}}
+            </optgroup>
+
+            <optgroup label="{{localize "ENTITY.RollTable"}}">
+              {{selectOptions ../rollTableOptions}}
+            </optgroup>
+            {{/select}}
+          </select>
+
+          {{#if this.entityUuid}}
+          <a class="open-entity" data-action="open" data-entity-uuid="{{this.entityUuid}}">
+            {{#if (or this.journalContent this.rollTableTemplateData )}}
+            {{#if this.journalContent}}
+            <i class="fas fa-book-open"></i>
+            {{/if}}
+
+            {{#if this.rollTableTemplateData}}
+            <i class="fas fa-th-list"></i>
+            {{/if}}
+            {{else}} {{!-- this.journalContent || this.rollTableTemplateData --}}
+            <i class="fas fa-edit"></i>
+            {{/if}} {{!-- this.journalContent || this.rollTableTemplateData --}}
+          </a>
+          {{/if}}
+        </div>
+
+        <div class="grid-cell-content">
+          {{#if this.journalContent}}
+          {{this.journalContent}}
+          {{/if}}
+
+          {{#if this.rollTableTemplateData}}
+          {{#with this.rollTableTemplateData}}
+          {{> (GMSCR-path 'templates/parts/compact-roll-table.hbs') entityUuid=../entityUuid}}
+          {{/with}}
+          {{/if}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+
+  </div>
 </div>
