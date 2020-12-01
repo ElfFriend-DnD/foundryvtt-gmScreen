@@ -1,4 +1,5 @@
-import { MODULE_ID, numberRegex } from './constants';
+import { GmScreenConfig } from '../gridTypes';
+import { MODULE_ID, MySettings, numberRegex } from './constants';
 
 export function log(force: boolean, ...args) {
   if (force || CONFIG[MODULE_ID].debug === true) {
@@ -56,4 +57,94 @@ export function getRollTableTemplateData(rollTable: RollTable) {
   });
 
   return data;
+}
+
+export async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
+  e.preventDefault();
+  const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+
+  const action = e.currentTarget.dataset.action;
+  const entityUuid = e.currentTarget.dataset.entityUuid;
+
+  log(false, e.currentTarget.localName, 'clicked', {
+    e,
+    target: e.currentTarget,
+    dataset: e.currentTarget.dataset,
+    action,
+    data,
+  });
+
+  if (action === 'clearGrid') {
+    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
+      ...data,
+      grid: {
+        ...data.grid,
+        entries: [],
+      },
+    });
+    this.render();
+  }
+
+  if (action === 'refresh') {
+    this.render();
+  }
+
+  if (action === 'rolltable' && !!entityUuid) {
+    try {
+      const relevantRollTable = (await fromUuid(entityUuid)) as RollTable;
+      log(false, 'trying to roll table', { relevantRollTable });
+
+      const tableRoll = relevantRollTable.roll();
+
+      // @ts-ignore
+      await relevantRollTable.draw(tableRoll);
+
+      this.render();
+    } catch (e) {
+      log(true, 'error rolling table', e);
+    }
+  }
+
+  if (action === 'rolltable-reset' && !!entityUuid) {
+    try {
+      const relevantRollTable = (await fromUuid(entityUuid)) as RollTable;
+      log(false, 'trying to reset roll table', { relevantRollTable });
+
+      await relevantRollTable.reset();
+
+      this.render();
+    } catch (e) {
+      log(true, 'error reseting roll table', e);
+    }
+  }
+
+  if (action === 'open' && !!entityUuid) {
+    try {
+      const relevantEntity = await fromUuid(entityUuid);
+      const relevantEntitySheet = relevantEntity?.sheet;
+      log(false, 'trying to edit entity', { relevantEntitySheet });
+
+      // If the relevantEntitySheet is already rendered:
+      if (relevantEntitySheet.rendered) {
+        relevantEntitySheet.maximize();
+        //@ts-ignore
+        relevantEntitySheet.bringToTop();
+      }
+
+      // Otherwise render the relevantEntitySheet
+      else relevantEntitySheet.render(true);
+    } catch (e) {
+      log(true, 'error opening entity sheet', e);
+    }
+  }
+
+  if (action === 'toggle-gm-screen') {
+    try {
+      this.toggleGmScreenVisibility();
+
+      // this.render();
+    } catch (e) {
+      log(true, 'error toggling GM Screen', e);
+    }
+  }
 }

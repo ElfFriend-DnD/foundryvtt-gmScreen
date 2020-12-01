@@ -1,99 +1,6 @@
 import { GmScreenConfig, GmScreenGridEntry } from '../../gridTypes';
 import { MODULE_ID, MySettings, TEMPLATES } from '../constants';
-import { getGridElementsPosition, getRollTableTemplateData, log } from '../helpers';
-
-const COLUMN_WIDTH = 200;
-const ROW_HEIGHT = 175;
-
-async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
-  e.preventDefault();
-  const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
-
-  const action = e.currentTarget.dataset.action;
-  const entityUuid = e.currentTarget.dataset.entityUuid;
-
-  log(false, e.currentTarget.localName, 'clicked', {
-    e,
-    target: e.currentTarget,
-    dataset: e.currentTarget.dataset,
-    action,
-    data,
-  });
-
-  if (action === 'clearGrid') {
-    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
-      ...data,
-      grid: {
-        ...data.grid,
-        entries: [],
-      },
-    });
-    this.render();
-  }
-
-  if (action === 'refresh') {
-    this.render();
-  }
-
-  if (action === 'rolltable' && !!entityUuid) {
-    try {
-      const relevantRollTable = (await fromUuid(entityUuid)) as RollTable;
-      log(false, 'trying to roll table', { relevantRollTable });
-
-      const tableRoll = relevantRollTable.roll();
-
-      // @ts-ignore
-      await relevantRollTable.draw(tableRoll);
-
-      this.render();
-    } catch (e) {
-      log(true, 'error rolling table', e);
-    }
-  }
-
-  if (action === 'rolltable-reset' && !!entityUuid) {
-    try {
-      const relevantRollTable = (await fromUuid(entityUuid)) as RollTable;
-      log(false, 'trying to reset roll table', { relevantRollTable });
-
-      await relevantRollTable.reset();
-
-      this.render();
-    } catch (e) {
-      log(true, 'error reseting roll table', e);
-    }
-  }
-
-  if (action === 'open' && !!entityUuid) {
-    try {
-      const relevantEntity = await fromUuid(entityUuid);
-      const relevantEntitySheet = relevantEntity?.sheet;
-      log(false, 'trying to edit entity', { relevantEntitySheet });
-
-      // If the relevantEntitySheet is already rendered:
-      if (relevantEntitySheet.rendered) {
-        relevantEntitySheet.maximize();
-        //@ts-ignore
-        relevantEntitySheet.bringToTop();
-      }
-
-      // Otherwise render the relevantEntitySheet
-      else relevantEntitySheet.render(true);
-    } catch (e) {
-      log(true, 'error opening entity sheet', e);
-    }
-  }
-
-  if (action === 'toggle-gm-screen') {
-    try {
-      this.toggleGmScreenVisibility();
-
-      // this.render();
-    } catch (e) {
-      log(true, 'error toggling GM Screen', e);
-    }
-  }
-}
+import { getGridElementsPosition, getRollTableTemplateData, handleClickEvents, log } from '../helpers';
 
 export class GmScreenApplication extends Application {
   data: any;
@@ -110,48 +17,67 @@ export class GmScreenApplication extends Application {
     const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
 
     const totalCells = data.grid.columns * data.grid.rows;
-
     return mergeObject(super.defaultOptions, {
       template: TEMPLATES.screen,
       id: 'gm-screen-app',
+      dragDrop: [{ dragSelector: '.grid-cell', dropSelector: '.grid-cell' }],
       popOut: false,
       scrollY: [...new Array(totalCells)].map((_, index) => `#gm-screen-cell-${index} .grid-cell-content`),
     });
   }
 
+  /**
+   * Adds an Entry to the proper place on the grid data.
+   * Replaces an existing entry if the X and Y match
+   * @param newEntry The Entry being added.
+   */
+  async addEntry(newEntry: GmScreenGridEntry) {
+    const gridData: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const newEntries = [...gridData.grid.entries];
+
+    const existingEntryIndex = newEntries.findIndex((entry) => {
+      return entry.x === newEntry.x && entry.y === newEntry.y;
+    });
+
+    if (existingEntryIndex > -1) {
+      newEntries[existingEntryIndex] = newEntry;
+    } else {
+      newEntries.push(newEntry);
+    }
+
+    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
+      ...gridData,
+      grid: {
+        ...gridData.grid,
+        entries: newEntries,
+      },
+    });
+
+    this.render();
+  }
+
+  toggleGmScreenVisibility() {
+    this.expanded = !this.expanded;
+
+    if (this.expanded) {
+      $('.gm-screen-app').addClass('expanded');
+    } else {
+      $('.gm-screen-app').removeClass('expanded');
+    }
+  }
+
   activateListeners(html) {
+    super.activateListeners(html);
     $(html).on('click', 'button', handleClickEvents.bind(this));
     $(html).on('click', 'a', handleClickEvents.bind(this));
 
     // handle select of an entity
     $(html).on('change', 'select', async (e) => {
-      const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
-      const newEntries = [...data.grid.entries];
-
       const newEntry: GmScreenGridEntry = {
         ...getGridElementsPosition($(e.target).parent()),
         entityUuid: e.target.value,
       };
-
-      const existingEntryIndex = newEntries.findIndex((entry) => {
-        return entry.x === newEntry.x && entry.y === newEntry.y;
-      });
-
-      if (existingEntryIndex > -1) {
-        newEntries[existingEntryIndex] = newEntry;
-      } else {
-        newEntries.push(newEntry);
-      }
-
-      await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
-        ...data,
-        grid: {
-          ...data.grid,
-          entries: newEntries,
-        },
-      });
-
-      this.render();
+      this.addEntry(newEntry);
     });
   }
 
@@ -220,15 +146,33 @@ export class GmScreenApplication extends Application {
     return newAppData;
   }
 
-  toggleGmScreenVisibility() {
-    this.expanded = !this.expanded;
-
-    if (this.expanded) {
-      $('.gm-screen-app').addClass('expanded');
-    } else {
-      $('.gm-screen-app').removeClass('expanded');
+  async _onDrop(event) {
+    // Try to extract the data
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer.getData('text/plain'));
+    } catch (err) {
+      return false;
     }
 
-    // this.render();
+    log(false, 'onDrop', {
+      event,
+      data,
+      closestGridCell: $(event.target).closest('.grid-cell'),
+    });
+
+    // only move forward if this is a JournalEntry or RollTable
+    if (!['JournalEntry', 'RollTable'].includes(data.type)) {
+      return false;
+    }
+
+    const entityUuid = `${data.type}.${data.id}`;
+
+    const newEntry: GmScreenGridEntry = {
+      ...getGridElementsPosition($(event.target).closest('.grid-cell')),
+      entityUuid,
+    };
+
+    this.addEntry(newEntry);
   }
 }

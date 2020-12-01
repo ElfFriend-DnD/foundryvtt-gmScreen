@@ -12,10 +12,11 @@ Creates a Configurable modular grid that GMs can populate with journal entries, 
 - ~~Create an `Application` for the GM Screen~~
 - ~~Leverage CSS grids for the table's layout~~
 - ~~Allow user to select a Journal Entry for each table cell~~
-- Allow user to select a Rollable Table for any given cell
+- ~~Allow user to select a Rollable Table for any given cell~~
 - Render the following in a read-only mode:
   - ~~Journal Entries~~
-  - Rollable Tables
+  - ~~Rollable Tables~~
+  - "Current Scene's Notes"
   - Items
   - See About Actors
   - Combat Tracker?
@@ -23,6 +24,7 @@ Creates a Configurable modular grid that GMs can populate with journal entries, 
   - Soundboard?
 - ~~Allow user to change the selected entity for a given cell~~
 - ~~Allow user to configure the row/column layout~~
+- ~~Drag and Drop Support~~
 - Allow user to span a cell across multiple cells
 
 ## Installation
