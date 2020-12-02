@@ -28,7 +28,6 @@
               {{selectOptions ../rollTableOptions}}
             </optgroup>
 
-
             <optgroup label="{{localize "ENTITY.Item"}}">
               {{selectOptions ../itemOptions}}
             </optgroup>
@@ -52,20 +51,13 @@
           {{/if}}
         </div>
 
-        <div class="grid-cell-content">
-          {{#if this.journalContent}}
-          {{this.journalContent}}
-          {{/if}}
-
-          {{#if this.rollTableTemplateData}}
-          {{#with this.rollTableTemplateData}}
-          {{> (GMSCR-path 'templates/parts/compact-roll-table.hbs') entityUuid=../entityUuid}}
-          {{/with}}
-          {{/if}}
-
-          {{#if this.itemSheetTemplate}}
-          {{log this.itemSheetTemplate}}
-          {{{this.itemSheetTemplate}}}
+        <div class="grid-cell-content {{entitySheetClasses}}">
+          {{#if this.entitySheetInnerHtml}}
+          <div class="window-content">
+            <form class="locked">
+              {{{this.entitySheetInnerHtml}}}
+            </form>
+          </div>
           {{/if}}
         </div>
       </div>

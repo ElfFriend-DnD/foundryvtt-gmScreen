@@ -1,6 +1,6 @@
 import { GmScreenConfig, GmScreenGridEntry } from '../../gridTypes';
 import { MODULE_ID, MySettings, TEMPLATES } from '../constants';
-import { getGridElementsPosition, getItemSheet, getRollTableTemplateData, handleClickEvents, log } from '../helpers';
+import { getGridElementsPosition, handleClickEvents, log } from '../helpers';
 
 export class GmScreenApplication extends Application {
   data: any;
@@ -108,36 +108,80 @@ export class GmScreenApplication extends Application {
           if (entry.entityUuid) {
             const relevantEntity = await fromUuid(entry.entityUuid);
 
-            if (relevantEntity instanceof JournalEntry) {
-              log(false, 'journalEntry found', { entry, relevantEntity });
-              return {
-                ...entry,
-                // @ts-ignore
-                journalContent: new Handlebars.SafeString(TextEditor.enrichHTML(relevantEntity.data?.content)),
-              };
-            }
+            const relevantSheetData = relevantEntity.sheet.getData();
+            const uneditableSheetData = {
+              ...relevantSheetData,
+              options: {
+                ...relevantSheetData.options,
+                editable: false,
+              },
+              editable: false,
+              cssClass: 'locked',
+            };
 
-            if (relevantEntity instanceof RollTable) {
-              log(false, 'rollTable found', { entry, relevantEntity });
+            const sheetDataClasses = relevantSheetData.cssClass;
+            const entitySheetClasses = relevantEntity.sheet.options.classes.join(' ');
 
-              const rollTableTemplateData = getRollTableTemplateData(relevantEntity);
+            // @ts-ignore
+            const entitySheetInner = await relevantEntity.sheet._renderInner(uneditableSheetData);
 
-              return {
-                ...entry,
-                rollTableTemplateData,
-              };
-            }
+            log(false, 'entity population', {
+              relevantEntity,
+              // itemSheet,
+              // itemSheetData,
+              relevantSheetData,
+              uneditableSheetData,
+              entitySheetInner,
+            });
 
-            if (relevantEntity instanceof Item) {
-              const itemSheetHtml = await getItemSheet(relevantEntity);
-              log(false, 'item found', { entry, relevantEntity, itemSheetHtml });
+            return {
+              ...entry,
+              //@ts-ignore
+              entitySheetInnerHtml: entitySheetInner.html(),
+              entitySheetClasses,
+            };
 
-              return {
-                ...entry,
-                //@ts-ignore
-                itemSheetTemplate: itemSheetHtml.html(),
-              };
-            }
+            // if (relevantEntity instanceof JournalEntry) {
+            //   log(false, 'journalEntry found', { entry, relevantEntity });
+            //   return {
+            //     ...entry,
+            //     // @ts-ignore
+            //     journalContent: new Handlebars.SafeString(TextEditor.enrichHTML(relevantEntity.data?.content)),
+            //   };
+            // }
+
+            // if (relevantEntity instanceof RollTable) {
+            //   log(false, 'rollTable found', { entry, relevantEntity });
+
+            //   const rollTableTemplateData = getRollTableTemplateData(relevantEntity);
+
+            //   return {
+            //     ...entry,
+            //     rollTableTemplateData,
+            //   };
+            // }
+
+            // if (relevantEntity instanceof Item) {
+            //   const itemSheetHtml = await getItemSheet(relevantEntity);
+            //   log(false, 'item found', { entry, relevantEntity, itemSheetHtml });
+
+            //   return {
+            //     ...entry,
+            //     //@ts-ignore
+            //     itemSheetTemplate: itemSheetHtml.html(),
+            //   };
+            // }
+
+            // if (relevantEntity instanceof Actor) {
+            //   const actorSheetHtml = await getActorSheet(relevantEntity);
+            //   log(false, 'item found', { entry, relevantEntity, actorSheetHtml });
+
+            //   return {
+            //     ...entry,
+            //     //@ts-ignore
+            //     actorSheetTemplate: actorSheetHtml.html(),
+            //   };
+            // }
           }
           log(false, 'returning');
           return entry;
@@ -179,7 +223,7 @@ export class GmScreenApplication extends Application {
     });
 
     // only move forward if this is a JournalEntry or RollTable
-    if (!['JournalEntry', 'RollTable', 'Item'].includes(data.type)) {
+    if (!['JournalEntry', 'RollTable', 'Item', 'Actor'].includes(data.type)) {
       return false;
     }
 

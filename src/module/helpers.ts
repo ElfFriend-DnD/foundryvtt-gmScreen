@@ -59,24 +59,33 @@ export function getRollTableTemplateData(rollTable: RollTable) {
   return data;
 }
 
-export async function getItemSheet(item: Item) {
-  // @ts-ignore
-  // const itemSheet = new CONFIG.Item.sheetClass(item, { editable: false, popOut: false });
-  // const itemSheetData = itemSheet.getData();
-  // // @ts-ignore
-  // const itemSheetInner = await itemSheet._render();
+// export async function getItemSheet(item: Item) {
+//   // @ts-ignore
+//   const itemSheetInner = await item.sheet._renderInner(item.sheet.getData());
 
-  const itemSheetInner = await item.sheet._renderInner(item.sheet.getData());
+//   log(false, 'getItemSheet', {
+//     item,
+//     // itemSheet,
+//     // itemSheetData,
+//     itemSheetInner,
+//   });
 
-  log(false, 'getItemSheet', {
-    item,
-    // itemSheet,
-    // itemSheetData,
-    itemSheetInner,
-  });
+//   return itemSheetInner;
+// }
 
-  return itemSheetInner;
-}
+// export async function getActorSheet(actor: Actor) {
+//   // @ts-ignore
+//   const actorSheetInner = await actor.sheet._renderInner(actor.sheet.getData());
+
+//   log(false, 'getActorSheet', {
+//     actor,
+//     // itemSheet,
+//     // itemSheetData,
+//     actorSheetInner,
+//   });
+
+//   return actorSheetInner;
+// }
 
 export async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
   e.preventDefault();
