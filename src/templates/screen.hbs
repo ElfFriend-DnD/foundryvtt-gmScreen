@@ -27,6 +27,11 @@
             <optgroup label="{{localize "ENTITY.RollTable"}}">
               {{selectOptions ../rollTableOptions}}
             </optgroup>
+
+
+            <optgroup label="{{localize "ENTITY.Item"}}">
+              {{selectOptions ../itemOptions}}
+            </optgroup>
             {{/select}}
           </select>
 
@@ -56,6 +61,11 @@
           {{#with this.rollTableTemplateData}}
           {{> (GMSCR-path 'templates/parts/compact-roll-table.hbs') entityUuid=../entityUuid}}
           {{/with}}
+          {{/if}}
+
+          {{#if this.itemSheetTemplate}}
+          {{log this.itemSheetTemplate}}
+          {{{this.itemSheetTemplate}}}
           {{/if}}
         </div>
       </div>

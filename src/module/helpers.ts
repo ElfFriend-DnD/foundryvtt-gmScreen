@@ -59,6 +59,25 @@ export function getRollTableTemplateData(rollTable: RollTable) {
   return data;
 }
 
+export async function getItemSheet(item: Item) {
+  // @ts-ignore
+  // const itemSheet = new CONFIG.Item.sheetClass(item, { editable: false, popOut: false });
+  // const itemSheetData = itemSheet.getData();
+  // // @ts-ignore
+  // const itemSheetInner = await itemSheet._render();
+
+  const itemSheetInner = await item.sheet._renderInner(item.sheet.getData());
+
+  log(false, 'getItemSheet', {
+    item,
+    // itemSheet,
+    // itemSheetData,
+    itemSheetInner,
+  });
+
+  return itemSheetInner;
+}
+
 export async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
   e.preventDefault();
   const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);

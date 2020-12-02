@@ -1,6 +1,6 @@
 import { GmScreenConfig, GmScreenGridEntry } from '../../gridTypes';
 import { MODULE_ID, MySettings, TEMPLATES } from '../constants';
-import { getGridElementsPosition, getRollTableTemplateData, handleClickEvents, log } from '../helpers';
+import { getGridElementsPosition, getItemSheet, getRollTableTemplateData, handleClickEvents, log } from '../helpers';
 
 export class GmScreenApplication extends Application {
   data: any;
@@ -94,6 +94,11 @@ export class GmScreenApplication extends Application {
       return acc;
     }, {});
 
+    const itemOptions = ((game.items.entries as unknown) as Array<any>).reduce((acc, itemEntry) => {
+      acc[itemEntry.uuid] = itemEntry.data.name;
+      return acc;
+    }, {});
+
     const emptyCellsNum = data.grid.columns * data.grid.rows - data.grid.entries.length;
     const emptyCells: GmScreenGridEntry[] = emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
 
@@ -122,6 +127,17 @@ export class GmScreenApplication extends Application {
                 rollTableTemplateData,
               };
             }
+
+            if (relevantEntity instanceof Item) {
+              const itemSheetHtml = await getItemSheet(relevantEntity);
+              log(false, 'item found', { entry, relevantEntity, itemSheetHtml });
+
+              return {
+                ...entry,
+                //@ts-ignore
+                itemSheetTemplate: itemSheetHtml.html(),
+              };
+            }
           }
           log(false, 'returning');
           return entry;
@@ -133,6 +149,7 @@ export class GmScreenApplication extends Application {
       ...super.getData(),
       journalOptions,
       rollTableOptions,
+      itemOptions,
       gridEntries: await getAllGridEntries(),
       data,
       expanded: this.expanded,
@@ -162,7 +179,7 @@ export class GmScreenApplication extends Application {
     });
 
     // only move forward if this is a JournalEntry or RollTable
-    if (!['JournalEntry', 'RollTable'].includes(data.type)) {
+    if (!['JournalEntry', 'RollTable', 'Item'].includes(data.type)) {
       return false;
     }
 
