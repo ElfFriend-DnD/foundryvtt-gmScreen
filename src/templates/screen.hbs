@@ -20,17 +20,11 @@
           <select>
             {{#select this.entityUuid}}
             <option value="">None</option>
-            <optgroup label="{{localize "ENTITY.JournalEntry"}}">
-              {{selectOptions ../journalOptions}}
+            {{#each ../entityOptions}}
+            <optgroup label="{{localize label}}">
+              {{selectOptions options}}
             </optgroup>
-
-            <optgroup label="{{localize "ENTITY.RollTable"}}">
-              {{selectOptions ../rollTableOptions}}
-            </optgroup>
-
-            <optgroup label="{{localize "ENTITY.Item"}}">
-              {{selectOptions ../itemOptions}}
-            </optgroup>
+            {{/each}}
             {{/select}}
           </select>
 

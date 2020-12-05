@@ -84,20 +84,20 @@ export class GmScreenApplication extends Application {
   async getData() {
     const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
 
-    const journalOptions = ((game.journal.entries as unknown) as Array<any>).reduce((acc, journalEntry) => {
-      acc[journalEntry.uuid] = journalEntry.data.name;
-      return acc;
-    }, {});
-
-    const rollTableOptions = ((game.tables.entries as unknown) as Array<any>).reduce((acc, rollTableEntry) => {
-      acc[rollTableEntry.uuid] = rollTableEntry.data.name;
-      return acc;
-    }, {});
-
-    const itemOptions = ((game.items.entries as unknown) as Array<any>).reduce((acc, itemEntry) => {
-      acc[itemEntry.uuid] = itemEntry.data.name;
-      return acc;
-    }, {});
+    const entityOptions = [
+      { label: 'ENTITY.Actor', entries: game.actors.entries },
+      { label: 'ENTITY.Item', entries: game.items.entries },
+      { label: 'ENTITY.JournalEntry', entries: game.journal.entries },
+      { label: 'ENTITY.RollTable', entries: game.tables.entries },
+    ].map(({ label, entries }) => {
+      return {
+        label,
+        options: ((entries as unknown) as Array<any>).reduce((acc, entity) => {
+          acc[entity.uuid] = entity.data.name;
+          return acc;
+        }, {}),
+      };
+    });
 
     const emptyCellsNum = data.grid.columns * data.grid.rows - data.grid.entries.length;
     const emptyCells: GmScreenGridEntry[] = emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
@@ -191,9 +191,7 @@ export class GmScreenApplication extends Application {
 
     const newAppData = {
       ...super.getData(),
-      journalOptions,
-      rollTableOptions,
-      itemOptions,
+      entityOptions,
       gridEntries: await getAllGridEntries(),
       data,
       expanded: this.expanded,
