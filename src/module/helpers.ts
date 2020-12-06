@@ -1,4 +1,5 @@
 import { GmScreenConfig } from '../gridTypes';
+import { CompactRollTableDisplay } from './classes/CompactRollTableDisplay';
 import { MODULE_ID, MySettings, numberRegex } from './constants';
 
 export function log(force: boolean, ...args) {
@@ -87,17 +88,42 @@ export function getRollTableTemplateData(rollTable: RollTable) {
 //   return actorSheetInner;
 // }
 
+export async function injectCellContents(entityUuid: string, gridCellContentElement: JQuery<HTMLElement>) {
+  const relevantEntity = await fromUuid(entityUuid);
+
+  switch (relevantEntity.entity) {
+    case 'RollTable': {
+      const compactRollTableDisplay = new CompactRollTableDisplay(relevantEntity, gridCellContentElement);
+
+      log(false, 'try rendering compactRollTable', {
+        compactRollTableDisplay,
+      });
+
+      compactRollTableDisplay.render(true);
+
+      break;
+    }
+    default: {
+      // @ts-ignore
+      const entitySheetInner = await relevantEntity.sheet._renderInner(relevantEntity.sheet.getData());
+
+      gridCellContentElement.append(entitySheetInner);
+    }
+  }
+}
+
 export async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
   e.preventDefault();
   const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
 
   const action = e.currentTarget.dataset.action;
-  const entityUuid = e.currentTarget.dataset.entityUuid;
+  const entityUuid = $(e.currentTarget).parents('[data-entity-uuid]')?.data()?.entityUuid;
 
   log(false, e.currentTarget.localName, 'clicked', {
     e,
     target: e.currentTarget,
     dataset: e.currentTarget.dataset,
+    entityUuid,
     action,
     data,
   });
@@ -117,21 +143,21 @@ export async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefi
     this.render();
   }
 
-  if (action === 'rolltable' && !!entityUuid) {
-    try {
-      const relevantRollTable = (await fromUuid(entityUuid)) as RollTable;
-      log(false, 'trying to roll table', { relevantRollTable });
+  // if (action === 'rolltable' && !!entityUuid) {
+  //   try {
+  //     const relevantRollTable = (await fromUuid(entityUuid)) as RollTable;
+  //     log(false, 'trying to roll table', { relevantRollTable });
 
-      const tableRoll = relevantRollTable.roll();
+  //     const tableRoll = relevantRollTable.roll();
 
-      // @ts-ignore
-      await relevantRollTable.draw(tableRoll);
+  //     // @ts-ignore
+  //     await relevantRollTable.draw(tableRoll);
 
-      this.render();
-    } catch (e) {
-      log(true, 'error rolling table', e);
-    }
-  }
+  //     this.render();
+  //   } catch (e) {
+  //     log(true, 'error rolling table', e);
+  //   }
+  // }
 
   if (action === 'rolltable-reset' && !!entityUuid) {
     try {

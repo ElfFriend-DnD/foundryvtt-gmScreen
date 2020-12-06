@@ -8,21 +8,23 @@ Handlebars.registerHelper(`${MODULE_ABBREV}-path`, (relativePath: string) => {
   return `modules/${MODULE_ID}/${relativePath}`;
 });
 
-// async function _addGmScreenButton(html) {
-//   const actionButtons = html.find('.directory-footer');
+/*
+ * https://stackoverflow.com/questions/53398408/switch-case-with-default-in-handlebars-js
+ * {{#switch 'a'}}
+ *   {{#case 'a'}} A {{/case}}
+ *   {{#case 'b'}} B {{/case}}
+ * {{/switch}}
+ */
+Handlebars.registerHelper(`${MODULE_ABBREV}-switch`, function (value, options) {
+  this.switch_value = value;
+  return options.fn(this);
+});
 
-//   const gmScreenButtonHtml = await renderTemplate(TEMPLATES.button, {});
-
-//   actionButtons.append(gmScreenButtonHtml);
-
-//   const gmScreenButton = html.find('button.gm-screen-button');
-
-//   gmScreenButton.on('click', (event) => {
-//     event.preventDefault();
-
-//     new GmScreenApplication().render(true);
-//   });
-// }
+Handlebars.registerHelper(`${MODULE_ABBREV}-case`, function (value, options) {
+  if (value == this.switch_value) {
+    return options.fn(this);
+  }
+});
 
 /* ------------------------------------ */
 /* Initialize module					*/

@@ -1,6 +1,6 @@
 import { GmScreenConfig, GmScreenGridEntry } from '../../gridTypes';
 import { MODULE_ID, MySettings, TEMPLATES } from '../constants';
-import { getGridElementsPosition, handleClickEvents, log } from '../helpers';
+import { getGridElementsPosition, handleClickEvents, injectCellContents, log } from '../helpers';
 
 export class GmScreenApplication extends Application {
   data: any;
@@ -79,6 +79,18 @@ export class GmScreenApplication extends Application {
       };
       this.addEntry(newEntry);
     });
+
+    $(html)
+      .find('[data-entity-uuid]')
+      .each(function (gridEntry) {
+        // `this` is the parent .grid-cell
+        const relevantUuid = this.dataset.entityUuid;
+
+        const gridCellContent = $(this).find('.grid-cell-content');
+        log(false, 'gridEntry with uuid defined found', { gridEntry: this, gridCellContent });
+
+        injectCellContents(relevantUuid, gridCellContent);
+      });
   }
 
   async getData() {
@@ -104,87 +116,17 @@ export class GmScreenApplication extends Application {
 
     const getAllGridEntries = async () => {
       return Promise.all(
-        [...data.grid.entries, ...emptyCells].map(async (entry: GmScreenGridEntry) => {
-          if (entry.entityUuid) {
-            const relevantEntity = await fromUuid(entry.entityUuid);
+        data.grid.entries.map(async (entry: GmScreenGridEntry) => {
+          const relevantEntity = await fromUuid(entry.entityUuid);
 
-            const relevantSheetData = relevantEntity.sheet.getData();
-            const uneditableSheetData = {
-              ...relevantSheetData,
-              options: {
-                ...relevantSheetData.options,
-                editable: false,
-              },
-              editable: false,
-              cssClass: 'locked',
-            };
+          log(false, 'entity hydration', {
+            relevantEntity,
+          });
 
-            const sheetDataClasses = relevantSheetData.cssClass;
-            const entitySheetClasses = relevantEntity.sheet.options.classes.join(' ');
-
-            // @ts-ignore
-            const entitySheetInner = await relevantEntity.sheet._renderInner(uneditableSheetData);
-
-            log(false, 'entity population', {
-              relevantEntity,
-              // itemSheet,
-              // itemSheetData,
-              relevantSheetData,
-              uneditableSheetData,
-              entitySheetInner,
-            });
-
-            return {
-              ...entry,
-              //@ts-ignore
-              entitySheetInnerHtml: entitySheetInner.html(),
-              entitySheetClasses,
-            };
-
-            // if (relevantEntity instanceof JournalEntry) {
-            //   log(false, 'journalEntry found', { entry, relevantEntity });
-            //   return {
-            //     ...entry,
-            //     // @ts-ignore
-            //     journalContent: new Handlebars.SafeString(TextEditor.enrichHTML(relevantEntity.data?.content)),
-            //   };
-            // }
-
-            // if (relevantEntity instanceof RollTable) {
-            //   log(false, 'rollTable found', { entry, relevantEntity });
-
-            //   const rollTableTemplateData = getRollTableTemplateData(relevantEntity);
-
-            //   return {
-            //     ...entry,
-            //     rollTableTemplateData,
-            //   };
-            // }
-
-            // if (relevantEntity instanceof Item) {
-            //   const itemSheetHtml = await getItemSheet(relevantEntity);
-            //   log(false, 'item found', { entry, relevantEntity, itemSheetHtml });
-
-            //   return {
-            //     ...entry,
-            //     //@ts-ignore
-            //     itemSheetTemplate: itemSheetHtml.html(),
-            //   };
-            // }
-
-            // if (relevantEntity instanceof Actor) {
-            //   const actorSheetHtml = await getActorSheet(relevantEntity);
-            //   log(false, 'item found', { entry, relevantEntity, actorSheetHtml });
-
-            //   return {
-            //     ...entry,
-            //     //@ts-ignore
-            //     actorSheetTemplate: actorSheetHtml.html(),
-            //   };
-            // }
-          }
-          log(false, 'returning');
-          return entry;
+          return {
+            ...entry,
+            type: relevantEntity.entity,
+          };
         })
       );
     };
@@ -192,7 +134,7 @@ export class GmScreenApplication extends Application {
     const newAppData = {
       ...super.getData(),
       entityOptions,
-      gridEntries: await getAllGridEntries(),
+      gridEntries: [...(await getAllGridEntries()), ...emptyCells],
       data,
       expanded: this.expanded,
     };
