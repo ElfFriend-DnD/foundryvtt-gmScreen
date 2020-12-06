@@ -103,6 +103,14 @@ export async function injectCellContents(entityUuid: string, gridCellContentElem
 
       break;
     }
+    case 'JournalEntry': {
+      // const compactJournalEntryDisplay = new CompactJournalEntryDisplay(relevantEntity, gridCellContentElement);
+      // log(false, 'try rendering compactJournalEntry', {
+      //   compactJournalEntryDisplay,
+      // });
+      // compactJournalEntryDisplay.render(true);
+      // break;
+    }
     default: {
       // @ts-ignore
       const entitySheetInner = await relevantEntity.sheet._renderInner(relevantEntity.sheet.getData());
@@ -143,22 +151,7 @@ export async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefi
     this.render();
   }
 
-  // if (action === 'rolltable' && !!entityUuid) {
-  //   try {
-  //     const relevantRollTable = (await fromUuid(entityUuid)) as RollTable;
-  //     log(false, 'trying to roll table', { relevantRollTable });
-
-  //     const tableRoll = relevantRollTable.roll();
-
-  //     // @ts-ignore
-  //     await relevantRollTable.draw(tableRoll);
-
-  //     this.render();
-  //   } catch (e) {
-  //     log(true, 'error rolling table', e);
-  //   }
-  // }
-
+  // move to CompactRollTableDisplay
   if (action === 'rolltable-reset' && !!entityUuid) {
     try {
       const relevantRollTable = (await fromUuid(entityUuid)) as RollTable;
