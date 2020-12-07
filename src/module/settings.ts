@@ -1,11 +1,8 @@
 import { MODULE_ABBREV, MODULE_ID, MySettings } from './constants';
 import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../gridTypes';
-import { GmScreenApplication } from './classes/GmScreenApplication';
 
 const defaultGmScreenConfig: GmScreenConfig = {
   grid: {
-    columns: 4,
-    rows: 3,
     entries: [],
   },
 };
