@@ -6,7 +6,8 @@
     },
     "settings": {
       "columns": { "Name": "Columns", "Hint": "How many columns do you want? Changing this may require a grid clear." },
-      "rows": { "Name": "Rows", "Hint": "How many rows do you want? Changing this may require a grid clear." }
+      "rows": { "Name": "Rows", "Hint": "How many rows do you want? Changing this may require a grid clear." },
+      "reset": { "Name": "Reset", "Hint": "Clear the Grid entries. This action can not be undone." }
     }
   }
 }

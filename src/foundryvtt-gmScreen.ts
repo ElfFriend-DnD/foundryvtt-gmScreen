@@ -1,5 +1,5 @@
 // Import TypeScript modules
-import { MODULE_ABBREV, MODULE_ID, TEMPLATES } from './module/constants';
+import { MODULE_ABBREV, MODULE_ID, MySettings, TEMPLATES } from './module/constants';
 import { registerSettings } from './module/settings.js';
 import { log } from './module/helpers';
 import { GmScreenApplication } from './module/classes/GmScreenApplication';
@@ -57,6 +57,8 @@ Hooks.once('setup', function () {
 Hooks.once('ready', function () {
   // Do anything once the module is ready
   new GmScreenApplication().render(true);
+
+  game.settings.set(MODULE_ID, MySettings.reset, false);
 });
 
 // Add any additional hooks if necessary

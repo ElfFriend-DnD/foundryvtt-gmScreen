@@ -40,4 +40,20 @@ export const registerSettings = function () {
     config: true,
     hint: `${MODULE_ABBREV}.settings.${MySettings.rows}.Label`,
   });
+
+  game.settings.register(MODULE_ID, MySettings.reset, {
+    name: `${MODULE_ABBREV}.settings.${MySettings.reset}.Name`,
+    default: false,
+    type: Boolean,
+    scope: 'world',
+    config: true,
+    hint: `${MODULE_ABBREV}.settings.${MySettings.reset}.Label`,
+    onChange: () => {
+      game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
+        grid: {
+          entries: [],
+        },
+      });
+    },
+  });
 };

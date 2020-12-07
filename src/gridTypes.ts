@@ -3,8 +3,6 @@ export interface GmScreenConfig {
 }
 
 export interface GmScreenGrid {
-  columns: number;
-  rows: number;
   entries: GmScreenGridEntry[];
 }
 

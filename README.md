@@ -26,9 +26,13 @@ Creates a Configurable modular grid that GMs can populate with journal entries, 
 - [x] ~~Allow user to configure the row/column layout~~
 - [x] ~~Drag and Drop Support~~
 - [ ] Allow user to span a cell across multiple cells
+- [ ] Better support for MEME
+- [ ] Better support for OneJournal
 - [ ] Allow users to select which Sheet they wish to use to display Actors/Items in the screen with. Use this setting to render the given entity type within the grid.
 - [ ] Allow users to pop the whole grid out.
 - [ ] Put a double confirm on "Clear Grid" for safety.
+- [ ] Provide System Specific Journal Entry Compendium for the following systems (Open a PR if your system isn't supported!):
+  - [ ] dnd5e
 
 ## Installation
 

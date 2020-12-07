@@ -14,9 +14,10 @@ export class GmScreenApplication extends Application {
   }
 
   static get defaultOptions() {
-    const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const columns: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.columns);
+    const rows: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.rows);
 
-    const totalCells = data.grid.columns * data.grid.rows;
+    const totalCells = Number(columns) * Number(rows);
     return mergeObject(super.defaultOptions, {
       template: TEMPLATES.screen,
       id: 'gm-screen-app',

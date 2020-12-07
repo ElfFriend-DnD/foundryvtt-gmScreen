@@ -11,6 +11,7 @@ export enum MySettings {
   gmScreenConfig = 'gm-screen-config',
   rows = 'rows',
   columns = 'columns',
+  reset = 'reset',
 }
 
 export enum MyFlags {}
