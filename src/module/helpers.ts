@@ -1,4 +1,5 @@
 import { GmScreenConfig } from '../gridTypes';
+import { CompactJournalEntryDisplay } from './classes/CompactJournalEntryDisplay';
 import { CompactRollTableDisplay } from './classes/CompactRollTableDisplay';
 import { MODULE_ID, MySettings, numberRegex } from './constants';
 
@@ -10,6 +11,11 @@ export function log(force: boolean, ...args) {
 
 export function getGridElementsPosition(element: JQuery<HTMLElement>) {
   const gridElement = $('.grid');
+
+  log(false, 'getGridElementsPosition', {
+    element,
+    gridElement,
+  });
 
   const gap = Number(gridElement.css('gap').match(numberRegex)[0]);
 
@@ -27,9 +33,9 @@ export function getGridElementsPosition(element: JQuery<HTMLElement>) {
   const elementBounds = element[0].getBoundingClientRect();
   const gridBounds = gridElement[0].getBoundingClientRect();
 
-  const elementColumn = Math.floor((elementBounds.left - gridBounds.left) / (colWidth + gap)) + 1;
+  const elementColumn = Math.floor((elementBounds.left - (gridBounds.left - gap)) / (colWidth + gap)) + 1;
 
-  const elementRow = Math.floor((elementBounds.top - gridBounds.top) / (rowHeight + gap)) + 1;
+  const elementRow = Math.floor((elementBounds.top - (gridBounds.top - gap)) / (rowHeight + gap)) + 1;
 
   log(false, 'getGridElementsPosition', {
     setup: {
@@ -104,12 +110,15 @@ export async function injectCellContents(entityUuid: string, gridCellContentElem
       break;
     }
     case 'JournalEntry': {
-      // const compactJournalEntryDisplay = new CompactJournalEntryDisplay(relevantEntity, gridCellContentElement);
-      // log(false, 'try rendering compactJournalEntry', {
-      //   compactJournalEntryDisplay,
-      // });
-      // compactJournalEntryDisplay.render(true);
-      // break;
+      const compactJournalEntryDisplay = new CompactJournalEntryDisplay(relevantEntity, gridCellContentElement);
+
+      log(false, 'try rendering compactJournalEntry', {
+        compactJournalEntryDisplay,
+      });
+
+      compactJournalEntryDisplay.render(true);
+
+      break;
     }
     default: {
       // @ts-ignore
@@ -149,20 +158,6 @@ export async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefi
 
   if (action === 'refresh') {
     this.render();
-  }
-
-  // move to CompactRollTableDisplay
-  if (action === 'rolltable-reset' && !!entityUuid) {
-    try {
-      const relevantRollTable = (await fromUuid(entityUuid)) as RollTable;
-      log(false, 'trying to reset roll table', { relevantRollTable });
-
-      await relevantRollTable.reset();
-
-      this.render();
-    } catch (e) {
-      log(true, 'error reseting roll table', e);
-    }
   }
 
   if (action === 'open' && !!entityUuid) {

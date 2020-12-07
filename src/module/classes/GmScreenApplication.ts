@@ -159,7 +159,7 @@ export class GmScreenApplication extends Application {
     log(false, 'onDrop', {
       event,
       data,
-      closestGridCell: $(event.target).closest('.grid-cell'),
+      closestGridCell: $(event.currentTarget).closest('.grid-cell'),
     });
 
     // only move forward if this is a JournalEntry or RollTable

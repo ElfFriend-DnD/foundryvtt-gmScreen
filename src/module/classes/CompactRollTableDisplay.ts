@@ -31,23 +31,34 @@ export class CompactRollTableDisplay extends RollTableConfig {
   }
 
   activateListeners(html) {
-    // @ts-ignore
     $(html).on(
       'click',
       'a',
       function (e) {
-        log(false, 'rolling table', {
+        const action = e.currentTarget.dataset.action;
+
+        log(false, 'CompactRollTableDisplay click registered', {
           table: this,
+          action,
         });
-        let tableRoll = this.entity.roll();
-        const draws = this.entity._getResultsForRoll(tableRoll.roll.total);
-        if (draws.length) {
-          this.entity.draw(tableRoll);
+
+        switch (action) {
+          case 'rolltable-reset': {
+            this.entity.reset();
+            break;
+          }
+          case 'rolltable': {
+            let tableRoll = this.entity.roll();
+            const draws = this.entity._getResultsForRoll(tableRoll.roll.total);
+            if (draws.length) {
+              this.entity.draw(tableRoll);
+            }
+            break;
+          }
         }
-        e.stopPropegation();
       }.bind(this)
     );
 
-    super.activateListeners(html);
+    // super.activateListeners(html);
   }
 }
