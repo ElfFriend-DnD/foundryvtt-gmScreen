@@ -66,34 +66,6 @@ export function getRollTableTemplateData(rollTable: RollTable) {
   return data;
 }
 
-// export async function getItemSheet(item: Item) {
-//   // @ts-ignore
-//   const itemSheetInner = await item.sheet._renderInner(item.sheet.getData());
-
-//   log(false, 'getItemSheet', {
-//     item,
-//     // itemSheet,
-//     // itemSheetData,
-//     itemSheetInner,
-//   });
-
-//   return itemSheetInner;
-// }
-
-// export async function getActorSheet(actor: Actor) {
-//   // @ts-ignore
-//   const actorSheetInner = await actor.sheet._renderInner(actor.sheet.getData());
-
-//   log(false, 'getActorSheet', {
-//     actor,
-//     // itemSheet,
-//     // itemSheetData,
-//     actorSheetInner,
-//   });
-
-//   return actorSheetInner;
-// }
-
 export async function injectCellContents(entityUuid: string, gridCellContentElement: JQuery<HTMLElement>) {
   const relevantEntity = await fromUuid(entityUuid);
 

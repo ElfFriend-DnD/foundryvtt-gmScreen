@@ -59,6 +59,6 @@ export class CompactRollTableDisplay extends RollTableConfig {
       }.bind(this)
     );
 
-    // super.activateListeners(html);
+    // we purposefully are not calling super.activateListeners(html);
   }
 }
