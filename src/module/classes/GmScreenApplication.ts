@@ -95,6 +95,8 @@ export class GmScreenApplication extends Application {
 
   async getData() {
     const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const columns: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.columns);
+    const rows: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.rows);
 
     const entityOptions = [
       { label: 'ENTITY.Actor', entries: game.actors.entries },
@@ -111,7 +113,7 @@ export class GmScreenApplication extends Application {
       };
     });
 
-    const emptyCellsNum = data.grid.columns * data.grid.rows - data.grid.entries.length;
+    const emptyCellsNum = Number(columns) * Number(rows) - data.grid.entries.length;
     const emptyCells: GmScreenGridEntry[] = emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
 
     const getAllGridEntries = async () => {
@@ -136,6 +138,8 @@ export class GmScreenApplication extends Application {
       entityOptions,
       gridEntries: [...(await getAllGridEntries()), ...emptyCells],
       data,
+      columns,
+      rows,
       expanded: this.expanded,
     };
 

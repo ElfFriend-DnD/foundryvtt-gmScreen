@@ -9,6 +9,8 @@ export const TEMPLATES = {
 
 export enum MySettings {
   gmScreenConfig = 'gm-screen-config',
+  rows = 'rows',
+  columns = 'columns',
 }
 
 export enum MyFlags {}

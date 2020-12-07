@@ -3,6 +3,10 @@
     "Grid": "Grid",
     "gmScreen": {
       "Open": "Open"
+    },
+    "settings": {
+      "columns": { "Name": "Columns", "Hint": "How many columns do you want? Changing this may require a grid clear." },
+      "rows": { "Name": "Rows", "Hint": "How many rows do you want? Changing this may require a grid clear." }
     }
   }
 }

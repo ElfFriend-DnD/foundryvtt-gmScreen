@@ -9,24 +9,26 @@
 Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, etc.
 
 ## To Do
-- ~~Create an `Application` for the GM Screen~~
-- ~~Leverage CSS grids for the table's layout~~
-- ~~Allow user to select a Journal Entry for each table cell~~
-- ~~Allow user to select a Rollable Table for any given cell~~
-- Render the following in a read-only mode:
-  - ~~Journal Entries~~
-  - ~~Rollable Tables~~
-  - "Current Scene's Notes"
-  - Items
-  - See About Actors
-  - Combat Tracker?
-  - Playlist Controls?
-  - Soundboard?
-- ~~Allow user to change the selected entity for a given cell~~
-- ~~Allow user to configure the row/column layout~~
-- ~~Drag and Drop Support~~
-- Allow user to span a cell across multiple cells
-- Allow users to select which Sheet they wish to use to display Actors/Items in the screen with. Use this setting to render the given entity type within the grid.
+- [x] ~~Create an `Application` for the GM Screen~~
+- [x] ~~Leverage CSS grids for the table's layout~~
+- [x] ~~Allow user to select a Journal Entry for each table cell~~
+- [x] ~~Allow user to select a Rollable Table for any given cell~~
+- [ ] Render the following in a read-only mode:
+  - [x] ~~Journal Entries~~
+  - [x] ~~Rollable Tables~~
+  - [ ] "Current Scene's Notes"
+  - [ ] Items
+  - [ ] See About Actors
+  - [ ] Combat Tracker?
+  - [ ] Playlist Controls?
+  - [ ] Soundboard?
+- [x] ~~Allow user to change the selected entity for a given cell~~
+- [x] ~~Allow user to configure the row/column layout~~
+- [x] ~~Drag and Drop Support~~
+- [ ] Allow user to span a cell across multiple cells
+- [ ] Allow users to select which Sheet they wish to use to display Actors/Items in the screen with. Use this setting to render the given entity type within the grid.
+- [ ] Allow users to pop the whole grid out.
+- [ ] Put a double confirm on "Clear Grid" for safety.
 
 ## Installation
 
@@ -38,23 +40,25 @@ https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/mo
 
 ## Configuration
 
-| **Name**         | Description     |
-| ---------------- | --------------- |
-| **Some Setting** | Does Something. |
+| **Name**    | Description                             |
+| ----------- | --------------------------------------- |
+| **Columns** | Sets the number of columns in the grid. |
+| **Rows**    | Sets the number of rows in the grid.    |
 
+Note that changing the grid dimensions after populating the grid might cause unexpected results, and odds are you will have to clear the grid and repopulate things.
 
 ## Compatibility
 
 I'm honestly not sure how well this will play with modules that make changes to how journal articles or roll tables interact.
 
-| **Name**                                                      |       Works        | Notes |
-| ------------------------------------------------------------- | :----------------: | ----- |
-| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal) | :heavy-check-mark: |       |
-| [MEME](https://github.com/Moerill/fvtt-markdown-editor)       | :heavy-check-mark: |       |
+| **Name**                                                      |       Works        | Notes                                                                                                                     |
+| ------------------------------------------------------------- | :----------------: | ------------------------------------------------------------------------------------------------------------------------- |
+| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal) |        :x:         | Causes some unexpected oneJournal renders. Journal entries with html in them (tables in particular) don't seem to render. |
+| [MEME](https://github.com/Moerill/fvtt-markdown-editor)       | :heavy-check-mark: |                                                                                                                           |
 
 ## Known Issues
 
-- Plenty.
+- The grid does not refresh automatically when settings are changed, click the "refresh" button.
 
 ## Acknowledgements
 
