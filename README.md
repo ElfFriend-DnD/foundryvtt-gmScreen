@@ -55,10 +55,10 @@ Note that changing the grid dimensions after populating the grid might cause une
 
 I'm honestly not sure how well this will play with modules that make changes to how journal articles or roll tables interact.
 
-| **Name**                                                      |       Works        | Notes                                                                                                                     |
-| ------------------------------------------------------------- | :----------------: | ------------------------------------------------------------------------------------------------------------------------- |
-| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal) |        :x:         | Causes some unexpected oneJournal renders. Journal entries with html in them (tables in particular) don't seem to render. |
-| [MEME](https://github.com/Moerill/fvtt-markdown-editor)       | :heavy-check-mark: |                                                                                                                           |
+| **Name**                                                      | Works | Notes                                                                                                                     |
+| ------------------------------------------------------------- | :---: | ------------------------------------------------------------------------------------------------------------------------- |
+| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal) |  :x:  | Causes some unexpected oneJournal renders. Journal entries with html in them (tables in particular) don't seem to render. |
+| [MEME](https://github.com/Moerill/fvtt-markdown-editor)       |  :x:  | Doesn't really work at all and I'm not sure why...                                                                        |
 
 ## Known Issues
 
