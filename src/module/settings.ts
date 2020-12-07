@@ -45,12 +45,14 @@ export const registerSettings = function () {
     scope: 'world',
     config: true,
     hint: `${MODULE_ABBREV}.settings.${MySettings.reset}.Label`,
-    onChange: () => {
-      game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
-        grid: {
-          entries: [],
-        },
-      });
+    onChange: (e, selected) => {
+      if (selected) {
+        game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
+          grid: {
+            entries: [],
+          },
+        });
+      }
     },
   });
 };

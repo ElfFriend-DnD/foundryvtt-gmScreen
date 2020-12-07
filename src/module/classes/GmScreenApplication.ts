@@ -14,8 +14,8 @@ export class GmScreenApplication extends Application {
   }
 
   static get defaultOptions() {
-    const columns: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.columns);
-    const rows: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.rows);
+    const columns: number = game.settings.get(MODULE_ID, MySettings.columns);
+    const rows: number = game.settings.get(MODULE_ID, MySettings.rows);
 
     const totalCells = Number(columns) * Number(rows);
     return mergeObject(super.defaultOptions, {
@@ -33,7 +33,7 @@ export class GmScreenApplication extends Application {
    * @param newEntry The Entry being added.
    */
   async addEntry(newEntry: GmScreenGridEntry) {
-    const gridData: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const gridData: GmScreenConfig = await game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
     const newEntries = [...gridData.grid.entries];
 
     const existingEntryIndex = newEntries.findIndex((entry) => {
@@ -45,6 +45,20 @@ export class GmScreenApplication extends Application {
     } else {
       newEntries.push(newEntry);
     }
+
+    log(false, 'addEntry', {
+      gridData,
+      newEntries,
+      existingEntryIndex,
+      newEntry,
+      ret: {
+        ...gridData,
+        grid: {
+          ...gridData.grid,
+          entries: newEntries,
+        },
+      },
+    });
 
     await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
       ...gridData,
