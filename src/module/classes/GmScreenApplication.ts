@@ -106,6 +106,27 @@ export class GmScreenApplication extends Application {
 
         injectCellContents(relevantUuid, gridCellContent);
       });
+
+    this.updateCSSPropertyVariable(html, '.grid-cell', 'width', '--cell-width');
+  }
+
+  /**
+   * Creates a custom CSS property with the name provide on the element.style of all elements which match
+   * the selector provided containing the computed value of the property specified.
+   *
+   * @param {HTMLElement} html - Some HTML element to search within for the selector
+   * @param {string} selector - A CSS style selector which will be used to locate the target elements for this function.
+   * @param {string} property - The name of a CSS property to obtain the computed value of
+   * @param {string} name - The name of the CSS variable (custom property) that will be created/updated.
+   * @memberof GmScreenApplication
+   */
+  updateCSSPropertyVariable(html: HTMLElement, selector: string, property: string, name: string) {
+    $(html)
+      .find(selector)
+      .each((i, gridCell) => {
+        const value: string = window.getComputedStyle(gridCell)[property];
+        gridCell.style.setProperty(name, value);
+      });
   }
 
   async getData() {
