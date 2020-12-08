@@ -44,7 +44,9 @@ Hooks.once('init', async function () {
 /* ------------------------------------ */
 Hooks.once('ready', function () {
   // Do anything once the module is ready
-  new GmScreenApplication().render(true);
+  if (game.user.isGM) {
+    new GmScreenApplication().render(true);
 
-  game.settings.set(MODULE_ID, MySettings.reset, false);
+    game.settings.set(MODULE_ID, MySettings.reset, false);
+  }
 });
