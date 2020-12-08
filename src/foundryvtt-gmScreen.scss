@@ -104,13 +104,17 @@ $transition-timing: 400ms;
   }
 
   .grid-cell-content {
-    overflow: overlay;
+    overflow: hidden;
     flex: 1;
     padding: $space / 5;
 
     > form {
-      min-width: 100%;
-      min-height: 100%;
+      width: 100%;
+      height: 100%;
+      overflow: overlay;
+      display: flex;
+      flex-direction: column;
+
       > .lightbox-image {
         background-position: center;
         background-repeat: no-repeat;
@@ -123,6 +127,17 @@ $transition-timing: 400ms;
     img {
       max-width: 100%;
       height: auto;
+    }
+
+    /* MEME Compatibility */
+    .CodeMirror-scroll {
+      overflow: unset !important;
+      margin-bottom: 0;
+      margin-right: 0;
+    }
+
+    .CodeMirror-vscrollbar {
+      overflow: hidden;
     }
   }
 

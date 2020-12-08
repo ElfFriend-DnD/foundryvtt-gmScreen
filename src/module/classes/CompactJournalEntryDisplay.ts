@@ -44,5 +44,5 @@ export class CompactJournalEntryDisplay extends JournalSheet {
 
   // we want no listeners
   /** @override */
-  activateListeners(html) {}
+  // activateListeners(html) {}
 }
