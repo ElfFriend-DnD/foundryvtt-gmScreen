@@ -21,6 +21,16 @@
       "path": "lang/en.json"
     }
   ],
+  "media": [
+    {
+      "type": "cover",
+      "link": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/master/readme-img/cover-image.png"
+    },
+    {
+      "type": "screenshot",
+      "link": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/master/readme-img/dnd5e-demo.jpg"
+    }
+  ],
   "compatibleCoreVersion": "0.7.7",
   "minimumCoreVersion": "0.7.7",
   "bugs": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/issues",

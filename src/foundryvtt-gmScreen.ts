@@ -32,23 +32,11 @@ Handlebars.registerHelper(`${MODULE_ABBREV}-case`, function (value, options) {
 Hooks.once('init', async function () {
   log(true, `Initializing ${MODULE_ID}`);
 
-  // Assign custom classes and constants here
-
   // Register custom module settings
   registerSettings();
 
   // Preload Handlebars templates
   await loadTemplates(Object.values(flattenObject(TEMPLATES)));
-
-  // Register custom sheets (if any)
-});
-
-/* ------------------------------------ */
-/* Setup module							*/
-/* ------------------------------------ */
-Hooks.once('setup', function () {
-  // Do anything after initialization but before
-  // ready
 });
 
 /* ------------------------------------ */
@@ -60,11 +48,3 @@ Hooks.once('ready', function () {
 
   game.settings.set(MODULE_ID, MySettings.reset, false);
 });
-
-// Add any additional hooks if necessary
-
-// Hooks.on('renderJournalDirectory', (app, html, data) => {
-//   if (game.user.isGM) {
-//     _addGmScreenButton(html);
-//   }
-// });

@@ -70,6 +70,11 @@ export function getRollTableTemplateData(rollTable: RollTable) {
 export async function injectCellContents(entityUuid: string, gridCellContentElement: JQuery<HTMLElement>) {
   const relevantEntity = await fromUuid(entityUuid);
 
+  if (!relevantEntity) {
+    console.warn('One of the grid cells tried to render an entity that does not exist.');
+    return;
+  }
+
   switch (relevantEntity.entity) {
     case 'RollTable': {
       const compactRollTableDisplay = new CompactRollTableDisplay(relevantEntity, gridCellContentElement);

@@ -1,5 +1,7 @@
 <form>
+  {{#unless (eq entity.description '')}}
   <p>{{ entity.description }}</p>
+  {{/unless}}
 
   <!-- Roll Table Results Loop -->
   <table class="results">

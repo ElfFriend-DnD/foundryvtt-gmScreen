@@ -142,7 +142,7 @@ export class GmScreenApplication extends Application {
 
           return {
             ...entry,
-            type: relevantEntity.entity,
+            type: relevantEntity?.entity,
           };
         })
       );

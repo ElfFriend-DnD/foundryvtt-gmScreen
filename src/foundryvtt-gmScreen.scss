@@ -116,7 +116,7 @@ $transition-timing: 400ms;
     > form {
       width: 100%;
       height: 100%;
-      overflow: overlay;
+      overflow: auto;
       display: flex;
       flex-direction: column;
 
@@ -129,6 +129,10 @@ $transition-timing: 400ms;
       }
     }
 
+    .editor {
+      height: 100%;
+    }
+
     img {
       max-width: 100%;
       height: auto;
@@ -136,7 +140,7 @@ $transition-timing: 400ms;
 
     /* dnd5e specific tweaks */
     .sheet-body {
-      overflow: overlay !important;
+      overflow: auto !important;
     }
 
     /* MEME Compatibility */

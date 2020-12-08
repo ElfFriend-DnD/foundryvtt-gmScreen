@@ -1,6 +1,5 @@
 import { MODULE_ABBREV, MODULE_ID, MySettings } from './constants';
-import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../gridTypes';
-import { log } from './helpers';
+import { GmScreenConfig } from '../gridTypes';
 
 const defaultGmScreenConfig: GmScreenConfig = {
   grid: {
@@ -9,16 +8,17 @@ const defaultGmScreenConfig: GmScreenConfig = {
 };
 
 export const registerSettings = function () {
-  CONFIG[MODULE_ID] = { debug: true };
-  CONFIG.debug.hooks = true;
+  // Debug use
+  CONFIG[MODULE_ID] = { debug: false };
+  // CONFIG.debug.hooks = true;
 
   game.settings.register(MODULE_ID, MySettings.gmScreenConfig, {
-    name: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.name`,
+    name: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.Name`,
     default: defaultGmScreenConfig,
     type: Object,
     scope: 'world',
     config: false,
-    hint: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.label`,
+    hint: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.Hint`,
   });
 
   game.settings.register(MODULE_ID, MySettings.columns, {
@@ -27,7 +27,7 @@ export const registerSettings = function () {
     type: Number,
     scope: 'world',
     config: true,
-    hint: `${MODULE_ABBREV}.settings.${MySettings.columns}.Label`,
+    hint: `${MODULE_ABBREV}.settings.${MySettings.columns}.Hint`,
   });
 
   game.settings.register(MODULE_ID, MySettings.rows, {
@@ -36,7 +36,7 @@ export const registerSettings = function () {
     type: Number,
     scope: 'world',
     config: true,
-    hint: `${MODULE_ABBREV}.settings.${MySettings.rows}.Label`,
+    hint: `${MODULE_ABBREV}.settings.${MySettings.rows}.Hint`,
   });
 
   game.settings.register(MODULE_ID, MySettings.reset, {
@@ -45,7 +45,7 @@ export const registerSettings = function () {
     type: Boolean,
     scope: 'world',
     config: true,
-    hint: `${MODULE_ABBREV}.settings.${MySettings.reset}.Label`,
+    hint: `${MODULE_ABBREV}.settings.${MySettings.reset}.Hint`,
     onChange: (selected) => {
       if (selected) {
         game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
