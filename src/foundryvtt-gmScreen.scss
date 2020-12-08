@@ -3,18 +3,23 @@
 
 $transition-timing: 400ms;
 
-.sidebar-tab .directory-footer .gm-screen-button {
-  margin-top: 5px;
+/* Expand the GM Screen Sideways when Sidebar is Collapsed */
+:root {
+  --sidebar-width: 310px;
+}
+
+#sidebar.app.collapsed ~ .gm-screen-app {
+  --sidebar-width: 30px;
 }
 
 .gm-screen-app {
-  width: calc(100vw - 310px);
+  width: calc(100vw - var(--sidebar-width));
   height: 60vh;
   top: 100%;
   position: fixed;
   left: 0;
   transform: translateY(0);
-  transition: transform $transition-timing ease-in-out;
+  transition: all $transition-timing ease-in-out;
 
   &.expanded {
     transform: translateY(-100%);
