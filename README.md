@@ -43,36 +43,6 @@ I'm honestly not sure how well this will play with modules that make changes to 
 
 - The grid does not refresh automatically when settings are changed, click the "refresh" button.
 
-## To Do
-- [x] ~~Create an `Application` for the GM Screen~~
-- [x] ~~Leverage CSS grids for the table's layout~~
-- [x] ~~Allow user to select a Journal Entry for each table cell~~
-- [x] ~~Allow user to select a Rollable Table for any given cell~~
-- [ ] Render the following in a read-only mode:
-  - [x] ~~Journal Entries~~
-  - [x] ~~Rollable Tables~~
-  - [ ] "Current Scene's Notes"
-  - [x] ~~Items~~
-  - [x] ~~See About Actors~~
-  - [ ] Combat Tracker?
-  - [ ] Playlist Controls?
-  - [ ] Soundboard?
-- [x] ~~Allow user to change the selected entity for a given cell~~
-- [x] ~~Allow user to configure the row/column layout~~
-- [x] ~~Drag and Drop Support~~
-- [ ] Allow user to span a cell across multiple columns/rows
-- [x] ~~Better support for MEME~~
-- [ ] Better support for OneJournal
-- [ ] Create Tabs of individually configurable grids
-- [ ] Allow use of compendium contained entities
-- [x] ~~Make Whetstone Compatible~~
-- [ ] Allow users to select which Sheet they wish to use to display Actors/Items in the screen with seperate from the sheet they use normally. Use this setting to render the given entity type within the grid.
-- [ ] Allow users to pop the whole grid out.
-- [ ] Put a double confirm on "Clear Grid" for safety.
-- [ ] Implement [Quick Insert](https://gitlab.com/fvtt-modules-lab/quick-insert).
-- [ ] Provide System Specific Journal Entry Compendium for the following systems (Open a PR if your system isn't supported!):
-  - [ ] dnd5e
-
 ## Acknowledgements
 
 Bootstrapped with Nick East's [create-foundry-project](https://gitlab.com/foundry-projects/foundry-pc/create-foundry-project).
