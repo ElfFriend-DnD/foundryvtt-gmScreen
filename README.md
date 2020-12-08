@@ -37,7 +37,7 @@ I'm honestly not sure how well this will play with modules that make changes to 
 | **Name**                                                      |       Works        | Notes                                                                                                                     |
 | ------------------------------------------------------------- | :----------------: | ------------------------------------------------------------------------------------------------------------------------- |
 | [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal) |        :x:         | Causes some unexpected oneJournal renders. Journal entries with html in them (tables in particular) don't seem to render. |
-| [MEME](https://github.com/Moerill/fvtt-markdown-editor)       | :heavy-check-mark: | Markdown Renders as expected.                                                                                             |
+| [MEME](https://github.com/Moerill/fvtt-markdown-editor)       | :heavy_check_mark: | Markdown Renders as expected.                                                                                             |
 
 ## Known Issues
 
