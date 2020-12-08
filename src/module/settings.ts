@@ -1,5 +1,6 @@
 import { MODULE_ABBREV, MODULE_ID, MySettings } from './constants';
 import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../gridTypes';
+import { log } from './helpers';
 
 const defaultGmScreenConfig: GmScreenConfig = {
   grid: {
@@ -45,7 +46,7 @@ export const registerSettings = function () {
     scope: 'world',
     config: true,
     hint: `${MODULE_ABBREV}.settings.${MySettings.reset}.Label`,
-    onChange: (e, selected) => {
+    onChange: (selected) => {
       if (selected) {
         game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
           grid: {

@@ -1,4 +1,5 @@
 import { GmScreenConfig } from '../gridTypes';
+import { getCompactGenericEntityDisplay } from './classes/CompactGenericDisplay';
 import { CompactJournalEntryDisplay } from './classes/CompactJournalEntryDisplay';
 import { CompactRollTableDisplay } from './classes/CompactRollTableDisplay';
 import { MODULE_ID, MySettings, numberRegex } from './constants';
@@ -90,6 +91,23 @@ export async function injectCellContents(entityUuid: string, gridCellContentElem
 
       compactJournalEntryDisplay.render(true);
 
+      break;
+    }
+    case 'Actor':
+    case 'Item': {
+      const SystemSpecificItemDisplayClass = getCompactGenericEntityDisplay(relevantEntity.sheet as BaseEntitySheet);
+
+      const entityDisplay = new SystemSpecificItemDisplayClass(relevantEntity, gridCellContentElement);
+
+      log(false, 'try rendering an Item', {
+        entityDisplay,
+      });
+
+      //@ts-ignore
+      gridCellContentElement.addClass(entityDisplay.options.classes.join(' '));
+
+      //@ts-ignore
+      entityDisplay.render(true);
       break;
     }
     default: {

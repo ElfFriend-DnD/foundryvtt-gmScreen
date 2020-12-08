@@ -64,7 +64,7 @@ export class GmScreenApplication extends Application {
       ...gridData,
       grid: {
         ...gridData.grid,
-        entries: newEntries,
+        entries: newEntries.filter(({ entityUuid }) => !!entityUuid),
       },
     });
 

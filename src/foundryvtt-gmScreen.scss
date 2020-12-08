@@ -107,6 +107,7 @@ $transition-timing: 400ms;
     overflow: hidden;
     flex: 1;
     padding: $space / 5;
+    position: relative;
 
     // override what is usually .sheet's min height/width
     min-width: unset !important;
@@ -131,6 +132,11 @@ $transition-timing: 400ms;
     img {
       max-width: 100%;
       height: auto;
+    }
+
+    /* dnd5e specific tweaks */
+    .sheet-body {
+      overflow: overlay !important;
     }
 
     /* MEME Compatibility */
