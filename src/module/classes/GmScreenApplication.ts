@@ -116,16 +116,16 @@ export class GmScreenApplication extends Application {
    *
    * @param {HTMLElement} html - Some HTML element to search within for the selector
    * @param {string} selector - A CSS style selector which will be used to locate the target elements for this function.
-   * @param {string} property - The name of a CSS property to obtain the computed value of
+   * @param {keyof CSSStyleDeclaration} property - The name of a CSS property to obtain the computed value of
    * @param {string} name - The name of the CSS variable (custom property) that will be created/updated.
    * @memberof GmScreenApplication
    */
-  updateCSSPropertyVariable(html: HTMLElement, selector: string, property: string, name: string) {
+  updateCSSPropertyVariable(html: HTMLElement, selector: string, property: keyof CSSStyleDeclaration, name: string) {
     $(html)
       .find(selector)
       .each((i, gridCell) => {
-        const value: string = window.getComputedStyle(gridCell)[property];
-        gridCell.style.setProperty(name, value);
+        const value = window.getComputedStyle(gridCell)[property];
+        gridCell.style.setProperty(name, String(value));
       });
   }
 
