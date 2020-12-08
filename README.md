@@ -26,7 +26,7 @@ Creates a Configurable modular grid that GMs can populate with journal entries, 
 - [x] ~~Allow user to configure the row/column layout~~
 - [x] ~~Drag and Drop Support~~
 - [ ] Allow user to span a cell across multiple cells
-- [ ] Better support for MEME
+- [x] ~~Better support for MEME~~
 - [ ] Better support for OneJournal
 - [ ] Allow users to select which Sheet they wish to use to display Actors/Items in the screen with. Use this setting to render the given entity type within the grid.
 - [ ] Allow users to pop the whole grid out.

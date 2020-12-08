@@ -108,6 +108,10 @@ $transition-timing: 400ms;
     flex: 1;
     padding: $space / 5;
 
+    // override what is usually .sheet's min height/width
+    min-width: unset !important;
+    min-height: unset !important;
+
     > form {
       width: 100%;
       height: 100%;

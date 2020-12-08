@@ -93,6 +93,14 @@ export async function injectCellContents(entityUuid: string, gridCellContentElem
       break;
     }
     default: {
+      const sheetClasses = relevantEntity.sheet.options.classes;
+
+      log(false, "use the entity's sheet", {
+        sheetClasses,
+      });
+
+      gridCellContentElement.addClass(sheetClasses.join(' '));
+
       // @ts-ignore
       const entitySheetInner = await relevantEntity.sheet._renderInner(relevantEntity.sheet.getData());
 
