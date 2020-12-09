@@ -11,28 +11,34 @@ export function log(force: boolean, ...args) {
 }
 
 export function getGridElementsPosition(element: JQuery<HTMLElement>) {
-  const gridElement = $('.grid');
+  const vanillaGridElement = document.querySelector('.grid');
+
+  const vanillaGridElementStyles = window.getComputedStyle(vanillaGridElement);
 
   log(false, 'getGridElementsPosition', {
     element,
-    gridElement,
+    vanillaGridElement,
+    vanillaGridElementStyles,
+    gap: vanillaGridElementStyles.gap, // wtf this is '' in firefox
+    gridRowGap: vanillaGridElementStyles['grid-row-gap'],
+    gridColGap: vanillaGridElementStyles['grid-column-gap'],
   });
 
-  const gap = Number(gridElement.css('gap').match(numberRegex)[0]);
+  const gap = Number(vanillaGridElementStyles['grid-row-gap'].match(numberRegex)[0]);
 
   //Get the css attribute grid-template-columns from the css of class grid
   //split on whitespace and get the length, this will give you the column dimensions
-  const cols = gridElement.css('grid-template-columns').split(' ');
+  const cols = vanillaGridElementStyles['grid-template-columns'].split(' ');
   const colWidth = Number(cols[0].match(numberRegex)[0]);
 
   //Get the css attribute grid-template-rows from the css of class grid
   //split on whitespace and get the length, this will give you the column dimensions
-  const rows = gridElement.css('grid-template-rows').split(' ');
+  const rows = vanillaGridElementStyles['grid-template-rows'].split(' ');
   const rowHeight = Number(rows[0].match(numberRegex)[0]);
 
   // to figure out which column/row this element is in within the gridElement, we have to do math
   const elementBounds = element[0].getBoundingClientRect();
-  const gridBounds = gridElement[0].getBoundingClientRect();
+  const gridBounds = vanillaGridElement.getBoundingClientRect();
 
   const elementColumn = Math.floor((elementBounds.left - (gridBounds.left - gap)) / (colWidth + gap)) + 1;
 
