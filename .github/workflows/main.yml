@@ -34,12 +34,12 @@ jobs:
         id: get-version
         run: echo "::set-output name=version::$(node ./.github/workflows/get-version.js)"
 
-      # Generate changelog for release body
-      - name: Changelog
-        id: Changelog
-        uses: scottbrenner/generate-changelog-action@master
-        env:
-          REPO: ${{ github.repository }}
+      - name: Conventional Changelog Action
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v3
+        with:
+          github-token: ${{ secrets.github_token }}
+          output-file: 'false'
 
       # Create a release for this specific version
       - name: Create Release
@@ -49,7 +49,7 @@ jobs:
           allowUpdates: true # set this to false if you want to prevent updating existing releases
           name: ${{ steps.get-version.outputs.version }}
           body: |
-            ${{ steps.Changelog.outputs.changelog }}
+            ${{ steps.changelog.outputs.clean_changelog }}
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
