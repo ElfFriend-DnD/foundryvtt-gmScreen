@@ -108,31 +108,47 @@ $transition-timing: 400ms;
     }
   }
 
+  /**
+   * The overflows, heights, min-heights, and display flexes that follow are very specifically 
+   * crafted and should not be changed on a whim. Various Applications in various systems 
+   * expect different elements in the tree to overflow. This particular setup was the best 
+   * needle-threading I could do.
+   */
+
   .grid-cell-content-wrapper {
     flex: 1 100%;
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
     position: relative;
   }
 
   .grid-cell-content {
     width: 100%;
-    height: 100%;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: $space / 5;
     position: relative;
+    flex: 1; // emulates `.sheet > *` and `.window-app > *`
 
-    // override what is usually .sheet's min height/width
+    display: flex;
+    flex-direction: column;
+
+    // override what is usually .sheet's min/max height/width
     min-width: unset !important;
     min-height: unset !important;
+    max-height: unset !important; // prevent unecessary max heights
+    max-width: 100% !important;
 
     > form {
       width: 100%;
-      height: 100%;
-      overflow: auto;
+      // overflow: auto;
       display: flex;
       flex-direction: column;
+      overflow: unset; // fix PF2e
 
       > .lightbox-image {
         background-position: center;
@@ -141,6 +157,10 @@ $transition-timing: 400ms;
         height: 100%;
         width: 100%;
       }
+    }
+
+    .compact-journal-entry {
+      min-height: 100%; // needed for dnd5e
     }
 
     .editor {
