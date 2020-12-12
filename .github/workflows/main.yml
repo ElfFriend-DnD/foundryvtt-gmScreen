@@ -34,13 +34,6 @@ jobs:
         id: get-version
         run: echo "::set-output name=version::$(node ./.github/workflows/get-version.js)"
 
-      - name: Conventional Changelog Action
-        id: changelog
-        uses: TriPSs/conventional-changelog-action@v3
-        with:
-          github-token: ${{ secrets.github_token }}
-          output-file: 'false'
-
       # Create a release for this specific version
       - name: Create Release
         id: create_version_release
