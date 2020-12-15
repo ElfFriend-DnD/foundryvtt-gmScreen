@@ -2,7 +2,7 @@ import { GmScreenConfig } from '../gridTypes';
 import { getCompactGenericEntityDisplay } from './classes/CompactGenericDisplay';
 import { CompactJournalEntryDisplay } from './classes/CompactJournalEntryDisplay';
 import { CompactRollTableDisplay } from './classes/CompactRollTableDisplay';
-import { MODULE_ID, MySettings, numberRegex } from './constants';
+import { MODULE_ABBREV, MODULE_ID, MySettings, numberRegex } from './constants';
 
 export function log(force: boolean, ...args) {
   if (force || CONFIG[MODULE_ID].debug === true) {
@@ -155,14 +155,22 @@ export async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefi
   });
 
   if (action === 'clearGrid') {
-    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
-      ...data,
-      grid: {
-        ...data.grid,
-        entries: [],
+    Dialog.confirm({
+      title: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Title`),
+      content: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Content`),
+      yes: async () => {
+        await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
+          ...data,
+          grid: {
+            ...data.grid,
+            entries: [],
+          },
+        });
+
+        this.render();
       },
+      no: () => {},
     });
-    this.render();
   }
 
   if (action === 'refresh') {
