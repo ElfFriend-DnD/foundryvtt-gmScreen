@@ -145,9 +145,6 @@ $transition-timing: 400ms;
 
     > form {
       width: 100%;
-      // overflow: auto;
-      display: flex;
-      flex-direction: column;
       overflow: unset; // fix PF2e
 
       > .lightbox-image {
@@ -200,6 +197,20 @@ $transition-timing: 400ms;
 
     .range {
       text-align: center;
+    }
+  }
+}
+
+/* MODULE SPECIFIC OVERRIDES */
+
+.gm-screen-app {
+  .grid-cell-content {
+    /* Make Monsterblocks pretend to be a single column like a normal kid. <3 you zeel don't hurt me */
+    &.monsterblock {
+      > form {
+        display: flex;
+        flex-direction: column;
+      }
     }
   }
 }
