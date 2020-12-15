@@ -138,6 +138,27 @@ export async function injectCellContents(entityUuid: string, gridCellContentElem
   }
 }
 
+export function handleClear() {
+  const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+
+  Dialog.confirm({
+    title: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Title`),
+    content: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Content`),
+    yes: async () => {
+      await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
+        ...data,
+        grid: {
+          ...data.grid,
+          entries: [],
+        },
+      });
+
+      this.render();
+    },
+    no: () => {},
+  });
+}
+
 export async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
   e.preventDefault();
   const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
@@ -155,22 +176,7 @@ export async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefi
   });
 
   if (action === 'clearGrid') {
-    Dialog.confirm({
-      title: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Title`),
-      content: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Content`),
-      yes: async () => {
-        await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
-          ...data,
-          grid: {
-            ...data.grid,
-            entries: [],
-          },
-        });
-
-        this.render();
-      },
-      no: () => {},
-    });
+    handleClear.bind(this)();
   }
 
   if (action === 'refresh') {

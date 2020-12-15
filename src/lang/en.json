@@ -2,12 +2,18 @@
   "GMSCR": {
     "Grid": "Grid",
     "gmScreen": {
-      "Open": "Open"
+      "Open": "GM Screen",
+      "Refresh": "Refresh",
+      "Reset": "Clear Grid"
     },
     "settings": {
       "columns": { "Name": "Columns", "Hint": "How many columns do you want? Changing this may require a grid clear." },
       "rows": { "Name": "Rows", "Hint": "How many rows do you want? Changing this may require a grid clear." },
-      "reset": { "Name": "Reset", "Hint": "Clear the Grid entries. This action can not be undone." }
+      "reset": { "Name": "Reset", "Hint": "Clear the Grid entries. This action can not be undone." },
+      "display-as-drawer": {
+        "Name": "Display as Drawer",
+        "Hint": "Display the GM Screen as a drawer on the bottom of the screen, as opposed to a normal dialog. If you want to use PopOut, set this to false."
+      }
     },
     "warnings": {
       "clearConfirm": {

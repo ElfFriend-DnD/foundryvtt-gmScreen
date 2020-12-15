@@ -1,14 +1,20 @@
-<div class="gm-screen-app window-app {{#if expanded}}expanded{{/if}}">
+<div
+  class="gm-screen-app {{#if expanded}}expanded{{/if}} {{classes}} {{#if displayDrawer}}window-app gm-screen-drawer{{/if}}">
 
+  {{#if displayDrawer}}
   <div class='gm-screen-actions'>
-    <button class="clear" type='button' data-action="clearGrid"><i class="fas fa-ban"></i>Clear Grid</button>
+    <button class="clear" type='button' data-action="clearGrid"><i
+        class="fas fa-ban"></i>{{localize 'GMSCR.gmScreen.Reset'}}</button>
 
-    <button class="refresh" type='button' data-action="refresh"><i class="fas fa-sync"></i> Refresh</button>
+    <button class="refresh" type='button' data-action="refresh"><i class="fas fa-sync"></i>
+      {{localize 'GMSCR.gmScreen.Refresh'}}</button>
 
     <button class="gm-screen-button" data-action="toggle-gm-screen"><i class="fas fa-book-reader"></i>
-      GM Screen</button>
+      {{localize 'GMSCR.gmScreen.Open'}}</button>
   </div>
-  <div class="gm-screen-container window-content">
+  {{/if}}
+
+  <div class="gm-screen-container {{#if displayDrawer}}window-content{{/if}}">
     <div class="grid"
       style="grid-template-columns: repeat({{columns}}, 1fr); grid-template-rows: repeat({{rows}}, 1fr)">
 

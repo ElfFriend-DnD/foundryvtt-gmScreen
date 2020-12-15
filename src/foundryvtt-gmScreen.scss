@@ -13,23 +13,38 @@ $transition-timing: 400ms;
 }
 
 .gm-screen-app {
-  width: calc(100vw - var(--sidebar-width));
-  height: 60vh;
-  top: 100%;
-  position: fixed;
-  left: 0;
-  transform: translateY(0);
-  transition: all $transition-timing ease-in-out;
+  position: relative;
 
-  &.expanded {
-    transform: translateY(-100%);
+  &.gm-screen-drawer {
+    width: calc(100vw - var(--sidebar-width));
+    height: 60vh;
+    top: 100%;
+    position: fixed;
+    left: 0;
+    transform: translateY(0);
+    transition: all $transition-timing ease-in-out;
 
-    .gm-screen-actions {
+    &.expanded {
+      transform: translateY(-100%);
+
       .clear,
       .refresh {
         transform: translateY(0);
         transition-delay: $transition-timing / 2;
       }
+    }
+
+    .clear,
+    .refresh {
+      transform: translateY(100%);
+      transition: transform $transition-timing ease-in;
+    }
+
+    .gm-screen-actions {
+      position: absolute;
+      bottom: 100%;
+      right: 0;
+      z-index: -1;
     }
   }
 
@@ -42,25 +57,15 @@ $transition-timing: 400ms;
     @include spaced($space / 2);
 
     display: flex;
-    position: absolute;
-    bottom: 100%;
     width: 100%;
-    right: 0;
     padding: 0 $space;
     pointer-events: none;
     justify-content: flex-end;
-    z-index: -1;
 
     button {
       width: auto;
       white-space: nowrap;
       pointer-events: all;
-    }
-
-    .clear,
-    .refresh {
-      transform: translateY(100%);
-      transition: transform $transition-timing ease-in;
     }
 
     .clear {
@@ -198,6 +203,32 @@ $transition-timing: 400ms;
     .range {
       text-align: center;
     }
+  }
+}
+
+/* POPOUT MODE OVERRIDES */
+
+.gm-screen-popOut {
+  max-width: 100vw;
+  max-height: 100vh;
+
+  > .window-content {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+
+  .gm-screen-app {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gm-screen-container {
+    flex: 1 1 100%;
+    overflow: hidden;
   }
 }
 

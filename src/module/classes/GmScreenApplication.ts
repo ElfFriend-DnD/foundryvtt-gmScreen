@@ -1,6 +1,6 @@
 import { GmScreenConfig, GmScreenGridEntry } from '../../gridTypes';
-import { MODULE_ID, MySettings, TEMPLATES } from '../constants';
-import { getGridElementsPosition, handleClickEvents, injectCellContents, log } from '../helpers';
+import { MODULE_ABBREV, MODULE_ID, MySettings, TEMPLATES } from '../constants';
+import { getGridElementsPosition, handleClear, handleClickEvents, injectCellContents, log } from '../helpers';
 
 export class GmScreenApplication extends Application {
   data: any;
@@ -16,13 +16,26 @@ export class GmScreenApplication extends Application {
   static get defaultOptions() {
     const columns: number = game.settings.get(MODULE_ID, MySettings.columns);
     const rows: number = game.settings.get(MODULE_ID, MySettings.rows);
+    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+
+    const drawerOptions = {
+      popOut: false,
+    };
+
+    const popOutOptions = {
+      classes: ['gm-screen-popOut'],
+      popOut: true,
+      width: Number(columns) * 400,
+      height: Number(rows) * 300,
+      resizable: true,
+    };
 
     const totalCells = Number(columns) * Number(rows);
     return mergeObject(super.defaultOptions, {
+      ...(displayDrawer ? drawerOptions : popOutOptions),
       template: TEMPLATES.screen,
       id: 'gm-screen-app',
       dragDrop: [{ dragSelector: '.grid-cell', dropSelector: '.grid-cell' }],
-      popOut: false,
       scrollY: [...new Array(totalCells)].map((_, index) => `#gm-screen-cell-${index} .grid-cell-content`),
     });
   }
@@ -133,6 +146,7 @@ export class GmScreenApplication extends Application {
     const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
     const columns: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.columns);
     const rows: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.rows);
+    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
 
     const entityOptions = [
       { label: 'ENTITY.Actor', entries: game.actors.entries },
@@ -177,6 +191,7 @@ export class GmScreenApplication extends Application {
       columns,
       rows,
       expanded: this.expanded,
+      displayDrawer,
     };
 
     log(false, 'getData', {
@@ -185,6 +200,25 @@ export class GmScreenApplication extends Application {
     });
 
     return newAppData;
+  }
+
+  _getHeaderButtons() {
+    const superButtons = super._getHeaderButtons();
+    return [
+      {
+        label: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Reset`),
+        class: 'clear',
+        icon: 'fas fa-ban',
+        onclick: () => handleClear.bind(this)(),
+      },
+      {
+        label: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Refresh`),
+        class: 'refresh',
+        icon: 'fas fa-sync',
+        onclick: () => this.render(),
+      },
+      ...superButtons,
+    ];
   }
 
   async _onDrop(event) {

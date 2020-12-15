@@ -21,6 +21,16 @@ export const registerSettings = function () {
     hint: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.Hint`,
   });
 
+  game.settings.register(MODULE_ID, MySettings.displayDrawer, {
+    name: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Name`,
+    default: true,
+    type: Boolean,
+    scope: 'world',
+    config: true,
+    hint: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Hint`,
+    onChange: () => window.location.reload(),
+  });
+
   game.settings.register(MODULE_ID, MySettings.columns, {
     name: `${MODULE_ABBREV}.settings.${MySettings.columns}.Name`,
     default: 4,

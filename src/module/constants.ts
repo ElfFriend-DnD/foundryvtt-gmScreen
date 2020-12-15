@@ -12,6 +12,7 @@ export enum MySettings {
   rows = 'rows',
   columns = 'columns',
   reset = 'reset',
+  displayDrawer = 'display-as-drawer',
 }
 
 export enum MyFlags {}
