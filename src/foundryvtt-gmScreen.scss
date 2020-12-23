@@ -163,6 +163,10 @@ $transition-timing: 400ms;
 
     .compact-journal-entry {
       min-height: 100%; // needed for dnd5e
+
+      > form {
+        min-height: 100%; // used for image journals
+      }
     }
 
     .editor {
