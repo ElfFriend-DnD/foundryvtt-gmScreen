@@ -100,6 +100,8 @@ export async function injectCellContents(entityUuid: string, gridCellContentElem
         compactJournalEntryDisplay,
       });
 
+      gridCellContentElement.addClass(compactJournalEntryDisplay.options.classes.join(' '));
+
       compactJournalEntryDisplay.render(true);
 
       break;

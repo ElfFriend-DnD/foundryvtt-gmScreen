@@ -151,6 +151,7 @@ $transition-timing: 400ms;
     > form {
       width: 100%;
       overflow: unset; // fix PF2e
+      padding: 0;
 
       > .lightbox-image {
         background-position: center;
