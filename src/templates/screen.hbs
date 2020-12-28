@@ -3,8 +3,8 @@
 
   {{#if displayDrawer}}
   <div class='gm-screen-actions'>
-    <button class="clear" type='button' data-action="clearGrid"><i
-        class="fas fa-ban"></i>{{localize 'GMSCR.gmScreen.Reset'}}</button>
+    <button class="clear" type='button' data-action="clearGrid"><i class="fas fa-ban"></i>{{localize
+      'GMSCR.gmScreen.Reset'}}</button>
 
     <button class="refresh" type='button' data-action="refresh"><i class="fas fa-sync"></i>
       {{localize 'GMSCR.gmScreen.Refresh'}}</button>
@@ -19,10 +19,16 @@
       style="grid-template-columns: repeat({{columns}}, 1fr); grid-template-rows: repeat({{rows}}, 1fr)">
 
       {{#each gridEntries}}
-      <div class="grid-cell" id="gm-screen-cell-{{@index}}"
-        {{#if this.entityUuid}}data-entity-uuid="{{this.entityUuid}}" {{/if}}
+      <div class="grid-cell" id="gm-screen-cell-{{@index}}" {{#if
+        this.entityUuid}}data-entity-uuid="{{this.entityUuid}}" {{/if}}
         style="{{#if this.x}}grid-column: {{this.x}};{{/if}} {{#if this.y}}grid-row:{{this.y}}{{/if}}">
         <div class="grid-cell-header">
+          {{#if this.entityUuid}}
+          <a data-action="remove" title="{{localize 'GMSCR.gmScreen.ClearCell'}}">
+            <i class="fas fa-times-circle"></i>
+          </a>
+          {{/if}}
+
           <select>
             {{#select this.entityUuid}}
             <option value="">None</option>
@@ -35,7 +41,7 @@
           </select>
 
           {{#if this.entityUuid}}
-          <a class="open-entity" data-action="open">
+          <a data-action="open" title="{{localize 'GMSCR.gmScreen.OpenFull'}}">
             {{#if this.type}}
 
             {{#GMSCR-switch this.type}}

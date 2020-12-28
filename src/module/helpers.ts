@@ -185,6 +185,18 @@ export async function handleClickEvents(e: JQuery.ClickEvent<HTMLElement, undefi
     this.render();
   }
 
+  if (action === 'remove' && !!entityUuid) {
+    const newData = {
+      ...data,
+      grid: {
+        ...data.grid,
+        entries: data.grid.entries.filter((entry) => entry.entityUuid !== entityUuid),
+      },
+    };
+    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newData);
+    this.render();
+  }
+
   if (action === 'open' && !!entityUuid) {
     try {
       const relevantEntity = await fromUuid(entityUuid);

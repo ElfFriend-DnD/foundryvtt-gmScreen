@@ -2,7 +2,9 @@
   "GMSCR": {
     "Grid": "Grid",
     "gmScreen": {
+      "ClearCell": "Clear Cell",
       "Open": "GM Screen",
+      "OpenFull": "Open the full Entity Sheet",
       "Refresh": "Refresh",
       "Reset": "Clear Grid"
     },
