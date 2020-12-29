@@ -10,7 +10,7 @@ interface GmScreenConfig1 {
 
 export async function _gmScreenMigrate() {
   if (!game.user.isGM) return;
-  const NEEDS_MIGRATION_VERSION = '2.0.0';
+  const NEEDS_MIGRATION_VERSION = '2.0.1';
   // Updating from old install -> Migrated
   // Fresh install -> No migration CHECK
   // Skipped multiple versions and upgrading in 0.4.X or higher
