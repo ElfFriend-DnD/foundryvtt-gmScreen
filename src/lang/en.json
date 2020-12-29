@@ -22,6 +22,11 @@
         "Title": "Clear Grid",
         "Content": "Are you sure you want to clear the grid entries? This action can not be undone."
       }
+    },
+    "cellConfigDialog": {
+      "CellConfig": "Cell Configuration",
+      "RowSpan": "Rows to Span",
+      "ColSpan": "Columns to Span"
     }
   }
 }

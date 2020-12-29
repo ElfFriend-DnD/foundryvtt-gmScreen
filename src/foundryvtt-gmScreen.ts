@@ -3,6 +3,7 @@ import { MODULE_ABBREV, MODULE_ID, MySettings, TEMPLATES } from './module/consta
 import { registerSettings } from './module/settings.js';
 import { log } from './module/helpers';
 import { GmScreenApplication } from './module/classes/GmScreenApplication';
+import { _gmScreenMigrate } from './module/migration';
 
 Handlebars.registerHelper(`${MODULE_ABBREV}-path`, (relativePath: string) => {
   return `modules/${MODULE_ID}/${relativePath}`;
@@ -43,6 +44,10 @@ Hooks.once('init', async function () {
 /* When ready							*/
 /* ------------------------------------ */
 Hooks.once('ready', function () {
+  _gmScreenMigrate();
+
+  window[MODULE_ID] = { migration: _gmScreenMigrate };
+
   const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
 
   // Do anything once the module is ready

@@ -1,9 +1,11 @@
 import { MODULE_ABBREV, MODULE_ID, MySettings } from './constants';
 import { GmScreenConfig } from '../gridTypes';
 
+//TODO: DATA MODEL CHANGED NEED MIGRATION
+
 const defaultGmScreenConfig: GmScreenConfig = {
   grid: {
-    entries: [],
+    entries: {},
   },
 };
 
@@ -19,6 +21,13 @@ export const registerSettings = function () {
     scope: 'world',
     config: false,
     hint: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.Hint`,
+  });
+
+  game.settings.register(MODULE_ID, MySettings.migrated, {
+    config: false,
+    default: { status: false, version: '1.2.2' },
+    scope: 'world',
+    type: Object,
   });
 
   game.settings.register(MODULE_ID, MySettings.displayDrawer, {

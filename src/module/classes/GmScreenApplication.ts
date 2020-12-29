@@ -1,15 +1,25 @@
 import { GmScreenConfig, GmScreenGridEntry } from '../../gridTypes';
 import { MODULE_ABBREV, MODULE_ID, MySettings, TEMPLATES } from '../constants';
-import { getGridElementsPosition, handleClear, handleClickEvents, injectCellContents, log } from '../helpers';
+import { getGridElementsPosition, getUserCellConfigurationInput, injectCellContents, log } from '../helpers';
+
+enum ClickAction {
+  'clearGrid' = 'clearGrid',
+  'refresh' = 'refresh',
+  'clearCell' = 'clearCell',
+  'configureCell' = 'configureCell',
+  'open' = 'open',
+  'toggle-gm-screen' = 'toggle-gm-screen',
+}
 
 export class GmScreenApplication extends Application {
-  data: any;
+  data: GmScreenConfig;
   expanded: boolean;
+  columns: number;
+  rows: number;
 
   constructor(options = {}) {
     super(options);
 
-    this.data = {};
     this.expanded = false;
   }
 
@@ -40,47 +50,76 @@ export class GmScreenApplication extends Application {
     });
   }
 
+  getNumOccupiedCells() {
+    return Object.values(this.data.grid.entries).reduce((acc, entry) => {
+      const cellsTaken = (entry.spanCols || 1) * (entry.spanRows || 1);
+      return acc + cellsTaken;
+    }, 0);
+  }
+
   /**
    * Adds an Entry to the proper place on the grid data.
    * Replaces an existing entry if the X and Y match
    * @param newEntry The Entry being added.
    */
   async addEntry(newEntry: GmScreenGridEntry) {
-    const gridData: GmScreenConfig = await game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
-    const newEntries = [...gridData.grid.entries];
+    const newEntries = { ...this.data.grid.entries };
 
-    const existingEntryIndex = newEntries.findIndex((entry) => {
-      return entry.x === newEntry.x && entry.y === newEntry.y;
-    });
-
-    if (existingEntryIndex > -1) {
-      newEntries[existingEntryIndex] = newEntry;
-    } else {
-      newEntries.push(newEntry);
-    }
+    newEntries[newEntry.entryId] = {
+      ...newEntries[newEntry.entryId],
+      ...newEntry,
+    };
 
     log(false, 'addEntry', {
-      gridData,
+      gridData: this.data,
       newEntries,
-      existingEntryIndex,
       newEntry,
       ret: {
-        ...gridData,
+        ...this.data,
         grid: {
-          ...gridData.grid,
+          ...this.data.grid,
           entries: newEntries,
         },
       },
     });
 
     await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
-      ...gridData,
+      ...this.data,
       grid: {
-        ...gridData.grid,
-        entries: newEntries.filter(({ entityUuid }) => !!entityUuid),
+        ...this.data.grid,
+        entries: newEntries,
       },
     });
 
+    this.render();
+  }
+
+  async removeEntry(entryId: string) {
+    const clearedCell = this.data.grid.entries[entryId];
+    const shouldKeepCellLayout = clearedCell.spanCols || clearedCell.spanRows;
+    if (shouldKeepCellLayout) {
+      delete clearedCell.entityUuid;
+    }
+
+    const newEntries = {
+      ...this.data.grid.entries,
+    };
+
+    if (shouldKeepCellLayout) {
+      newEntries[entryId] = clearedCell;
+    } else {
+      delete newEntries[entryId];
+    }
+
+    const newData = {
+      ...this.data,
+      grid: {
+        ...this.data.grid,
+        entries: newEntries,
+      },
+    };
+
+    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newData);
     this.render();
   }
 
@@ -94,15 +133,174 @@ export class GmScreenApplication extends Application {
     }
   }
 
+  handleClear() {
+    log(false, 'handleClear');
+
+    Dialog.confirm({
+      title: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Title`),
+      content: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Content`),
+      yes: async () => {
+        await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
+          ...this.data,
+          grid: {
+            ...this.data.grid,
+            entries: [],
+          },
+        });
+
+        this.render();
+      },
+      no: () => {},
+    });
+  }
+
+  async handleClickEvent(e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
+    e.preventDefault();
+
+    const action: ClickAction = e.currentTarget.dataset.action as ClickAction;
+    const entityUuid = $(e.currentTarget).parents('[data-entity-uuid]')?.data()?.entityUuid;
+    const entryId = $(e.currentTarget).parents('[data-entry-id]')?.data()?.entryId;
+
+    log(false, 'handleClickEvent', {
+      e,
+      action,
+    });
+
+    switch (action) {
+      case ClickAction.clearCell: {
+        if (!entryId) {
+          return;
+        }
+        this.removeEntry(entryId);
+        break;
+      }
+      case ClickAction.clearGrid: {
+        this.handleClear();
+        break;
+      }
+      case ClickAction.configureCell: {
+        const { x, y } = getGridElementsPosition($(e.target).parent());
+
+        const cellToConfigure: GmScreenGridEntry = this.data.grid.entries[entryId] || {
+          x,
+          y,
+          entryId: `${x}-${y}`,
+        };
+
+        log(false, 'configureCell cellToConfigure', cellToConfigure);
+
+        const { newSpanRows, newSpanCols } = await getUserCellConfigurationInput(cellToConfigure, {
+          rows: this.rows,
+          columns: this.columns,
+        });
+
+        log(false, 'new span values from dialog', {
+          newSpanRows,
+          newSpanCols,
+        });
+
+        const newCell = {
+          ...cellToConfigure,
+          spanRows: newSpanRows,
+          spanCols: newSpanCols,
+        };
+
+        const newEntries = {
+          ...this.data.grid.entries,
+          [newCell.entryId]: newCell,
+        };
+
+        // based on the X, Y, and Span values of `newCell` find all problematic entryIds
+        // BRITTLE if entryId's formula changes
+        const problemCoordinates = [...Array(newCell.spanCols).keys()]
+          .map((_, index) => {
+            const problemX = newCell.x + index;
+
+            return [...Array(newCell.spanRows).keys()].map((_, index) => {
+              const problemY = newCell.y + index;
+              return `${problemX}-${problemY}`; // problem cell's id
+            });
+          })
+          .flat();
+
+        log(false, {
+          problemCoordinates,
+        });
+
+        // get any overlapped cells and remove them
+        Object.values(newEntries).forEach((entry) => {
+          if (problemCoordinates.includes(entry.entryId) && entry.entryId !== newCell.entryId) {
+            delete newEntries[entry.entryId];
+          }
+        });
+
+        log(false, 'newEntries', newEntries);
+
+        const newData = {
+          ...this.data,
+          grid: {
+            ...this.data.grid,
+            entries: newEntries,
+          },
+        };
+
+        await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newData);
+        this.render();
+        break;
+      }
+      case ClickAction.open: {
+        if (!entityUuid) {
+          return;
+        }
+        try {
+          const relevantEntity = await fromUuid(entityUuid);
+          const relevantEntitySheet = relevantEntity?.sheet;
+          log(false, 'trying to edit entity', { relevantEntitySheet });
+
+          // If the relevantEntitySheet is already rendered:
+          if (relevantEntitySheet.rendered) {
+            relevantEntitySheet.maximize();
+            //@ts-ignore
+            relevantEntitySheet.bringToTop();
+          }
+
+          // Otherwise render the relevantEntitySheet
+          else relevantEntitySheet.render(true);
+        } catch (e) {
+          log(true, 'error opening entity sheet', e);
+        }
+        break;
+      }
+      case ClickAction.refresh: {
+        this.render();
+        break;
+      }
+      case ClickAction['toggle-gm-screen']: {
+        try {
+          this.toggleGmScreenVisibility();
+        } catch (e) {
+          log(true, 'error toggling GM Screen', e);
+        }
+        break;
+      }
+      default: {
+        return;
+      }
+    }
+  }
+
   activateListeners(html) {
     super.activateListeners(html);
-    $(html).on('click', 'button', handleClickEvents.bind(this));
-    $(html).on('click', 'a', handleClickEvents.bind(this));
+    $(html).on('click', 'button', this.handleClickEvent.bind(this));
+    $(html).on('click', 'a', this.handleClickEvent.bind(this));
 
     // handle select of an entity
     $(html).on('change', 'select', async (e) => {
+      const gridElementPosition = getGridElementsPosition($(e.target).parent());
+      const newEntryId = `${gridElementPosition.x}-${gridElementPosition.y}`;
       const newEntry: GmScreenGridEntry = {
-        ...getGridElementsPosition($(e.target).parent()),
+        ...gridElementPosition,
+        entryId: newEntryId,
         entityUuid: e.target.value,
       };
       this.addEntry(newEntry);
@@ -144,9 +342,13 @@ export class GmScreenApplication extends Application {
 
   async getData() {
     const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
-    const columns: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.columns);
-    const rows: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.rows);
+    const columns: number = game.settings.get(MODULE_ID, MySettings.columns);
+    const rows: number = game.settings.get(MODULE_ID, MySettings.rows);
     const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+
+    this.data = data;
+    this.columns = columns;
+    this.rows = rows;
 
     const entityOptions = [
       { label: 'ENTITY.Actor', entries: game.actors.entries },
@@ -163,22 +365,31 @@ export class GmScreenApplication extends Application {
       };
     });
 
-    const emptyCellsNum = Number(columns) * Number(rows) - data.grid.entries.length;
-    const emptyCells: GmScreenGridEntry[] = emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
+    const emptyCellsNum = Number(columns) * Number(rows) - this.getNumOccupiedCells();
+    const emptyCells: Partial<GmScreenGridEntry>[] =
+      emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
 
     const getAllGridEntries = async () => {
       return Promise.all(
-        data.grid.entries.map(async (entry: GmScreenGridEntry) => {
-          const relevantEntity = await fromUuid(entry.entityUuid);
+        Object.values(this.data.grid.entries).map(async (entry: GmScreenGridEntry) => {
+          try {
+            const relevantEntity = await fromUuid(entry.entityUuid);
 
-          log(false, 'entity hydration', {
-            relevantEntity,
-          });
+            log(false, 'entity hydration', {
+              relevantEntity,
+              entry,
+            });
 
-          return {
-            ...entry,
-            type: relevantEntity?.entity,
-          };
+            return {
+              ...entry,
+              type: relevantEntity?.entity,
+            };
+          } catch (e) {
+            log(false, 'no entity for this entry', {
+              entry,
+            });
+            return entry;
+          }
         })
       );
     };
@@ -195,7 +406,7 @@ export class GmScreenApplication extends Application {
     };
 
     log(false, 'getData', {
-      data,
+      data: this.data,
       newAppData,
     });
 
@@ -209,7 +420,7 @@ export class GmScreenApplication extends Application {
         label: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Reset`),
         class: 'clear',
         icon: 'fas fa-ban',
-        onclick: () => handleClear.bind(this)(),
+        onclick: () => this.handleClear.bind(this)(),
       },
       {
         label: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Refresh`),
@@ -243,8 +454,12 @@ export class GmScreenApplication extends Application {
 
     const entityUuid = `${data.type}.${data.id}`;
 
+    const gridElementPosition = getGridElementsPosition($(event.target).closest('.grid-cell'));
+    const newEntryId = `${gridElementPosition.x}-${gridElementPosition.y}`;
+
     const newEntry: GmScreenGridEntry = {
-      ...getGridElementsPosition($(event.target).closest('.grid-cell')),
+      ...gridElementPosition,
+      entryId: newEntryId,
       entityUuid,
     };
 

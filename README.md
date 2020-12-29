@@ -43,6 +43,7 @@ I'm honestly not sure how well this will play with modules that make changes to 
 ## Known Issues
 
 - The grid does not refresh automatically when settings are changed, click the "refresh" button.
+- It is possible to overlap your cells with column/row spanning. It should not be possible to make it so you cannot recover from such a situation manually.
 
 ## Acknowledgements
 

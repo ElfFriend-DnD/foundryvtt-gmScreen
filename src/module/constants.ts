@@ -13,6 +13,7 @@ export enum MySettings {
   columns = 'columns',
   reset = 'reset',
   displayDrawer = 'display-as-drawer',
+  migrated = 'migrated',
 }
 
 export enum MyFlags {}

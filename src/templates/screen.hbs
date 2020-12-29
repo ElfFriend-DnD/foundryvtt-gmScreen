@@ -20,11 +20,19 @@
 
       {{#each gridEntries}}
       <div class="grid-cell" id="gm-screen-cell-{{@index}}" {{#if
-        this.entityUuid}}data-entity-uuid="{{this.entityUuid}}" {{/if}}
-        style="{{#if this.x}}grid-column: {{this.x}};{{/if}} {{#if this.y}}grid-row:{{this.y}}{{/if}}">
+        this.entityUuid}}data-entity-uuid="{{this.entityUuid}}" {{/if}} {{#if
+        this.entryId}}data-entry-id="{{this.entryId}}" {{/if}} style="
+          {{#if this.x}}grid-column: {{this.x}};{{/if}}
+          {{#if this.y}}grid-row:{{this.y}};{{/if}}
+          {{#if this.spanRows}}grid-row-end: span {{this.spanRows}};{{/if}}
+          {{#if this.spanCols}}grid-column-end: span {{this.spanCols}};{{/if}}">
+
         <div class="grid-cell-header">
+
+          <a data-action="configureCell"><i class="fas fa-cog"></i></a>
+
           {{#if this.entityUuid}}
-          <a data-action="remove" title="{{localize 'GMSCR.gmScreen.ClearCell'}}">
+          <a data-action="clearCell" title="{{localize 'GMSCR.gmScreen.ClearCell'}}">
             <i class="fas fa-times-circle"></i>
           </a>
           {{/if}}
