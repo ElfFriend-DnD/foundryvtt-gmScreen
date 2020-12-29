@@ -240,15 +240,6 @@ $transition-timing: 400ms;
 /* MODULE SPECIFIC OVERRIDES */
 
 .gm-screen-app {
-  .grid-cell-content {
-    /* Make Monsterblocks pretend to be a single column like a normal kid. <3 you zeel don't hurt me */
-    &.monsterblock {
-      > form {
-        display: flex;
-        flex-direction: column;
-      }
-    }
-  }
   .journal-sheet form .cm-s-easymde {
     height: 100%;
   }

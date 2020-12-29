@@ -1,5 +1,5 @@
-import { GmScreenConfig, GmScreenGridEntry } from '../../gridTypes';
-import { MODULE_ABBREV, MODULE_ID, MySettings, TEMPLATES } from '../constants';
+import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../../gridTypes';
+import { MODULE_ABBREV, MODULE_ID, MySettings, numberRegex, TEMPLATES } from '../constants';
 import { getGridElementsPosition, getUserCellConfigurationInput, injectCellContents, log } from '../helpers';
 
 enum ClickAction {
@@ -19,7 +19,13 @@ export class GmScreenApplication extends Application {
 
   constructor(options = {}) {
     super(options);
+    const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const columns: number = game.settings.get(MODULE_ID, MySettings.columns);
+    const rows: number = game.settings.get(MODULE_ID, MySettings.rows);
 
+    this.data = data;
+    this.columns = columns;
+    this.rows = rows;
     this.expanded = false;
   }
 
@@ -50,81 +56,101 @@ export class GmScreenApplication extends Application {
     });
   }
 
-  getNumOccupiedCells() {
-    return Object.values(this.data.grid.entries).reduce((acc, entry) => {
+  get activeGrid() {
+    return this.data.grids[this.data.activeGridId];
+  }
+
+  get numOccupiedCells() {
+    return Object.values(this.activeGrid.entries).reduce((acc, entry) => {
       const cellsTaken = (entry.spanCols || 1) * (entry.spanRows || 1);
       return acc + cellsTaken;
     }, 0);
   }
 
   /**
-   * Adds an Entry to the proper place on the grid data.
-   * Replaces an existing entry if the X and Y match
-   * @param newEntry The Entry being added.
+   * Helper function to update the gmScreenConfig setting with a new grid's worth of data
+   * @param {GmScreenGrid} newGridData - the complete grid object to set
+   * @param {boolean} render - whether or not to also render the grid
    */
-  async addEntry(newEntry: GmScreenGridEntry) {
-    const newEntries = { ...this.data.grid.entries };
+  async setGridData(newGridData: GmScreenGrid, render: boolean = true) {
+    const newGmScreenConfig = { ...this.data };
+
+    const updated = setProperty(newGmScreenConfig, `grids.${newGridData.id}`, newGridData);
+
+    if (!updated) {
+      // something failed
+      log(true, 'error occured trying to set a grid data');
+      return;
+    }
+
+    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
+
+    if (render) {
+      this.render();
+    }
+  }
+
+  /**
+   * Adds an Entry to the proper place on the active grid's data.
+   * Replaces an existing entry if the entryId matches
+   * @param {GmScreenGridEntry} newEntry The Entry being added.
+   */
+  async addEntryToActiveGrid(newEntry: GmScreenGridEntry) {
+    const newEntries = { ...this.activeGrid.entries };
 
     newEntries[newEntry.entryId] = {
       ...newEntries[newEntry.entryId],
       ...newEntry,
     };
 
-    log(false, 'addEntry', {
-      gridData: this.data,
+    const newGridData: GmScreenGrid = {
+      ...this.activeGrid,
+      entries: newEntries,
+    };
+
+    log(false, 'addEntryToActiveGrid', {
+      activeGridData: this.activeGrid,
       newEntries,
       newEntry,
-      ret: {
-        ...this.data,
-        grid: {
-          ...this.data.grid,
-          entries: newEntries,
-        },
-      },
+      newGridData,
     });
 
-    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
-      ...this.data,
-      grid: {
-        ...this.data.grid,
-        entries: newEntries,
-      },
-    });
-
-    this.render();
+    this.setGridData(newGridData);
   }
 
-  async removeEntry(entryId: string) {
-    const clearedCell = this.data.grid.entries[entryId];
+  /**
+   * Remove a given entry from the Active Grid
+   * @param {string} entryId - entry to remove from the active grid's entries
+   */
+  async removeEntryFromActiveGrid(entryId: string) {
+    const clearedCell = this.activeGrid.entries[entryId];
     const shouldKeepCellLayout = clearedCell.spanCols || clearedCell.spanRows;
-    if (shouldKeepCellLayout) {
-      delete clearedCell.entityUuid;
-    }
 
     const newEntries = {
-      ...this.data.grid.entries,
+      ...this.activeGrid.entries,
     };
 
     if (shouldKeepCellLayout) {
+      delete clearedCell.entityUuid;
       newEntries[entryId] = clearedCell;
     } else {
       delete newEntries[entryId];
     }
 
-    const newData = {
-      ...this.data,
-      grid: {
-        ...this.data.grid,
-        entries: newEntries,
-      },
+    const newGridData: GmScreenGrid = {
+      ...this.activeGrid,
+      entries: newEntries,
     };
 
-    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newData);
-    this.render();
+    this.setGridData(newGridData);
   }
 
-  toggleGmScreenVisibility() {
-    this.expanded = !this.expanded;
+  /**
+   * Set the GM Screen Visibility. By default will toggle the current state.
+   * @param {boolean} expanded
+   */
+  toggleGmScreenVisibility(expanded: boolean = !this.expanded) {
+    this.expanded = expanded;
 
     if (this.expanded) {
       $('.gm-screen-app').addClass('expanded');
@@ -133,6 +159,9 @@ export class GmScreenApplication extends Application {
     }
   }
 
+  /**
+   * Double confirms Clearing the Active Grid
+   */
   handleClear() {
     log(false, 'handleClear');
 
@@ -140,15 +169,10 @@ export class GmScreenApplication extends Application {
       title: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Title`),
       content: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Content`),
       yes: async () => {
-        await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
-          ...this.data,
-          grid: {
-            ...this.data.grid,
-            entries: [],
-          },
+        this.setGridData({
+          ...this.activeGrid,
+          entries: {},
         });
-
-        this.render();
       },
       no: () => {},
     });
@@ -171,7 +195,7 @@ export class GmScreenApplication extends Application {
         if (!entryId) {
           return;
         }
-        this.removeEntry(entryId);
+        this.removeEntryFromActiveGrid(entryId);
         break;
       }
       case ClickAction.clearGrid: {
@@ -181,7 +205,7 @@ export class GmScreenApplication extends Application {
       case ClickAction.configureCell: {
         const { x, y } = getGridElementsPosition($(e.target).parent());
 
-        const cellToConfigure: GmScreenGridEntry = this.data.grid.entries[entryId] || {
+        const cellToConfigure: GmScreenGridEntry = this.activeGrid.entries[entryId] || {
           x,
           y,
           entryId: `${x}-${y}`,
@@ -206,7 +230,7 @@ export class GmScreenApplication extends Application {
         };
 
         const newEntries = {
-          ...this.data.grid.entries,
+          ...this.activeGrid.entries,
           [newCell.entryId]: newCell,
         };
 
@@ -236,16 +260,12 @@ export class GmScreenApplication extends Application {
 
         log(false, 'newEntries', newEntries);
 
-        const newData = {
-          ...this.data,
-          grid: {
-            ...this.data.grid,
-            entries: newEntries,
-          },
+        const newGridData = {
+          ...this.activeGrid,
+          entries: newEntries,
         };
 
-        await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newData);
-        this.render();
+        this.setGridData(newGridData);
         break;
       }
       case ClickAction.open: {
@@ -289,6 +309,9 @@ export class GmScreenApplication extends Application {
     }
   }
 
+  /**
+   * @override
+   */
   activateListeners(html) {
     super.activateListeners(html);
     $(html).on('click', 'button', this.handleClickEvent.bind(this));
@@ -303,7 +326,7 @@ export class GmScreenApplication extends Application {
         entryId: newEntryId,
         entityUuid: e.target.value,
       };
-      this.addEntry(newEntry);
+      this.addEntryToActiveGrid(newEntry);
     });
 
     $(html)
@@ -318,7 +341,19 @@ export class GmScreenApplication extends Application {
         injectCellContents(relevantUuid, gridCellContent);
       });
 
-    this.updateCSSPropertyVariable(html, '.grid-cell', 'width', '--cell-width');
+    // set some CSS Variables for child element use
+    this.updateCSSPropertyVariable(html, '.grid-cell', 'width', '--this-cell-width');
+
+    const vanillaGridElement = document.querySelector('.grid');
+    const vanillaGridElementStyles = window.getComputedStyle(vanillaGridElement);
+    const cols = vanillaGridElementStyles['grid-template-columns'].split(' ');
+    const colWidth = cols[0];
+
+    $(html)
+      .find('.grid')
+      .each((i, gridElement) => {
+        gridElement.style.setProperty('--grid-cell-width', colWidth);
+      });
   }
 
   /**
@@ -340,15 +375,36 @@ export class GmScreenApplication extends Application {
       });
   }
 
-  async getData() {
-    const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
-    const columns: number = game.settings.get(MODULE_ID, MySettings.columns);
-    const rows: number = game.settings.get(MODULE_ID, MySettings.rows);
-    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+  getAllActiveGridEntries() {
+    return Promise.all(
+      Object.values(this.activeGrid.entries).map(async (entry: GmScreenGridEntry) => {
+        try {
+          const relevantEntity = await fromUuid(entry.entityUuid);
 
-    this.data = data;
-    this.columns = columns;
-    this.rows = rows;
+          log(false, 'entity hydration', {
+            relevantEntity,
+            entry,
+          });
+
+          return {
+            ...entry,
+            type: relevantEntity?.entity,
+          };
+        } catch (e) {
+          log(false, 'no entity for this entry', {
+            entry,
+          });
+          return entry;
+        }
+      })
+    );
+  }
+
+  /**
+   * @override
+   */
+  async getData() {
+    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
 
     const entityOptions = [
       { label: 'ENTITY.Actor', entries: game.actors.entries },
@@ -365,42 +421,17 @@ export class GmScreenApplication extends Application {
       };
     });
 
-    const emptyCellsNum = Number(columns) * Number(rows) - this.getNumOccupiedCells();
+    const emptyCellsNum = Number(this.columns) * Number(this.rows) - this.numOccupiedCells;
     const emptyCells: Partial<GmScreenGridEntry>[] =
       emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
-
-    const getAllGridEntries = async () => {
-      return Promise.all(
-        Object.values(this.data.grid.entries).map(async (entry: GmScreenGridEntry) => {
-          try {
-            const relevantEntity = await fromUuid(entry.entityUuid);
-
-            log(false, 'entity hydration', {
-              relevantEntity,
-              entry,
-            });
-
-            return {
-              ...entry,
-              type: relevantEntity?.entity,
-            };
-          } catch (e) {
-            log(false, 'no entity for this entry', {
-              entry,
-            });
-            return entry;
-          }
-        })
-      );
-    };
 
     const newAppData = {
       ...super.getData(),
       entityOptions,
-      gridEntries: [...(await getAllGridEntries()), ...emptyCells],
-      data,
-      columns,
-      rows,
+      gridEntries: [...(await this.getAllActiveGridEntries()), ...emptyCells],
+      data: this.data,
+      columns: this.columns,
+      rows: this.rows,
       expanded: this.expanded,
       displayDrawer,
     };
@@ -413,6 +444,9 @@ export class GmScreenApplication extends Application {
     return newAppData;
   }
 
+  /**
+   * @override
+   */
   _getHeaderButtons() {
     const superButtons = super._getHeaderButtons();
     return [
@@ -432,7 +466,12 @@ export class GmScreenApplication extends Application {
     ];
   }
 
+  /**
+   * @override
+   */
   async _onDrop(event) {
+    event.stopPropagation();
+
     // Try to extract the data
     let data;
     try {
@@ -463,6 +502,6 @@ export class GmScreenApplication extends Application {
       entityUuid,
     };
 
-    this.addEntry(newEntry);
+    this.addEntryToActiveGrid(newEntry);
   }
 }

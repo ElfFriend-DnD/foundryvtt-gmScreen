@@ -43,8 +43,8 @@ Hooks.once('init', async function () {
 /* ------------------------------------ */
 /* When ready							*/
 /* ------------------------------------ */
-Hooks.once('ready', function () {
-  _gmScreenMigrate();
+Hooks.once('ready', async function () {
+  await _gmScreenMigrate();
 
   window[MODULE_ID] = { migration: _gmScreenMigrate };
 
@@ -53,7 +53,11 @@ Hooks.once('ready', function () {
   // Do anything once the module is ready
   if (game.user.isGM) {
     if (displayDrawer) {
-      new GmScreenApplication().render(true);
+      const gmScreenInstance = new GmScreenApplication();
+
+      gmScreenInstance.render(true);
+
+      window[MODULE_ID].toggleGmScreenVisibility = gmScreenInstance.toggleGmScreenVisibility;
     }
 
     game.settings.set(MODULE_ID, MySettings.reset, false);
@@ -73,7 +77,6 @@ function _addGmScreenButton(html) {
 
   gmScreenButton.on('click', (event) => {
     event.preventDefault();
-    const data = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
 
     new GmScreenApplication().render(true);
   });

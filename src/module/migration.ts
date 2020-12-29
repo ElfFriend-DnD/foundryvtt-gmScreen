@@ -1,4 +1,4 @@
-import { GmScreenConfig, GmScreenGridEntry } from '../gridTypes';
+import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../gridTypes';
 import { MODULE_ID, MySettings } from './constants';
 import { log } from './helpers';
 
@@ -30,7 +30,7 @@ export async function _gmScreenMigrate() {
   if (Array.isArray(gmScreenConfig.grid.entries)) {
     // need to convert gmscreenconfig.grid.entries from array to object
 
-    const migratedEntries: GmScreenConfig['grid']['entries'] = gmScreenConfig.grid.entries.reduce((acc, entry) => {
+    const migratedEntries: GmScreenGrid['entries'] = gmScreenConfig.grid.entries.reduce((acc, entry) => {
       const entryId = `${entry.x}-${entry.y}`;
 
       acc[entryId] = {
@@ -41,21 +41,23 @@ export async function _gmScreenMigrate() {
       return acc;
     }, {});
 
-    log(true, 'migration output', {
-      ...gmScreenConfig,
-      grid: {
-        ...gmScreenConfig.grid,
-        entries: migratedEntries,
+    const output: GmScreenConfig = {
+      activeGridId: 'default',
+      grids: {
+        default: {
+          ...gmScreenConfig.grid,
+          entries: migratedEntries,
+          id: 'default',
+          name: 'Main',
+        },
       },
+    };
+
+    log(true, 'migration output', {
+      output,
     });
 
-    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, {
-      ...gmScreenConfig,
-      grid: {
-        ...gmScreenConfig.grid,
-        entries: migratedEntries,
-      },
-    });
+    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, output);
   }
 
   ui.notifications.notify('GM Screen | Migration Complete.', 'info');
