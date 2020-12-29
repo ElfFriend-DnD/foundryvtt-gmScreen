@@ -27,7 +27,7 @@ export async function _gmScreenMigrate() {
   ui.notifications.notify('GM Screen | Beginning Migration to updated schema.', 'info');
 
   let gmScreenConfig: GmScreenConfig1 = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
-  if (Array.isArray(gmScreenConfig.grid.entries)) {
+  if (!!gmScreenConfig?.grid?.entries && Array.isArray(gmScreenConfig.grid.entries)) {
     // need to convert gmscreenconfig.grid.entries from array to object
 
     const migratedEntries: GmScreenGrid['entries'] = gmScreenConfig.grid.entries.reduce((acc, entry) => {
