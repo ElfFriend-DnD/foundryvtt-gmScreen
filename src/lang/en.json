@@ -15,11 +15,11 @@
         "Name": "Drawer Only: Right Margin",
         "Hint": "Sets the offest from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen in drawer display mode."
       },
-      "drawer-width": {
+      "drawer-height": {
         "Name": "Drawer Only: Height",
         "Hint": "Sets the height of the GM Screen in drawer display mode."
       },
-      "drawer-height": {
+      "drawer-width": {
         "Name": "Drawer Only: Width",
         "Hint": "Calculated as a percentage of the available screen width after the sidebar and right margin are taken into account."
       },
