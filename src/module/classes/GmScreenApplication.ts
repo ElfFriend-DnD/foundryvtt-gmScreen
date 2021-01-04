@@ -51,8 +51,8 @@ export class GmScreenApplication extends Application {
       ...(displayDrawer ? drawerOptions : popOutOptions),
       template: TEMPLATES.screen,
       id: 'gm-screen-app',
-      dragDrop: [{ dragSelector: '.grid-cell', dropSelector: '.grid-cell' }],
-      scrollY: [...new Array(totalCells)].map((_, index) => `#gm-screen-cell-${index} .grid-cell-content`),
+      dragDrop: [{ dragSelector: '.gm-screen-grid-cell', dropSelector: '.gm-screen-grid-cell' }],
+      scrollY: [...new Array(totalCells)].map((_, index) => `#gm-screen-cell-${index} .gm-screen-grid-cell-content`),
     });
   }
 
@@ -332,25 +332,25 @@ export class GmScreenApplication extends Application {
     $(html)
       .find('[data-entity-uuid]')
       .each(function (gridEntry) {
-        // `this` is the parent .grid-cell
+        // `this` is the parent .gm-screen-grid-cell
         const relevantUuid = this.dataset.entityUuid;
 
-        const gridCellContent = $(this).find('.grid-cell-content');
+        const gridCellContent = $(this).find('.gm-screen-grid-cell-content');
         log(false, 'gridEntry with uuid defined found', { gridEntry: this, gridCellContent });
 
         injectCellContents(relevantUuid, gridCellContent);
       });
 
     // set some CSS Variables for child element use
-    this.updateCSSPropertyVariable(html, '.grid-cell', 'width', '--this-cell-width');
+    this.updateCSSPropertyVariable(html, '.gm-screen-grid-cell', 'width', '--this-cell-width');
 
-    const vanillaGridElement = document.querySelector('.grid');
+    const vanillaGridElement = document.querySelector('.gm-screen-grid');
     const vanillaGridElementStyles = window.getComputedStyle(vanillaGridElement);
     const cols = vanillaGridElementStyles['grid-template-columns'].split(' ');
     const colWidth = cols[0];
 
     $(html)
-      .find('.grid')
+      .find('.gm-screen-grid')
       .each((i, gridElement) => {
         gridElement.style.setProperty('--grid-cell-width', colWidth);
       });
@@ -483,7 +483,7 @@ export class GmScreenApplication extends Application {
     log(false, 'onDrop', {
       event,
       data,
-      closestGridCell: $(event.currentTarget).closest('.grid-cell'),
+      closestGridCell: $(event.currentTarget).closest('.gm-screen-grid-cell'),
     });
 
     // only move forward if this is a JournalEntry or RollTable
@@ -493,7 +493,7 @@ export class GmScreenApplication extends Application {
 
     const entityUuid = `${data.type}.${data.id}`;
 
-    const gridElementPosition = getGridElementsPosition($(event.target).closest('.grid-cell'));
+    const gridElementPosition = getGridElementsPosition($(event.target).closest('.gm-screen-grid-cell'));
     const newEntryId = `${gridElementPosition.x}-${gridElementPosition.y}`;
 
     const newEntry: GmScreenGridEntry = {

@@ -73,7 +73,7 @@ $transition-timing: 400ms;
     }
   }
 
-  .grid {
+  .gm-screen-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(1, 1fr);
@@ -82,7 +82,7 @@ $transition-timing: 400ms;
     height: 100%;
   }
 
-  .grid-cell {
+  .gm-screen-grid-cell {
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -91,7 +91,7 @@ $transition-timing: 400ms;
     border-radius: $space / 2;
   }
 
-  .grid-cell-header {
+  .gm-screen-grid-cell-header {
     @include spaced($space / 2);
 
     align-items: center;
@@ -120,7 +120,7 @@ $transition-timing: 400ms;
    * needle-threading I could do.
    */
 
-  .grid-cell-content-wrapper {
+  .gm-screen-grid-cell-content-wrapper {
     flex: 1 100%;
     width: 100%;
     height: 100%;
@@ -131,7 +131,7 @@ $transition-timing: 400ms;
     position: relative;
   }
 
-  .grid-cell-content {
+  .gm-screen-grid-cell-content {
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;

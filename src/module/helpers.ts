@@ -82,7 +82,7 @@ export function getUserCellConfigurationInput(
 }
 
 export function getGridElementsPosition(element: JQuery<HTMLElement>) {
-  const vanillaGridElement = document.querySelector('.grid');
+  const vanillaGridElement = document.querySelector('.gm-screen-grid');
 
   const vanillaGridElementStyles = window.getComputedStyle(vanillaGridElement);
 

@@ -15,11 +15,11 @@
   {{/if}}
 
   <div class="gm-screen-container {{#if displayDrawer}}window-content{{/if}}">
-    <div class="grid"
+    <div class="gm-screen-grid"
       style="grid-template-columns: repeat({{columns}}, 1fr); grid-template-rows: repeat({{rows}}, 1fr);">
 
       {{#each gridEntries}}
-      <div class="grid-cell" id="gm-screen-cell-{{@index}}" {{#if
+      <div class="gm-screen-grid-cell" id="gm-screen-cell-{{@index}}" {{#if
         this.entityUuid}}data-entity-uuid="{{this.entityUuid}}" {{/if}} {{#if
         this.entryId}}data-entry-id="{{this.entryId}}" {{/if}} style="
           {{#if this.x}}grid-column: {{this.x}};{{/if}}
@@ -28,7 +28,7 @@
           {{#if this.spanCols}}grid-column-end: span {{this.spanCols}};{{/if}}
            --column-span-count: {{#if this.spanCols}}{{this.spanCols}}{{else}}1{{/if}}">
 
-        <div class="grid-cell-header">
+        <div class="gm-screen-grid-cell-header">
 
           <a data-action="configureCell"><i class="fas fa-cog"></i></a>
 
@@ -67,8 +67,8 @@
           {{/if}}
         </div>
 
-        <div class="grid-cell-content-wrapper">
-          <div class="grid-cell-content">
+        <div class="gm-screen-grid-cell-content-wrapper">
+          <div class="gm-screen-grid-cell-content">
             {{!-- Contents injected in GmScreenApplication.activateListeners --}}
           </div>
         </div>
