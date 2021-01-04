@@ -1,5 +1,10 @@
 <div
-  class="gm-screen-app {{#if expanded}}expanded{{/if}} {{classes}} {{#if displayDrawer}}window-app gm-screen-drawer{{/if}}">
+  class="gm-screen-app {{#if expanded}}expanded{{/if}} {{classes}} {{#if displayDrawer}}window-app gm-screen-drawer{{/if}}"
+  {{#if displayDrawer}} style="
+   --gm-screen-width: {{drawerWidth}};
+   --gm-screen-height: {{drawerHeight}}vh;
+   --gm-screen-right-offset: {{rightMargin}}vw;
+   " {{/if}}>
 
   {{#if displayDrawer}}
   <div class='gm-screen-actions'>

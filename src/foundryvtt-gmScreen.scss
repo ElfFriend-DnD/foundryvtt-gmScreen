@@ -16,11 +16,11 @@ $transition-timing: 400ms;
   position: relative;
 
   &.gm-screen-drawer {
-    width: calc(100vw - var(--sidebar-width));
-    height: 60vh;
+    width: calc(var(--gm-screen-width) / 100 * (100vw - var(--gm-screen-right-offset) - var(--sidebar-width)));
+    height: var(--gm-screen-height);
     top: 100%;
     position: fixed;
-    left: 0;
+    right: calc(var(--sidebar-width) + var(--gm-screen-right-offset));
     transform: translateY(0);
     transition: all $transition-timing ease-in-out;
 

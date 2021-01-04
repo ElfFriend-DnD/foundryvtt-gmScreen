@@ -22,12 +22,15 @@ https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/mo
 
 ## Configuration
 
-| **Name**              | Description                                                                                                                                                |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Display as Drawer** | Defaults to True, set to false if you would like to use the GM Screen as a normal popup dialog or if you want to use the PopOut module with the GM Screen. |
-| **Columns**           | Sets the number of columns in the grid.                                                                                                                    |
-| **Rows**              | Sets the number of rows in the grid.                                                                                                                       |
-| **Reset Grid**        | Saving with this checkbox checked will reset the grid (useful if you end up somehow causing it to fail to render).                                         |
+| **Name**                      | Default | Description                                                                                                                                         |
+| ----------------------------- | :-----: | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Display as Drawer**         |  true   | Controls whether the GM Screen appears as a normal popup dialog or as a drawer. To use the PopOut module with the GM Screen, this needs to checked. |
+| **Columns**                   |    4    | Sets the number of columns in the grid.                                                                                                             |
+| **Rows**                      |    3    | Sets the number of rows in the grid.                                                                                                                |
+| Drawer Only: **Right Margin** |  0(vw)  | Sets the offest from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen.                  |
+| Drawer Only: **Height**       | 60(vh)  | Sets the height of the GM Screen Drawer.                                                                                                            |
+| Drawer Only: **Width**        | 100(%)  | Calculated as a percentage of the available screen width after the sidebar and right margin are taken into account.                                 |
+| **Reset Grid**                |  false  | Saving with this checkbox checked will reset the grid (useful if you end up somehow causing it to fail to render).                                  |
 
 Note that changing the grid dimensions after populating the grid might cause unexpected results, and odds are you will have to clear the grid and repopulate things.
 
@@ -35,10 +38,11 @@ Note that changing the grid dimensions after populating the grid might cause une
 
 I'm honestly not sure how well this will play with modules that make changes to how journal articles or roll tables interact.
 
-| **Name**                                                      |       Works        | Notes                                                                                                                                                                                                   |
-| ------------------------------------------------------------- | :----------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal) |        :x:         | Causes some unexpected oneJournal renders. Journal entries with html in them (tables in particular) don't seem to render. [Open MR](https://gitlab.com/fvtt-modules-lab/one-journal/-/merge_requests/2) |
-| [MEME](https://github.com/Moerill/fvtt-markdown-editor)       | :heavy_check_mark: | Markdown Renders as expected.                                                                                                                                                                           |
+| **Name**                                                               |       Works        | Notes                                            |
+| ---------------------------------------------------------------------- | :----------------: | ------------------------------------------------ |
+| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal)          | :heavy_check_mark: | Works as expected.                               |
+| [MEME](https://github.com/Moerill/fvtt-markdown-editor)                | :heavy_check_mark: | Markdown Renders as expected.                    |
+| [Inline Webviewer](https://github.com/ardittristan/VTTInlineWebviewer) | :heavy_check_mark: | Jounrnal entries with webviews work as expected. |
 
 ## Known Issues
 

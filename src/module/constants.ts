@@ -8,12 +8,15 @@ export const TEMPLATES = {
 };
 
 export enum MySettings {
-  gmScreenConfig = 'gm-screen-config',
-  rows = 'rows',
   columns = 'columns',
-  reset = 'reset',
   displayDrawer = 'display-as-drawer',
+  drawerHeight = 'drawer-height',
+  drawerWidth = 'drawer-width',
+  gmScreenConfig = 'gm-screen-config',
   migrated = 'migrated',
+  reset = 'reset',
+  rightMargin = 'right-margin',
+  rows = 'rows',
 }
 
 export enum MyFlags {}

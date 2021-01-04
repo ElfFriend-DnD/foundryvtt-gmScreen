@@ -405,6 +405,9 @@ export class GmScreenApplication extends Application {
    */
   async getData() {
     const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+    const rightMargin: number = game.settings.get(MODULE_ID, MySettings.rightMargin);
+    const drawerWidth: number = game.settings.get(MODULE_ID, MySettings.drawerWidth);
+    const drawerHeight: number = game.settings.get(MODULE_ID, MySettings.drawerHeight);
 
     const entityOptions = [
       { label: 'ENTITY.Actor', entries: game.actors.entries },
@@ -432,6 +435,9 @@ export class GmScreenApplication extends Application {
       data: this.data,
       columns: this.columns,
       rows: this.rows,
+      drawerWidth,
+      drawerHeight,
+      rightMargin,
       expanded: this.expanded,
       displayDrawer,
     };

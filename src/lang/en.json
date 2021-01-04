@@ -11,6 +11,18 @@
     "settings": {
       "columns": { "Name": "Columns", "Hint": "How many columns do you want? Changing this may require a grid clear." },
       "rows": { "Name": "Rows", "Hint": "How many rows do you want? Changing this may require a grid clear." },
+      "right-margin": {
+        "Name": "Drawer Only: Right Margin",
+        "Hint": "Sets the offest from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen in drawer display mode."
+      },
+      "drawer-width": {
+        "Name": "Drawer Only: Height",
+        "Hint": "Sets the height of the GM Screen in drawer display mode."
+      },
+      "drawer-height": {
+        "Name": "Drawer Only: Width",
+        "Hint": "Calculated as a percentage of the available screen width after the sidebar and right margin are taken into account."
+      },
       "reset": { "Name": "Reset", "Hint": "Clear the Grid entries. This action can not be undone." },
       "display-as-drawer": {
         "Name": "Display as Drawer",

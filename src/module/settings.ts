@@ -33,16 +33,6 @@ export const registerSettings = function () {
     type: Object,
   });
 
-  game.settings.register(MODULE_ID, MySettings.displayDrawer, {
-    name: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Name`,
-    default: true,
-    type: Boolean,
-    scope: 'world',
-    config: true,
-    hint: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Hint`,
-    onChange: () => window.location.reload(),
-  });
-
   game.settings.register(MODULE_ID, MySettings.columns, {
     name: `${MODULE_ABBREV}.settings.${MySettings.columns}.Name`,
     default: 4,
@@ -59,6 +49,46 @@ export const registerSettings = function () {
     scope: 'world',
     config: true,
     hint: `${MODULE_ABBREV}.settings.${MySettings.rows}.Hint`,
+  });
+
+  game.settings.register(MODULE_ID, MySettings.displayDrawer, {
+    name: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Name`,
+    default: true,
+    type: Boolean,
+    scope: 'world',
+    config: true,
+    hint: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Hint`,
+    onChange: () => window.location.reload(),
+  });
+
+  game.settings.register(MODULE_ID, MySettings.rightMargin, {
+    name: `${MODULE_ABBREV}.settings.${MySettings.rightMargin}.Name`,
+    default: 0,
+    type: Number,
+    scope: 'world',
+    range: { min: 0, max: 75, step: 5 },
+    config: true,
+    hint: `${MODULE_ABBREV}.settings.${MySettings.rightMargin}.Hint`,
+  });
+
+  game.settings.register(MODULE_ID, MySettings.drawerWidth, {
+    name: `${MODULE_ABBREV}.settings.${MySettings.drawerWidth}.Name`,
+    default: 100,
+    type: Number,
+    scope: 'world',
+    range: { min: 25, max: 100, step: 5 },
+    config: true,
+    hint: `${MODULE_ABBREV}.settings.${MySettings.drawerWidth}.Hint`,
+  });
+
+  game.settings.register(MODULE_ID, MySettings.drawerHeight, {
+    name: `${MODULE_ABBREV}.settings.${MySettings.drawerHeight}.Name`,
+    default: 60,
+    type: Number,
+    scope: 'world',
+    range: { min: 10, max: 90, step: 5 },
+    config: true,
+    hint: `${MODULE_ABBREV}.settings.${MySettings.drawerHeight}.Hint`,
   });
 
   game.settings.register(MODULE_ID, MySettings.reset, {
