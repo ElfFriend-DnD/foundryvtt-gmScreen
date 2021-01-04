@@ -11,6 +11,7 @@ export enum MySettings {
   columns = 'columns',
   displayDrawer = 'display-as-drawer',
   drawerHeight = 'drawer-height',
+  drawerOpacity = 'drawer-opacity',
   drawerWidth = 'drawer-width',
   gmScreenConfig = 'gm-screen-config',
   migrated = 'migrated',

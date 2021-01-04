@@ -30,6 +30,7 @@ https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/mo
 | Drawer Only: **Right Margin** |  0(vw)  | Sets the offest from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen.                  |
 | Drawer Only: **Height**       | 60(vh)  | Sets the height of the GM Screen Drawer.                                                                                                            |
 | Drawer Only: **Width**        | 100(%)  | Calculated as a percentage of the available screen width after the sidebar and right margin are taken into account.                                 |
+| Drawer Only: **Opacity**      | 100(%)  | Controls how opaque the drawer is.                                                                                                                  |
 | **Reset Grid**                |  false  | Saving with this checkbox checked will reset the grid (useful if you end up somehow causing it to fail to render).                                  |
 
 Note that changing the grid dimensions after populating the grid might cause unexpected results, and odds are you will have to clear the grid and repopulate things.

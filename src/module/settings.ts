@@ -91,6 +91,16 @@ export const registerSettings = function () {
     hint: `${MODULE_ABBREV}.settings.${MySettings.drawerHeight}.Hint`,
   });
 
+  game.settings.register(MODULE_ID, MySettings.drawerOpacity, {
+    name: `${MODULE_ABBREV}.settings.${MySettings.drawerOpacity}.Name`,
+    default: 1,
+    type: Number,
+    scope: 'world',
+    range: { min: 0.1, max: 1, step: 0.05 },
+    config: true,
+    hint: `${MODULE_ABBREV}.settings.${MySettings.drawerOpacity}.Hint`,
+  });
+
   game.settings.register(MODULE_ID, MySettings.reset, {
     name: `${MODULE_ABBREV}.settings.${MySettings.reset}.Name`,
     default: false,

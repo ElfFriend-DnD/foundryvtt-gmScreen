@@ -23,6 +23,10 @@
         "Name": "Drawer Only: Width",
         "Hint": "Calculated as a percentage of the available screen width after the sidebar and right margin are taken into account."
       },
+      "drawer-opacity": {
+        "Name": "Drawer Only: Opacity",
+        "Hint": "Controls how opaque the drawer is."
+      },
       "reset": { "Name": "Reset", "Hint": "Clear the Grid entries. This action can not be undone." },
       "display-as-drawer": {
         "Name": "Display as Drawer",

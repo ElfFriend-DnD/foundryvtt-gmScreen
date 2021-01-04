@@ -408,6 +408,7 @@ export class GmScreenApplication extends Application {
     const rightMargin: number = game.settings.get(MODULE_ID, MySettings.rightMargin);
     const drawerWidth: number = game.settings.get(MODULE_ID, MySettings.drawerWidth);
     const drawerHeight: number = game.settings.get(MODULE_ID, MySettings.drawerHeight);
+    const drawerOpacity: number = game.settings.get(MODULE_ID, MySettings.drawerOpacity);
 
     const entityOptions = [
       { label: 'ENTITY.Actor', entries: game.actors.entries },
@@ -438,6 +439,7 @@ export class GmScreenApplication extends Application {
       drawerWidth,
       drawerHeight,
       rightMargin,
+      drawerOpacity,
       expanded: this.expanded,
       displayDrawer,
     };
