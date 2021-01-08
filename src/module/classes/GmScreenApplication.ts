@@ -151,6 +151,7 @@ export class GmScreenApplication extends Application {
    */
   toggleGmScreenVisibility(expanded: boolean = !this.expanded) {
     this.expanded = expanded;
+    Hooks.callAll("gmScreen", this, expanded);
 
     if (this.expanded) {
       $('.gm-screen-app').addClass('expanded');

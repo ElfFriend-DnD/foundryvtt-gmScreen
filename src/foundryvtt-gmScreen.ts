@@ -89,3 +89,31 @@ Hooks.on('renderJournalDirectory', (app, html, data) => {
     _addGmScreenButton(html);
   }
 });
+
+Hooks.on('renderGmScreenApplication', (app,html,data) => {
+  Hooks.callAll("gmScreen", app, true);
+});
+
+Hooks.on('closeGmScreenApplication', (app,html,data) => {
+  Hooks.callAll("gmScreen", app, false);
+});
+
+Hooks.on('renderGmScreen', (render) => { 
+  const displayDrawer = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+
+  if (displayDrawer) {
+      const app = document.getElementsByClassName("gm-screen-app gm-screen-drawer expanded")[0];
+      
+      if ( (app == undefined && render) || (app != undefined && render == false) )
+          document.getElementsByClassName("gm-screen-button")[0].click();
+  }
+  else {
+      const app = document.getElementById("gm-screen-app");
+      
+      if (app == undefined && render) 
+          new GmScreenApplication().render(true);
+      else if (app != undefined && render == false) {
+          app.getElementsByClassName("header-button close")[0].click(); 
+      }
+  }
+});
