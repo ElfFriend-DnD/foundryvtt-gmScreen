@@ -1,6 +1,18 @@
 import { log } from '../helpers';
 import { TEMPLATES } from '../constants';
 
+interface RollableTableData {
+  results: {
+    type: Number;
+    isText: boolean;
+    isEntity: boolean;
+    isCompendium: boolean;
+    text: string;
+    resultId?: string;
+    collection?: string;
+  }[];
+}
+
 export class CompactRollTableDisplay extends RollTableConfig {
   targetElement: JQuery<HTMLElement>;
 
@@ -61,5 +73,34 @@ export class CompactRollTableDisplay extends RollTableConfig {
 
     // we purposefully are not calling
     // super.activateListeners(html);
+  }
+
+  //@ts-ignore
+  getData() {
+    const sheetData = super.getData() as RollableTableData;
+
+    const enrichedResults = sheetData.results.map((result) => {
+      let label: string;
+
+      switch (result.type) {
+        case CONST.TABLE_RESULT_TYPES.COMPENDIUM: {
+          label = `@Compendium[${result.collection}.${result.resultId}]{${result.text}}`;
+          break;
+        }
+        case CONST.TABLE_RESULT_TYPES.ENTITY: {
+          label = `@${result.collection}[${result.resultId}]{${result.text}}`;
+          break;
+        }
+        default:
+          label = result.text;
+      }
+
+      return {
+        ...result,
+        label,
+      };
+    });
+
+    return { ...sheetData, enrichedResults };
   }
 }

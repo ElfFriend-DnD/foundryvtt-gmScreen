@@ -21,7 +21,7 @@
       </tr>
     </thead>
     <tbody>
-      {{#each results as |result i|}}
+      {{#each enrichedResults as |result i|}}
 
       <tr class="{{#if result.drawn}}drawn{{/if}}">
         <td class="range" title="{{ localize "TABLE.ResultWeight" }}: {{result.weight}}">
@@ -32,13 +32,7 @@
           {{/if}}
         </td>
         <td>
-          {{#if result.isText}}
-          {{result.text}}
-          {{else if result.isEntity}}
-          {{result.collection}}
-          {{else if result.isCompendium}}
-          {{result.collection}}
-          {{/if}}
+          {{{ GMSCR-enrich result.label}}}
         </td>
       </tr>
 
