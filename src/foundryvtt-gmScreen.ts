@@ -85,7 +85,7 @@ function _addGmScreenButton(html) {
 Hooks.on('renderJournalDirectory', (app, html, data) => {
   const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
 
-  if (!displayDrawer) {
+  if (game.user.isGM && !displayDrawer) {
     _addGmScreenButton(html);
   }
 });
