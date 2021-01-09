@@ -1,5 +1,5 @@
 import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../../gridTypes';
-import { MODULE_ABBREV, MODULE_ID, MySettings, numberRegex, TEMPLATES } from '../constants';
+import { MODULE_ABBREV, MODULE_ID, MyHooks, MySettings, numberRegex, TEMPLATES } from '../constants';
 import { getGridElementsPosition, getUserCellConfigurationInput, injectCellContents, log } from '../helpers';
 
 enum ClickAction {
@@ -12,21 +12,24 @@ enum ClickAction {
 }
 
 export class GmScreenApplication extends Application {
-  data: GmScreenConfig;
-  expanded: boolean;
   columns: number;
+  data: GmScreenConfig;
+  displayDrawer: boolean;
+  expanded: boolean;
   rows: number;
 
   constructor(options = {}) {
     super(options);
-    const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
     const columns: number = game.settings.get(MODULE_ID, MySettings.columns);
+    const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
     const rows: number = game.settings.get(MODULE_ID, MySettings.rows);
 
-    this.data = data;
     this.columns = columns;
-    this.rows = rows;
+    this.data = data;
+    this.displayDrawer = displayDrawer;
     this.expanded = false;
+    this.rows = rows;
   }
 
   static get defaultOptions() {
@@ -153,9 +156,18 @@ export class GmScreenApplication extends Application {
     this.expanded = expanded;
 
     if (this.expanded) {
+      //@ts-ignore
+      this.bringToTop();
+
       $('.gm-screen-app').addClass('expanded');
+
+      // on open, call MyHooks.openClose with isOpen: true
+      Hooks.callAll(MyHooks.openClose, this, { isOpen: true });
     } else {
       $('.gm-screen-app').removeClass('expanded');
+
+      // on open, call MyHooks.openClose with isOpen: false
+      Hooks.callAll(MyHooks.openClose, this, { isOpen: false });
     }
   }
 
@@ -314,6 +326,15 @@ export class GmScreenApplication extends Application {
    */
   activateListeners(html) {
     super.activateListeners(html);
+
+    if (this.displayDrawer) {
+      // bring to top on click
+      //@ts-ignore
+      $(html).on('mousedown', this.bringToTop.bind(this));
+
+      ui.windows[this.appId] = this;
+    }
+
     $(html).on('click', 'button', this.handleClickEvent.bind(this));
     $(html).on('click', 'a', this.handleClickEvent.bind(this));
 
@@ -404,7 +425,6 @@ export class GmScreenApplication extends Application {
    * @override
    */
   async getData() {
-    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
     const rightMargin: number = game.settings.get(MODULE_ID, MySettings.rightMargin);
     const drawerWidth: number = game.settings.get(MODULE_ID, MySettings.drawerWidth);
     const drawerHeight: number = game.settings.get(MODULE_ID, MySettings.drawerHeight);
@@ -441,7 +461,7 @@ export class GmScreenApplication extends Application {
       rightMargin,
       drawerOpacity,
       expanded: this.expanded,
-      displayDrawer,
+      displayDrawer: this.displayDrawer,
     };
 
     log(false, 'getData', {

@@ -23,6 +23,7 @@ $transition-timing: 400ms;
     right: calc(var(--sidebar-width) + var(--gm-screen-right-offset));
     transform: translateY(0);
     transition: all $transition-timing ease-in-out;
+    z-index: 99;
 
     &.expanded {
       transform: translateY(-100%);

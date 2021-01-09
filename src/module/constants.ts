@@ -20,6 +20,11 @@ export enum MySettings {
   rows = 'rows',
 }
 
+export enum MyHooks {
+  openClose = 'gmScreenOpenClose',
+  ready = 'gmScreenReady',
+}
+
 export enum MyFlags {}
 
 export const numberRegex = /([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?/;

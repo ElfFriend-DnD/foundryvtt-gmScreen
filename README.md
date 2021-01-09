@@ -45,6 +45,15 @@ I'm honestly not sure how well this will play with modules that make changes to 
 | [MEME](https://github.com/Moerill/fvtt-markdown-editor)                | :heavy_check_mark: | Markdown Renders as expected.                    |
 | [Inline Webviewer](https://github.com/ardittristan/VTTInlineWebviewer) | :heavy_check_mark: | Jounrnal entries with webviews work as expected. |
 
+## API
+
+After the hook `gmScreenReady` is fired, the following api methods are expected to be on `window['gm-screen']`:
+
+### `toggleGmScreenVisibility(isOpen: boolean)`
+
+Opens or Closes the GM Screen. By default will toggle the current state.
+
+
 ## Known Issues
 
 - The grid does not refresh automatically when settings are changed, click the "refresh" button.
