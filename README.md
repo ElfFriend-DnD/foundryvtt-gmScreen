@@ -48,11 +48,24 @@ I'm honestly not sure how well this will play with modules that make changes to 
 ## API
 
 After the hook `gmScreenReady` is fired, the following api methods are expected to be on `window['gm-screen']`:
-
 ### `toggleGmScreenVisibility(isOpen: boolean)`
 
 Opens or Closes the GM Screen. By default will toggle the current state.
 
+```js
+window['gm-screen'].toggleGmScreenVisibility(false); // always closes
+window['gm-screen'].toggleGmScreenVisibility(true); // always opens
+window['gm-screen'].toggleGmScreenVisibility(); // always toggles
+```
+
+
+### `Hooks.callAll('gmScreenOpenClose', cb)`
+
+This hook is called when the GM Screen Opens of Closes with the following as the callback:
+
+```ts
+(app: Application, options: {isOpen: true}) => void
+```
 
 ## Known Issues
 
