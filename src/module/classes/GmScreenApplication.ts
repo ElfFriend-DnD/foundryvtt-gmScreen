@@ -532,4 +532,19 @@ export class GmScreenApplication extends Application {
 
     this.addEntryToActiveGrid(newEntry);
   }
+
+  /**
+   * @override
+   */
+  async close(...args) {
+    if (this.displayDrawer) {
+      log(false, 'intercepting close');
+      return new Promise((resolve) => {
+        this.toggleGmScreenVisibility(false);
+        return;
+      });
+    }
+    // @ts-ignore
+    return super.close(...args);
+  }
 }
