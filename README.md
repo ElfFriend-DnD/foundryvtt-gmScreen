@@ -7,7 +7,13 @@
 [![patreon](https://img.shields.io/badge/-patreon-%23FF424D)](https://www.patreon.com/ElfFriend_DnD)
 
 
-Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, actors, and items.
+Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, actors, and items. Customize your "GM Screen" by dragging and dropping items into cells and have its information available at any time from a button on the bottom right of the UI, near the sidebar. Roll rollable tables, open linked entities, and even place actor sheets into these cells. Obviously the space constraints mean some sheets will work better than others.
+
+## Usage
+
+- Drag and Drop Journal Entries, Rollable Tables, even Actors and Items into cells on the GM Screen.
+- Alternatively use the select menus (not recommended).
+- Each cell has settings which allow for that cell to span multiple columns or rows.
 
 ## Installation
 
