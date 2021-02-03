@@ -82,7 +82,7 @@ export class GmScreenApplication extends Application {
 
     if (!updated) {
       // something failed
-      log(true, 'error occured trying to set a grid data');
+      log(true, 'error occurred trying to set a grid data');
       return;
     }
 
@@ -156,6 +156,8 @@ export class GmScreenApplication extends Application {
     this.expanded = expanded;
 
     if (this.expanded) {
+      ui.windows[this.appId] = this; // add our window to the stack, pretending we are an open Application
+
       //@ts-ignore
       this.bringToTop();
 
@@ -165,6 +167,7 @@ export class GmScreenApplication extends Application {
       Hooks.callAll(MyHooks.openClose, this, { isOpen: true });
     } else {
       $('.gm-screen-app').removeClass('expanded');
+      delete ui.windows[this.appId]; // remove our window to the stack, pretending we are a closed Application
 
       // on open, call MyHooks.openClose with isOpen: false
       Hooks.callAll(MyHooks.openClose, this, { isOpen: false });
@@ -331,8 +334,6 @@ export class GmScreenApplication extends Application {
       // bring to top on click
       //@ts-ignore
       $(html).on('mousedown', this.bringToTop.bind(this));
-
-      ui.windows[this.appId] = this;
     }
 
     $(html).on('click', 'button', this.handleClickEvent.bind(this));
