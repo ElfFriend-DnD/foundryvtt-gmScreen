@@ -1,5 +1,6 @@
 @import './styles/variables.scss';
 @import './styles/mixins.scss';
+@import './styles/settings.scss';
 
 $transition-timing: 400ms;
 
@@ -28,24 +29,29 @@ $transition-timing: 400ms;
     &.expanded {
       transform: translateY(-100%);
 
-      .clear,
-      .refresh {
-        transform: translateY(0);
-        transition-delay: $transition-timing / 2;
-      }
-    }
+      .gm-screen-actions {
+        > *:not(.gm-screen-button) {
+          transform: translateY(0);
+          transition-delay: $transition-timing / 2;
+        }
 
-    .clear,
-    .refresh {
-      transform: translateY(100%);
-      transition: transform $transition-timing ease-in;
+        button {
+          border-bottom-left-radius: 0;
+          border-bottom-right-radius: 0;
+        }
+      }
     }
 
     .gm-screen-actions {
       position: absolute;
-      bottom: 100%;
+      bottom: calc(100% - 1px);
       right: 0;
       z-index: -1;
+
+      > *:not(.gm-screen-button) {
+        transform: translateY(100%);
+        transition: transform $transition-timing ease-in;
+      }
     }
   }
 
@@ -61,16 +67,52 @@ $transition-timing: 400ms;
     width: 100%;
     padding: 0 $space;
     pointer-events: none;
-    justify-content: flex-end;
+    justify-content: flex-start;
 
     button {
-      width: auto;
-      white-space: nowrap;
+      background: rgba(255, 255, 240, 0.7);
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border: 0;
+      padding-left: 1em;
+      padding-right: 1em;
       pointer-events: all;
+      white-space: nowrap;
+      width: auto;
+
+      &:focus {
+        box-shadow: none;
+      }
+
+      &:hover {
+        box-shadow: none;
+        text-shadow: 0 0 10px red;
+      }
     }
 
-    .clear {
-      margin-right: auto;
+    .active {
+      background: url(/ui/parchment.jpg) repeat;
+      text-shadow: none;
+    }
+
+    .item:not(.active) {
+      background: rgba(255, 255, 240, 0.7) linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 50%);
+    }
+
+    .meta-actions {
+      margin-left: auto;
+
+      i {
+        margin-right: 0;
+      }
+
+      button {
+        background: url(/ui/parchment.jpg) repeat;
+      }
+    }
+
+    > * {
+      flex: unset;
     }
   }
 
@@ -230,18 +272,25 @@ $transition-timing: 400ms;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    position: static;
   }
 
   .gm-screen-container {
     flex: 1 1 100%;
     overflow: hidden;
   }
-}
 
-/* MODULE SPECIFIC OVERRIDES */
+  .gm-screen-actions {
+    position: absolute;
+    top: 2px;
+    left: 5em;
+    width: auto;
 
-.gm-screen-app {
-  .journal-sheet form .cm-s-easymde {
-    height: 100%;
+    > button {
+      height: 28px;
+      line-height: normal;
+    }
   }
 }
+
+@import './styles/package-overrides.scss';

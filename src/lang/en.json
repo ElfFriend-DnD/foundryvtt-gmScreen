@@ -2,6 +2,7 @@
   "GMSCR": {
     "Grid": "Grid",
     "gmScreen": {
+      "Title": "GM Screen",
       "ClearCell": "Clear Cell",
       "Open": "GM Screen",
       "OpenFull": "Open the full Entity Sheet",
@@ -9,8 +10,19 @@
       "Reset": "Clear Grid"
     },
     "settings": {
-      "columns": { "Name": "Columns", "Hint": "How many columns do you want? Changing this may require a grid clear." },
-      "rows": { "Name": "Rows", "Hint": "How many rows do you want? Changing this may require a grid clear." },
+      "gm-screen-config": {
+        "Name": "Grid Tabs",
+        "Label": "Tabs Config",
+        "Hint": "Add, Remove, and Update Grid Tabs here."
+      },
+      "columns": {
+        "Name": "Columns",
+        "Hint": "How many columns do you want? Changing this may require a grid clear."
+      },
+      "rows": {
+        "Name": "Rows",
+        "Hint": "How many rows do you want? Changing this may require a grid clear."
+      },
       "right-margin": {
         "Name": "Drawer Only: Right Margin",
         "Hint": "Sets the offest from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen in drawer display mode."
@@ -27,7 +39,10 @@
         "Name": "Drawer Only: Opacity",
         "Hint": "Controls how opaque the drawer is."
       },
-      "reset": { "Name": "Reset", "Hint": "Clear the Grid entries. This action can not be undone." },
+      "reset": {
+        "Name": "Reset",
+        "Hint": "Clear the Grid entries. This action can not be undone."
+      },
       "display-as-drawer": {
         "Name": "Display as Drawer",
         "Hint": "Display the GM Screen as a drawer on the bottom of the screen, as opposed to a normal dialog. If you want to use PopOut, set this to false."
@@ -43,6 +58,16 @@
       "CellConfig": "Cell Configuration",
       "RowSpan": "Rows to Span",
       "ColSpan": "Columns to Span"
+    },
+    "gridConfig": {
+      "GridConfig": "Grid Configuration",
+      "GridTabs": "Grid Tab Configuration",
+      "table": {
+        "TabLabel": "Tab Label",
+        "Rows": "Rows Override",
+        "Columns": "Columns Override",
+        "Add": "Add"
+      }
     }
   }
 }

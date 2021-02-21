@@ -1,0 +1,54 @@
+<div class="gm-screen-grid-cell" id="gm-screen-{{gridId}}-cell-{{@index}}" {{#if
+  this.entityUuid}}data-entity-uuid="{{this.entityUuid}}" {{/if}} {{#if this.entryId}}data-entry-id="{{this.entryId}}"
+  {{/if}} style="
+    {{#if this.x}}grid-column: {{this.x}};{{/if}}
+    {{#if this.y}}grid-row:{{this.y}};{{/if}}
+    {{#if this.spanRows}}grid-row-end: span {{this.spanRows}};{{/if}}
+    {{#if this.spanCols}}grid-column-end: span {{this.spanCols}};{{/if}}
+      --column-span-count: {{#if this.spanCols}}{{this.spanCols}}{{else}}1{{/if}}">
+
+  <div class="gm-screen-grid-cell-header">
+
+    <a data-action="configureCell"><i class="fas fa-cog"></i></a>
+
+    {{#if this.entityUuid}}
+    <a data-action="clearCell" title="{{localize 'GMSCR.gmScreen.ClearCell'}}">
+      <i class="fas fa-times-circle"></i>
+    </a>
+    {{/if}}
+
+    <select>
+      {{#select this.entityUuid}}
+      <option value="">None</option>
+      {{#each @root/entityOptions}}
+      <optgroup label="{{localize label}}">
+        {{selectOptions options}}
+      </optgroup>
+      {{/each}}
+      {{/select}}
+    </select>
+
+    {{#if this.entityUuid}}
+    <a data-action="open" title="{{localize 'GMSCR.gmScreen.OpenFull'}}">
+      {{#if this.type}}
+
+      {{#GMSCR-switch this.type}}
+      {{#GMSCR-case 'JournalEntry'}}<i class="fas fa-book-open"></i>{{/GMSCR-case}}
+      {{#GMSCR-case 'RollTable'}}<i class="fas fa-th-list"></i>{{/GMSCR-case}}
+      {{#GMSCR-case 'Actor'}}<i class="fas fa-users"></i>{{/GMSCR-case}}
+      {{#GMSCR-case 'Item'}}<i class="fas fa-suitcase"></i>{{/GMSCR-case}}
+      {{/GMSCR-switch}}
+
+      {{else}}
+      <i class="fas fa-edit"></i>
+      {{/if}}
+    </a>
+    {{/if}}
+  </div>
+
+  <div class="gm-screen-grid-cell-content-wrapper">
+    <div class="gm-screen-grid-cell-content">
+      {{!-- Contents injected in GmScreenApplication.activateListeners --}}
+    </div>
+  </div>
+</div>

@@ -1,6 +1,6 @@
 // Import TypeScript modules
 import { MODULE_ABBREV, MODULE_ID, MyHooks, MySettings, TEMPLATES } from './module/constants';
-import { registerSettings } from './module/settings.js';
+import { GmScreenSettings } from './module/classes/GmScreenSettings';
 import { log } from './module/helpers';
 import { GmScreenApplication } from './module/classes/GmScreenApplication';
 import { _gmScreenMigrate } from './module/migration';
@@ -73,7 +73,7 @@ Hooks.once('init', async function () {
   log(true, `Initializing ${MODULE_ID}`);
 
   // Register custom module settings
-  registerSettings();
+  GmScreenSettings.init();
 
   // Preload Handlebars templates
   await loadTemplates(Object.values(flattenObject(TEMPLATES)));

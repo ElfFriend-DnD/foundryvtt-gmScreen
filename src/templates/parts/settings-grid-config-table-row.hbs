@@ -1,0 +1,20 @@
+<tr>
+  <td>
+    <input type="text" name="grids.{{gridId}}.name" value="{{grid.name}}" data-dtype="String">
+  </td>
+  <td>
+    <input type="number" name="grids.{{gridId}}.columnOverride" placeholder="{{defaultColumns}}"
+      value="{{grid.columnOverride}}" data-dtype="Number">
+  </td>
+  <td>
+    <input type="number" name="grids.{{gridId}}.rowOverride" placeholder="{{defaultRows}}" value="{{grid.rowOverride}}"
+      data-dtype="Number">
+  </td>
+  <td class="textCenter">
+    <input type="string" name="grids.{{gridId}}.id" value="{{gridId}}" data-dtype="String" class="hidden">
+
+    <button type="button" title="{{localize 'Delete'}}" class='delete-row'>
+      <i class="fa fa-trash"></i>
+    </button>
+  </td>
+</tr>

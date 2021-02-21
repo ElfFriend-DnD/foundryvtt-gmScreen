@@ -9,33 +9,38 @@ enum ClickAction {
   'configureCell' = 'configureCell',
   'open' = 'open',
   'toggle-gm-screen' = 'toggle-gm-screen',
+  'setActiveGridId' = 'setActiveGridId',
 }
 
 export class GmScreenApplication extends Application {
-  columns: number;
   data: GmScreenConfig;
-  displayDrawer: boolean;
   expanded: boolean;
-  rows: number;
 
   constructor(options = {}) {
     super(options);
-    const columns: number = game.settings.get(MODULE_ID, MySettings.columns);
     const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
-    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
-    const rows: number = game.settings.get(MODULE_ID, MySettings.rows);
 
-    this.columns = columns;
     this.data = data;
-    this.displayDrawer = displayDrawer;
     this.expanded = false;
-    this.rows = rows;
+  }
+
+  get rows(): number {
+    return game.settings.get(MODULE_ID, MySettings.rows);
+  }
+
+  get columns(): number {
+    return game.settings.get(MODULE_ID, MySettings.columns);
+  }
+
+  get displayDrawer(): boolean {
+    return game.settings.get(MODULE_ID, MySettings.displayDrawer);
   }
 
   static get defaultOptions() {
     const columns: number = game.settings.get(MODULE_ID, MySettings.columns);
     const rows: number = game.settings.get(MODULE_ID, MySettings.rows);
     const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+    const gmScreenConfig: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
 
     const drawerOptions = {
       popOut: false,
@@ -47,15 +52,40 @@ export class GmScreenApplication extends Application {
       width: Number(columns) * 400,
       height: Number(rows) * 300,
       resizable: true,
+      title: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Title`),
     };
 
-    const totalCells = Number(columns) * Number(rows);
+    // set all of the cells of all the grids to be scrollY managed
+    const scrollY = Object.keys(gmScreenConfig.grids).reduce((acc, gridKey) => {
+      const gridColumns = gmScreenConfig.grids[gridKey].columnOverride ?? columns;
+      const gridRows = gmScreenConfig.grids[gridKey].rowOverride ?? rows;
+
+      const totalCells = Number(gridColumns) * Number(gridRows);
+
+      const gridKeyScrollY = [...new Array(totalCells)].map(
+        (_, index) => `#gm-screen-${gridKey}-cell-${index} .gm-screen-grid-cell-content`
+      );
+      return acc.concat(gridKeyScrollY);
+    }, []);
+
+    log(false, {
+      displayDrawer,
+      options: displayDrawer ? drawerOptions : popOutOptions,
+    });
+
     return mergeObject(super.defaultOptions, {
       ...(displayDrawer ? drawerOptions : popOutOptions),
+      tabs: [
+        {
+          navSelector: '.tabs',
+          contentSelector: '.gm-screen-app',
+          initial: gmScreenConfig.activeGridId ?? 'default',
+        },
+      ],
       template: TEMPLATES.screen,
       id: 'gm-screen-app',
       dragDrop: [{ dragSelector: '.gm-screen-grid-cell', dropSelector: '.gm-screen-grid-cell' }],
-      scrollY: [...new Array(totalCells)].map((_, index) => `#gm-screen-cell-${index} .gm-screen-grid-cell-content`),
+      scrollY,
     });
   }
 
@@ -63,8 +93,8 @@ export class GmScreenApplication extends Application {
     return this.data.grids[this.data.activeGridId];
   }
 
-  get numOccupiedCells() {
-    return Object.values(this.activeGrid.entries).reduce((acc, entry) => {
+  static getNumOccupiedCells(grid: GmScreenGrid) {
+    return Object.values(grid.entries).reduce((acc, entry) => {
       const cellsTaken = (entry.spanCols || 1) * (entry.spanRows || 1);
       return acc + cellsTaken;
     }, 0);
@@ -153,7 +183,14 @@ export class GmScreenApplication extends Application {
    * @param {boolean} expanded
    */
   toggleGmScreenVisibility(expanded: boolean = !this.expanded) {
+    // TODO: Allow toggling open to a specific tab
+    // TODO: Provide API for other modules to know what tabs exist
     this.expanded = expanded;
+
+    const activeGridDetails = {
+      activeGridId: this.data.activeGridId,
+      activeGridName: this.data.grids[this.data.activeGridId]?.name,
+    };
 
     if (this.expanded) {
       ui.windows[this.appId] = this; // add our window to the stack, pretending we are an open Application
@@ -163,14 +200,20 @@ export class GmScreenApplication extends Application {
 
       $('.gm-screen-app').addClass('expanded');
 
-      // on open, call MyHooks.openClose with isOpen: true
-      Hooks.callAll(MyHooks.openClose, this, { isOpen: true });
+      // on open, call MyHooks.openClose with isOpen: true and the active grid details
+      Hooks.callAll(MyHooks.openClose, this, {
+        isOpen: true,
+        ...activeGridDetails,
+      });
     } else {
       $('.gm-screen-app').removeClass('expanded');
       delete ui.windows[this.appId]; // remove our window to the stack, pretending we are a closed Application
 
-      // on open, call MyHooks.openClose with isOpen: false
-      Hooks.callAll(MyHooks.openClose, this, { isOpen: false });
+      // on open, call MyHooks.openClose with isOpen: false and the active grid details
+      Hooks.callAll(MyHooks.openClose, this, {
+        isOpen: false,
+        ...activeGridDetails,
+      });
     }
   }
 
@@ -301,8 +344,8 @@ export class GmScreenApplication extends Application {
 
           // Otherwise render the relevantEntitySheet
           else relevantEntitySheet.render(true);
-        } catch (e) {
-          log(true, 'error opening entity sheet', e);
+        } catch (error) {
+          log(true, 'error opening entity sheet', error);
         }
         break;
       }
@@ -310,11 +353,28 @@ export class GmScreenApplication extends Application {
         this.render();
         break;
       }
+      case ClickAction.setActiveGridId: {
+        const newActiveGridId = e.currentTarget.dataset.tab;
+
+        log(false, 'trying to set active grid', { newActiveGridId });
+
+        try {
+          const newGmScreenConfig = {
+            ...this.data,
+            activeGridId: e.currentTarget.dataset.tab,
+          };
+          await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
+          this.data = newGmScreenConfig;
+        } catch (error) {
+          log(true, 'error setting active tab', error);
+        }
+        break;
+      }
       case ClickAction['toggle-gm-screen']: {
         try {
           this.toggleGmScreenVisibility();
-        } catch (e) {
-          log(true, 'error toggling GM Screen', e);
+        } catch (error) {
+          log(true, 'error toggling GM Screen', error);
         }
         break;
       }
@@ -397,35 +457,33 @@ export class GmScreenApplication extends Application {
       });
   }
 
-  getAllActiveGridEntries() {
-    return Promise.all(
-      Object.values(this.activeGrid.entries).map(async (entry: GmScreenGridEntry) => {
-        try {
-          const relevantEntity = await fromUuid(entry.entityUuid);
+  /**
+   * All grids with entries hydrated with empty cells
+   */
+  getHydratedGrids() {
+    return Object.values(this.data.grids).reduce<
+      Record<string, { grid: GmScreenGrid; gridEntries: Partial<GmScreenGridEntry>[] }>
+    >((acc, grid) => {
+      const gridColumns = grid.columnOverride ?? this.columns;
+      const gridRows = grid.rowOverride ?? this.rows;
 
-          log(false, 'entity hydration', {
-            relevantEntity,
-            entry,
-          });
+      const emptyCellsNum = Number(gridColumns) * Number(gridRows) - GmScreenApplication.getNumOccupiedCells(grid);
+      const emptyCells: Partial<GmScreenGridEntry>[] =
+        emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
 
-          return {
-            ...entry,
-            type: relevantEntity?.entity,
-          };
-        } catch (e) {
-          log(false, 'no entity for this entry', {
-            entry,
-          });
-          return entry;
-        }
-      })
-    );
+      acc[grid.id] = {
+        grid,
+        gridEntries: [...Object.values(grid.entries), ...emptyCells],
+      };
+
+      return acc;
+    }, {});
   }
 
   /**
    * @override
    */
-  async getData() {
+  getData() {
     const rightMargin: number = game.settings.get(MODULE_ID, MySettings.rightMargin);
     const drawerWidth: number = game.settings.get(MODULE_ID, MySettings.drawerWidth);
     const drawerHeight: number = game.settings.get(MODULE_ID, MySettings.drawerHeight);
@@ -446,14 +504,10 @@ export class GmScreenApplication extends Application {
       };
     });
 
-    const emptyCellsNum = Number(this.columns) * Number(this.rows) - this.numOccupiedCells;
-    const emptyCells: Partial<GmScreenGridEntry>[] =
-      emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
-
     const newAppData = {
       ...super.getData(),
       entityOptions,
-      gridEntries: [...(await this.getAllActiveGridEntries()), ...emptyCells],
+      grids: this.getHydratedGrids(),
       data: this.data,
       columns: this.columns,
       rows: this.rows,

@@ -82,13 +82,14 @@ export function getUserCellConfigurationInput(
 }
 
 export function getGridElementsPosition(element: JQuery<HTMLElement>) {
-  const vanillaGridElement = document.querySelector('.gm-screen-grid');
+  // const vanillaGridElement = document.querySelector('.gm-screen-grid');
+  const relevantGridElement = element.parents('.gm-screen-grid')[0];
 
-  const vanillaGridElementStyles = window.getComputedStyle(vanillaGridElement);
+  const vanillaGridElementStyles = window.getComputedStyle(relevantGridElement);
 
   log(false, 'getGridElementsPosition', {
     element,
-    vanillaGridElement,
+    relevantGridElement,
     vanillaGridElementStyles,
     gap: vanillaGridElementStyles.gap, // wtf this is '' in firefox
     gridRowGap: vanillaGridElementStyles['grid-row-gap'],
@@ -109,7 +110,7 @@ export function getGridElementsPosition(element: JQuery<HTMLElement>) {
 
   // to figure out which column/row this element is in within the gridElement, we have to do math
   const elementBounds = element[0].getBoundingClientRect();
-  const gridBounds = vanillaGridElement.getBoundingClientRect();
+  const gridBounds = relevantGridElement.getBoundingClientRect();
 
   const elementColumn = Math.floor((elementBounds.left - (gridBounds.left - gap)) / (colWidth + gap)) + 1;
 
