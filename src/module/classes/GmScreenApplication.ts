@@ -13,14 +13,10 @@ enum ClickAction {
 }
 
 export class GmScreenApplication extends Application {
-  data: GmScreenConfig;
   expanded: boolean;
 
   constructor(options = {}) {
     super(options);
-    const data: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
-
-    this.data = data;
     this.expanded = false;
   }
 
@@ -34,6 +30,10 @@ export class GmScreenApplication extends Application {
 
   get displayDrawer(): boolean {
     return game.settings.get(MODULE_ID, MySettings.displayDrawer);
+  }
+
+  get data(): GmScreenConfig {
+    return game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
   }
 
   static get defaultOptions() {
@@ -363,8 +363,8 @@ export class GmScreenApplication extends Application {
             ...this.data,
             activeGridId: e.currentTarget.dataset.tab,
           };
+
           await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
-          this.data = newGmScreenConfig;
         } catch (error) {
           log(true, 'error setting active tab', error);
         }

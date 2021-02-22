@@ -256,16 +256,15 @@ export class GmScreenSettings extends FormApplication {
       data,
     });
 
-    // TODO: re-create data.grids with a more sensible key, append `id` to the object, create empty `entries`
+    const newGridIds = Object.keys(data.grids);
 
-    const newGrids = Object.values<Partial<GmScreenGrid>>(data.grids).reduce<GmScreenConfig['grids']>(
-      (acc, grid) => {
-        const gridId = grid.id ?? randomID();
+    const newGrids = newGridIds.reduce<GmScreenConfig['grids']>((acc, gridId) => {
+      const grid = data.grids[gridId];
 
         // if this grid exists already, modify it
-        if (acc.hasOwnProperty(gridId)) {
+      if (gmScreenConfig.grids.hasOwnProperty(gridId)) {
           acc[gridId] = {
-            ...acc[gridId],
+          ...gmScreenConfig.grids[gridId],
             ...grid,
           };
 
@@ -281,13 +280,17 @@ export class GmScreenSettings extends FormApplication {
         };
 
         return acc;
-      },
-      { ...gmScreenConfig.grids }
-    );
+    }, {});
 
-    const newGmScreenConfig = {
+    // handle case where active tab is deleted
+    const newActiveGridId = newGridIds.includes(gmScreenConfig.activeGridId)
+      ? gmScreenConfig.activeGridId
+      : newGridIds[0];
+
+    const newGmScreenConfig: GmScreenConfig = {
       ...gmScreenConfig,
       grids: newGrids,
+      activeGridId: newActiveGridId,
     };
 
     log(true, 'setting settings', {
@@ -295,6 +298,8 @@ export class GmScreenSettings extends FormApplication {
     });
 
     await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
+
+    window[MODULE_ID].refreshGmScreen();
 
     this.close();
   }

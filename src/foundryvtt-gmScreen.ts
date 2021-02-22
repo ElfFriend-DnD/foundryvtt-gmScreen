@@ -98,6 +98,7 @@ Hooks.once('ready', async function () {
     }
 
     window[MODULE_ID].toggleGmScreenVisibility = toggleGmScreenOpen;
+    window[MODULE_ID].refreshGmScreen = gmScreenInstance.render.bind(gmScreenInstance);
 
     game.settings.set(MODULE_ID, MySettings.reset, false);
   }
