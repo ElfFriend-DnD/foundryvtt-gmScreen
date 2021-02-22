@@ -256,30 +256,35 @@ export class GmScreenSettings extends FormApplication {
       data,
     });
 
+    if (Object.keys(data).length === 0) {
+      ui.notifications.error(game.i18n.localize(`${MODULE_ABBREV}.gridConfig.errors.empty`));
+      throw 'Cannot save the grid with no tabs.';
+    }
+
     const newGridIds = Object.keys(data.grids);
 
     const newGrids = newGridIds.reduce<GmScreenConfig['grids']>((acc, gridId) => {
       const grid = data.grids[gridId];
 
-        // if this grid exists already, modify it
+      // if this grid exists already, modify it
       if (gmScreenConfig.grids.hasOwnProperty(gridId)) {
-          acc[gridId] = {
-          ...gmScreenConfig.grids[gridId],
-            ...grid,
-          };
-
-          return acc;
-        }
-
-        // otherwise create it
         acc[gridId] = {
+          ...gmScreenConfig.grids[gridId],
           ...grid,
-          entries: {},
-          name: grid.name ?? '',
-          id: gridId,
         };
 
         return acc;
+      }
+
+      // otherwise create it
+      acc[gridId] = {
+        ...grid,
+        entries: {},
+        name: grid.name ?? '',
+        id: gridId,
+      };
+
+      return acc;
     }, {});
 
     // handle case where active tab is deleted

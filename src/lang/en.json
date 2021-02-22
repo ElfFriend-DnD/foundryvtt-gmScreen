@@ -67,6 +67,9 @@
         "Rows": "Rows Override",
         "Columns": "Columns Override",
         "Add": "Add"
+      },
+      "errors": {
+        "empty": "Cannot save the grid with no tabs."
       }
     }
   }
