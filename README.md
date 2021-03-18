@@ -39,9 +39,10 @@ https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/mo
 
 | **Name**                      | Default | Description                                                                                                                                         |
 | ----------------------------- | :-----: | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Display as Drawer**         |  true   | Controls whether the GM Screen appears as a normal popup dialog or as a drawer. To use the PopOut module with the GM Screen, this needs to checked. |
+| **Grid Tabs**         |  Menu   | Allows the user to configure multiple tabs of the grid. Each grid tab created can have its own Column Override and Row Override if the default setting isn't what you want for that particular tab. |
 | **Columns**                   |    4    | Sets the number of columns in the grid.                                                                                                             |
 | **Rows**                      |    3    | Sets the number of rows in the grid.                                                                                                                |
+| **Display as Drawer**         |  true   | Controls whether the GM Screen appears as a normal popup dialog or as a drawer. To use the PopOut module with the GM Screen, this needs to checked. |
 | Drawer Only: **Right Margin** |  0(vw)  | Sets the offest from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen.                  |
 | Drawer Only: **Height**       | 60(vh)  | Sets the height of the GM Screen Drawer.                                                                                                            |
 | Drawer Only: **Width**        | 100(%)  | Calculated as a percentage of the available screen width after the sidebar and right margin are taken into account.                                 |
