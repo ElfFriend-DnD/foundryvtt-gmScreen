@@ -148,3 +148,7 @@ Hooks.on('renderGmScreenApplication', (app, html, data) => {
     Hooks.callAll(MyHooks.openClose, app, { isOpen: true });
   }
 });
+
+Hooks.once('devModeReady', ({ registerPackageDebugFlag }) => {
+  registerPackageDebugFlag(MODULE_ID);
+});
