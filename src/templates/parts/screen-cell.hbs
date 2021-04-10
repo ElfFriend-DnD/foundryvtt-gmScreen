@@ -7,7 +7,7 @@
     {{#if this.spanCols}}grid-column-end: span {{this.spanCols}};{{/if}}
       --column-span-count: {{#if this.spanCols}}{{this.spanCols}}{{else}}1{{/if}}">
 
-  {{#if game.user.isGM}}
+  {{#if @root/isGM}}
   <div class="gm-screen-grid-cell-header">
 
     <a data-action="configureCell"><i class="fas fa-cog"></i></a>
