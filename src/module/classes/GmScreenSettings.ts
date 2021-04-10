@@ -8,7 +8,7 @@ const defaultGmScreenConfig: GmScreenConfig = {
     default: {
       name: 'Main',
       id: 'default',
-      shared: false,
+      isShared: false,
       entries: {},
     },
   },
@@ -16,10 +16,6 @@ const defaultGmScreenConfig: GmScreenConfig = {
 
 export class GmScreenSettings extends FormApplication {
   static init() {
-    // Debug use
-    CONFIG[MODULE_ID] = { debug: false };
-    // CONFIG.debug.hooks = true;
-
     game.settings.registerMenu(MODULE_ID, 'menu', {
       name: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.Name`,
       label: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.Label`,
@@ -34,6 +30,17 @@ export class GmScreenSettings extends FormApplication {
       type: Object,
       scope: 'world',
       config: false,
+      onChange: function (...args) {
+        const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+        log(false, 'gmScreenConfig changed', {
+          args,
+          currentConfig: { ...game.settings.get(MODULE_ID, MySettings.gmScreenConfig) },
+        });
+
+        // TODO: Check if we are GM or Player and act accordingly
+
+        game.modules.get(MODULE_ID).api?.refreshGmScreen();
+      },
     });
 
     game.settings.register(MODULE_ID, MySettings.migrated, {
@@ -112,12 +119,12 @@ export class GmScreenSettings extends FormApplication {
     });
 
     game.settings.register(MODULE_ID, MySettings.condensedButton, {
-        name: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Name`,
-        default: false,
-        type: Boolean,
-        scope: 'world',
-        config: true,
-        hint: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Hint`,
+      name: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Name`,
+      default: false,
+      type: Boolean,
+      scope: 'world',
+      config: true,
+      hint: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Hint`,
     });
 
     game.settings.register(MODULE_ID, MySettings.reset, {

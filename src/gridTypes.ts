@@ -7,7 +7,7 @@ export interface GmScreenGrid {
   entries: Record<string, GmScreenGridEntry>; // keyed by cellId
   id: string; // grid's uuid
   name: string; // user configurable
-  shared: boolean;
+  isShared: boolean;
   rowOverride?: number;
   columnOverride?: number;
 }

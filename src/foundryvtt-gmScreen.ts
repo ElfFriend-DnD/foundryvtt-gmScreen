@@ -92,13 +92,34 @@ Hooks.once('ready', async function () {
   // Do anything once the module is ready
   if (displayDrawer) {
     gmScreenInstance = new GmScreenApplication();
-    if (game.user.isGM || Object.values(gmScreenInstance.data.grids).some(grid => grid.shared)) {
-        gmScreenInstance.render(true);
-    }
+    gmScreenInstance.render(true);
   }
 
-  window[MODULE_ID].toggleGmScreenVisibility = toggleGmScreenOpen;
-  window[MODULE_ID].refreshGmScreen = gmScreenInstance?.render.bind(gmScreenInstance);
+  game.modules.get(MODULE_ID).api = {
+    toggleGmScreenVisibility: toggleGmScreenOpen,
+    refreshGmScreen: gmScreenInstance?.refresh,
+  };
+
+  window[MODULE_ID] = {
+    toggleGmScreenVisibility: (...args) => {
+      console.warn(
+        MODULE_ID,
+        'Deprecation Warning:',
+        'window["gm-screen"]?.toggleGmScreenVisibility is deprecated in favor of game.modules.get("gm-screen")?.api?.toggleGmScreenVisibility and will be removed in a future update.'
+      );
+
+      game.modules.get(MODULE_ID)?.api.toggleGmScreenVisibility(...args);
+    },
+    refreshGmScreen: (...args) => {
+      console.warn(
+        MODULE_ID,
+        'Deprecation Warning:',
+        'window["gm-screen"]?.refreshGmScreen is deprecated in favor of game.modules.get("gm-screen")?.api?.refreshGmScreen and will be removed in a future update.'
+      );
+
+      game.modules.get(MODULE_ID)?.api.refreshGmScreen(...args);
+    },
+  };
 
   if (game.user.isGM) {
     game.settings.set(MODULE_ID, MySettings.reset, false);

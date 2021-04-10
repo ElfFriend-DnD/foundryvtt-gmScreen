@@ -214,3 +214,21 @@ export async function injectCellContents(entityUuid: string, gridCellContentElem
     }
   }
 }
+
+export function getUserViewableGrids() {
+  const gmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
+
+  if (game.user.isGM) {
+    return gmScreenConfig.grids;
+  }
+
+  const sharedGrids = Object.keys(gmScreenConfig.grids).reduce((acc, gridId) => {
+    if (gmScreenConfig.grids[gridId].isShared) {
+      acc[gridId] = gmScreenConfig.grids[gridId];
+    }
+
+    return acc;
+  }, {});
+
+  return sharedGrids;
+}

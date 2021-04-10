@@ -16,6 +16,19 @@
 
 Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, actors, and items. Customize your "GM Screen" by dragging and dropping items into cells and have its information available at any time from a button on the bottom right of the UI, near the sidebar. Roll rollable tables, open linked entities, and even place actor sheets into these cells. Obviously the space constraints mean some sheets will work better than others.
 
+## TODO
+- [] disable setting active grid ID for non-gm users
+- [] fix memory leak in render() not cleaning up old applications
+- [] create a static method on GM Screen Application to tell if there are gm screen tabs that the active user can see, this might should be a helper actually
+- [] add the button to player UIs if there is a shared gm screen tab in non-drawer mode
+- [] Auto refresh when gmScreenConfig changes
+- [x] as part of refresh, check if there are any shared grids, if not, close/open the drawer
+- [] Create a placeholder for the grid if there are no tabs, hide the button if no tabs and we are player
+- [] Change the scope of some settings to be client scope instead of world scoped
+- [] change gm screen `.close()` to behave appropriately for the user type
+- [] refactor `activateListeners` to not inject html, instead use `_renderHtml()`.
+- [x] refactor the gm screen api to live in the `modules.get(gm-screen).api` place.
+
 ## Usage
 
 - Drag and Drop Journal Entries, Rollable Tables, even Actors and Items into cells on the GM Screen.
@@ -37,17 +50,17 @@ https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/mo
 
 ## Configuration
 
-| **Name**                      | Default | Description                                                                                                                                         |
-| ----------------------------- | :-----: | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Grid Tabs**         |  Menu   | Allows the user to configure multiple tabs of the grid. Each grid tab created can have its own Column Override and Row Override if the default setting isn't what you want for that particular tab. |
-| **Columns**                   |    4    | Sets the number of columns in the grid.                                                                                                             |
-| **Rows**                      |    3    | Sets the number of rows in the grid.                                                                                                                |
-| **Display as Drawer**         |  true   | Controls whether the GM Screen appears as a normal popup dialog or as a drawer. To use the PopOut module with the GM Screen, this needs to checked. |
-| Drawer Only: **Right Margin** |  0(vw)  | Sets the offest from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen.                  |
-| Drawer Only: **Height**       | 60(vh)  | Sets the height of the GM Screen Drawer.                                                                                                            |
-| Drawer Only: **Width**        | 100(%)  | Calculated as a percentage of the available screen width after the sidebar and right margin are taken into account.                                 |
-| Drawer Only: **Opacity**      | 100(%)  | Controls how opaque the drawer is.                                                                                                                  |
-| **Reset Grid**                |  false  | Saving with this checkbox checked will reset the grid (useful if you end up somehow causing it to fail to render).                                  |
+| **Name**                      | Default | Description                                                                                                                                                                                         |
+| ----------------------------- | :-----: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Grid Tabs**                 |  Menu   | Allows the user to configure multiple tabs of the grid. Each grid tab created can have its own Column Override and Row Override if the default setting isn't what you want for that particular tab. |
+| **Columns**                   |    4    | Sets the number of columns in the grid.                                                                                                                                                             |
+| **Rows**                      |    3    | Sets the number of rows in the grid.                                                                                                                                                                |
+| **Display as Drawer**         |  true   | Controls whether the GM Screen appears as a normal popup dialog or as a drawer. To use the PopOut module with the GM Screen, this needs to checked.                                                 |
+| Drawer Only: **Right Margin** |  0(vw)  | Sets the offest from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen.                                                                  |
+| Drawer Only: **Height**       | 60(vh)  | Sets the height of the GM Screen Drawer.                                                                                                                                                            |
+| Drawer Only: **Width**        | 100(%)  | Calculated as a percentage of the available screen width after the sidebar and right margin are taken into account.                                                                                 |
+| Drawer Only: **Opacity**      | 100(%)  | Controls how opaque the drawer is.                                                                                                                                                                  |
+| **Reset Grid**                |  false  | Saving with this checkbox checked will reset the grid (useful if you end up somehow causing it to fail to render).                                                                                  |
 
 Note that changing the grid dimensions after populating the grid might cause unexpected results, and odds are you will have to clear the grid and repopulate things.
 

@@ -1,6 +1,12 @@
 import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../../gridTypes';
 import { MODULE_ABBREV, MODULE_ID, MyHooks, MySettings, numberRegex, TEMPLATES } from '../constants';
-import { getGridElementsPosition, getUserCellConfigurationInput, injectCellContents, log } from '../helpers';
+import {
+  getGridElementsPosition,
+  getUserCellConfigurationInput,
+  getUserViewableGrids,
+  injectCellContents,
+  log,
+} from '../helpers';
 
 enum ClickAction {
   'clearGrid' = 'clearGrid',
@@ -34,6 +40,14 @@ export class GmScreenApplication extends Application {
 
   get data(): GmScreenConfig {
     return game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+  }
+
+  get userViewableGrids() {
+    return getUserViewableGrids();
+  }
+
+  get hasUserViewableGrids() {
+    return !!Object.keys(this.userViewableGrids).length;
   }
 
   static get defaultOptions() {
@@ -103,7 +117,7 @@ export class GmScreenApplication extends Application {
   /**
    * Helper function to update the gmScreenConfig setting with a new grid's worth of data
    * @param {GmScreenGrid} newGridData - the complete grid object to set
-   * @param {boolean} render - whether or not to also render the grid
+   * @param {boolean} render - ⚠️ DEPRECATED since 2.4.0: whether or not to also render/refresh the grid
    */
   async setGridData(newGridData: GmScreenGrid, render: boolean = true) {
     const newGmScreenConfig = { ...this.data };
@@ -116,11 +130,12 @@ export class GmScreenApplication extends Application {
       return;
     }
 
+    // changing this setting will auto-refresh the screen
     await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
 
-    if (render) {
-      this.render();
-    }
+    // if (render) {
+    //   this.refresh();
+    // }
   }
 
   /**
@@ -350,7 +365,7 @@ export class GmScreenApplication extends Application {
         break;
       }
       case ClickAction.refresh: {
-        this.render();
+        this.refresh();
         break;
       }
       case ClickAction.setActiveGridId: {
@@ -381,6 +396,14 @@ export class GmScreenApplication extends Application {
       default: {
         return;
       }
+    }
+  }
+
+  refresh() {
+    if (game.user.isGM || this.hasUserViewableGrids) {
+      this.render();
+    } else {
+      this.close();
     }
   }
 
@@ -427,12 +450,6 @@ export class GmScreenApplication extends Application {
     this.updateCSSPropertyVariable(html, '.gm-screen-grid-cell', 'width', '--this-cell-width');
 
     const vanillaGridElement = document.querySelector('.gm-screen-grid');
-    // return early if suddenly no grids were found.
-    // this may happen in player view after a shared grid was removed.
-    if (!vanillaGridElement) {
-      $('.gm-screen-app').remove();
-      return;
-    };
     const vanillaGridElementStyles = window.getComputedStyle(vanillaGridElement);
     const cols = vanillaGridElementStyles['grid-template-columns'].split(' ');
     const colWidth = cols[0];
@@ -468,24 +485,22 @@ export class GmScreenApplication extends Application {
    */
   getHydratedGrids() {
     return Object.values(this.data.grids)
-    .filter(grid => game.user.isGM || grid.shared)
-    .reduce<
-      Record<string, { grid: GmScreenGrid; gridEntries: Partial<GmScreenGridEntry>[] }>
-    >((acc, grid) => {
-      const gridColumns = grid.columnOverride ?? this.columns;
-      const gridRows = grid.rowOverride ?? this.rows;
+      .filter((grid) => game.user.isGM || grid.isShared)
+      .reduce<Record<string, { grid: GmScreenGrid; gridEntries: Partial<GmScreenGridEntry>[] }>>((acc, grid) => {
+        const gridColumns = grid.columnOverride ?? this.columns;
+        const gridRows = grid.rowOverride ?? this.rows;
 
-      const emptyCellsNum = Number(gridColumns) * Number(gridRows) - GmScreenApplication.getNumOccupiedCells(grid);
-      const emptyCells: Partial<GmScreenGridEntry>[] =
-        emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
+        const emptyCellsNum = Number(gridColumns) * Number(gridRows) - GmScreenApplication.getNumOccupiedCells(grid);
+        const emptyCells: Partial<GmScreenGridEntry>[] =
+          emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
 
-      acc[grid.id] = {
-        grid,
-        gridEntries: [...Object.values(grid.entries), ...emptyCells],
-      };
+        acc[grid.id] = {
+          grid,
+          gridEntries: [...Object.values(grid.entries), ...emptyCells],
+        };
 
-      return acc;
-    }, {});
+        return acc;
+      }, {});
   }
 
   /**
@@ -554,7 +569,7 @@ export class GmScreenApplication extends Application {
         label: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Refresh`),
         class: 'refresh',
         icon: 'fas fa-sync',
-        onclick: () => this.render(),
+        onclick: () => this.refresh(),
       },
       ...superButtons,
     ];
