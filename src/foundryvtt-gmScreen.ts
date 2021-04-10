@@ -102,7 +102,7 @@ Hooks.once('ready', async function () {
 
   if (game.user.isGM) {
     game.settings.set(MODULE_ID, MySettings.reset, false);
-/  }
+  }
 
   Hooks.callAll(MyHooks.ready);
 });
