@@ -151,6 +151,7 @@ export async function injectCellContents(entityUuid: string, gridCellContentElem
       const compactRollTableDisplay = new CompactRollTableDisplay(relevantEntity, gridCellContentElement);
 
       log(false, 'try rendering compactRollTable', {
+        relevantEntity,
         compactRollTableDisplay,
       });
 
@@ -159,9 +160,18 @@ export async function injectCellContents(entityUuid: string, gridCellContentElem
       break;
     }
     case 'JournalEntry': {
-      const compactJournalEntryDisplay = new CompactJournalEntryDisplay(relevantEntity, gridCellContentElement);
+      let compactJournalEntryDisplay;
+
+      if (!(relevantEntity.sheet instanceof JournalSheet)) {
+        const CompactJournalEntrySheet = getCompactGenericEntityDisplay(relevantEntity.sheet);
+
+        compactJournalEntryDisplay = new CompactJournalEntrySheet(relevantEntity, gridCellContentElement);
+      } else {
+        compactJournalEntryDisplay = new CompactJournalEntryDisplay(relevantEntity, gridCellContentElement);
+      }
 
       log(false, 'try rendering compactJournalEntry', {
+        relevantEntity,
         compactJournalEntryDisplay,
       });
 
