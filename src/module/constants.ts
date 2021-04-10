@@ -21,6 +21,8 @@ export enum MySettings {
   drawerWidth = 'drawer-width',
   gmScreenConfig = 'gm-screen-config',
   migrated = 'migrated',
+  gmButtonText = "gmButtonText";
+  playerButtonText = "playerButtonText";
   reset = 'reset',
   rightMargin = 'right-margin',
   rows = 'rows',

@@ -427,6 +427,12 @@ export class GmScreenApplication extends Application {
     this.updateCSSPropertyVariable(html, '.gm-screen-grid-cell', 'width', '--this-cell-width');
 
     const vanillaGridElement = document.querySelector('.gm-screen-grid');
+    // return early if suddenly no grids were found.
+    // this may happen in player view after a shared grid was removed.
+    if (!vanillaGridElement) {
+      $('.gm-screen-app').remove();
+      return;
+    };
     const vanillaGridElementStyles = window.getComputedStyle(vanillaGridElement);
     const cols = vanillaGridElementStyles['grid-template-columns'].split(' ');
     const colWidth = cols[0];
@@ -461,7 +467,9 @@ export class GmScreenApplication extends Application {
    * All grids with entries hydrated with empty cells
    */
   getHydratedGrids() {
-    return Object.values(this.data.grids).reduce<
+    return Object.values(this.data.grids)
+    .filter(grid => game.user.isGM || grid.shared)
+    .reduce<
       Record<string, { grid: GmScreenGrid; gridEntries: Partial<GmScreenGridEntry>[] }>
     >((acc, grid) => {
       const gridColumns = grid.columnOverride ?? this.columns;
@@ -488,6 +496,8 @@ export class GmScreenApplication extends Application {
     const drawerWidth: number = game.settings.get(MODULE_ID, MySettings.drawerWidth);
     const drawerHeight: number = game.settings.get(MODULE_ID, MySettings.drawerHeight);
     const drawerOpacity: number = game.settings.get(MODULE_ID, MySettings.drawerOpacity);
+    const gmButtonText = game.settings.get(MODULE_ID, MySettings.gmButtonText);
+    const playerButtonText = game.settings.get(MODULE_ID, MySettings.playerButtonText);
 
     const entityOptions = [
       { label: 'ENTITY.Actor', entries: game.actors.entries },
@@ -508,6 +518,9 @@ export class GmScreenApplication extends Application {
       ...super.getData(),
       entityOptions,
       grids: this.getHydratedGrids(),
+      isGM: game.user.isGM,
+      gmButtonText: gmButtonText,
+      playerButtonText: playerButtonText,
       data: this.data,
       columns: this.columns,
       rows: this.rows,

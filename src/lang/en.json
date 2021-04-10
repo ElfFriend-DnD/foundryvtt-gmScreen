@@ -39,6 +39,14 @@
         "Name": "Drawer Only: Opacity",
         "Hint": "Controls how opaque the drawer is."
       },
+      "gmButtonText": {
+        "Name": "Text of GM Screen Button",
+        "Hint": "Setting to empty will show just the icon."
+      },
+      "playerButtonText": {
+        "Name": "Text of Player Screen Button",
+        "Hint": "Setting to empty will show just the icon."
+      },
       "reset": {
         "Name": "Reset",
         "Hint": "Clear the Grid entries. This action can not be undone."

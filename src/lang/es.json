@@ -39,6 +39,14 @@
         "Name": "Solo Bandeja: Opacidad",
         "Hint": "Controla la opacidad de la Bandeja."
       },
+      "gmButtonText": {
+        "Name": "Texto para el botón de GM Screen",
+        "Hint": "En vacío, se mostrará solo el ícono."
+      },
+      "playerButtonText": {
+        "Name": "Texto para el botón de GM Screen de los jugadores",
+        "Hint": "En vacío, se mostrará solo el ícono."
+      },
       "reset": {
         "Name": "Restablecer",
         "Hint": "Borra las entradas de la Cuadrícula. Esta acción no se puede deshacer."

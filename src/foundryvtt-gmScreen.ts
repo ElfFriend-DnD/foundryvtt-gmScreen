@@ -90,16 +90,17 @@ Hooks.once('ready', async function () {
   const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
 
   // Do anything once the module is ready
-  if (game.user.isGM) {
-    if (displayDrawer) {
-      gmScreenInstance = new GmScreenApplication();
-
-      gmScreenInstance.render(true);
+  if (displayDrawer) {
+    gmScreenInstance = new GmScreenApplication();
+    if (game.user.isGM || Object.values(gmScreenInstance.data.grids).some(grid => grid.shared)) {
+        gmScreenInstance.render(true);
     }
+  }
 
-    window[MODULE_ID].toggleGmScreenVisibility = toggleGmScreenOpen;
-    window[MODULE_ID].refreshGmScreen = gmScreenInstance.render.bind(gmScreenInstance);
+  window[MODULE_ID].toggleGmScreenVisibility = toggleGmScreenOpen;
+  window[MODULE_ID].refreshGmScreen = gmScreenInstance?.render.bind(gmScreenInstance);
 
+  if (game.user.isGM) {
     game.settings.set(MODULE_ID, MySettings.reset, false);
   }
 
@@ -126,7 +127,7 @@ function _addGmScreenButton(html) {
 Hooks.on('renderJournalDirectory', (app, html, data) => {
   const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
 
-  if (game.user.isGM && !displayDrawer) {
+  if ((game.user.isGM || Object.keys(gmScreenInstance.data.grids).length > 1) && !displayDrawer) {
     _addGmScreenButton(html);
   }
 });
