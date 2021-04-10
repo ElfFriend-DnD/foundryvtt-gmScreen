@@ -5,6 +5,7 @@
       "Title": "Pantalla del Director de Juego",
       "ClearCell": "Limpiar Celda",
       "Open": "Pantalla DJ",
+      "OpenPlayer": "Pantalla de Jugador",
       "OpenFull": "Abrir la ficha completa de la Entidad",
       "Refresh": "Actualizar",
       "Reset": "Borrar Cuadrícula"
@@ -38,14 +39,6 @@
       "drawer-opacity": {
         "Name": "Solo Bandeja: Opacidad",
         "Hint": "Controla la opacidad de la Bandeja."
-      },
-      "gmButtonText": {
-        "Name": "Texto para el botón de GM Screen",
-        "Hint": "En vacío, se mostrará solo el ícono."
-      },
-      "playerButtonText": {
-        "Name": "Texto para el botón de GM Screen de los jugadores",
-        "Hint": "En vacío, se mostrará solo el ícono."
       },
       "reset": {
         "Name": "Restablecer",

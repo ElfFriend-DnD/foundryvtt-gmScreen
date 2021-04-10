@@ -111,22 +111,13 @@ export class GmScreenSettings extends FormApplication {
       hint: `${MODULE_ABBREV}.settings.${MySettings.drawerOpacity}.Hint`,
     });
 
-    game.settings.register(MODULE_ID, MySettings.gmButtonText, {
-        name: `${MODULE_ABBREV}.settings.${MySettings.gmButtonText}.Name`,
-        default: `GM Screen`,
-        type: String,
+    game.settings.register(MODULE_ID, MySettings.condensedButton, {
+        name: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Name`,
+        default: false,
+        type: Boolean,
         scope: 'world',
         config: true,
-        hint: `${MODULE_ABBREV}.settings.${MySettings.gmButtonText}.Hint`,
-    });
-
-    game.settings.register(MODULE_ID, MySettings.playerButtonText, {
-        name: `${MODULE_ABBREV}.settings.${MySettings.playerButtonText}.Name`,
-        default: `Player Screen`,
-        type: String,
-        scope: 'world',
-        config: true,
-        hint: `${MODULE_ABBREV}.settings.${MySettings.playerButtonText}.Hint`,
+        hint: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Hint`,
     });
 
     game.settings.register(MODULE_ID, MySettings.reset, {

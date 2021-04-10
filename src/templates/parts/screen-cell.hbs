@@ -7,9 +7,9 @@
     {{#if this.spanCols}}grid-column-end: span {{this.spanCols}};{{/if}}
       --column-span-count: {{#if this.spanCols}}{{this.spanCols}}{{else}}1{{/if}}">
 
-  {{#if @root/isGM}}
   <div class="gm-screen-grid-cell-header">
 
+    {{#if @root/isGM}}
     <a data-action="configureCell"><i class="fas fa-cog"></i></a>
 
     {{#if this.entityUuid}}
@@ -29,6 +29,8 @@
       {{/select}}
     </select>
 
+    {{/if}}
+
     {{#if this.entityUuid}}
     <a data-action="open" title="{{localize 'GMSCR.gmScreen.OpenFull'}}">
       {{#if this.type}}
@@ -46,7 +48,6 @@
     </a>
     {{/if}}
   </div>
-  {{/if}}
 
   <div class="gm-screen-grid-cell-content-wrapper">
     <div class="gm-screen-grid-cell-content">

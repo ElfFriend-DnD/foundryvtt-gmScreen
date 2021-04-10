@@ -5,6 +5,7 @@
       "Title": "GM Screen",
       "ClearCell": "Clear Cell",
       "Open": "GM Screen",
+      "OpenPlayer": "Player Screen",
       "OpenFull": "Open the full Entity Sheet",
       "Refresh": "Refresh",
       "Reset": "Clear Grid"
@@ -39,13 +40,9 @@
         "Name": "Drawer Only: Opacity",
         "Hint": "Controls how opaque the drawer is."
       },
-      "gmButtonText": {
-        "Name": "Text of GM Screen Button",
-        "Hint": "Setting to empty will show just the icon."
-      },
-      "playerButtonText": {
-        "Name": "Text of Player Screen Button",
-        "Hint": "Setting to empty will show just the icon."
+      "condensedButton": {
+        "Name": "Condensed GM Screen Button",
+        "Hint": "Removes text from the button"
       },
       "reset": {
         "Name": "Reset",

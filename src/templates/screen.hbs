@@ -24,7 +24,8 @@
     </div>
 
     <button class="gm-screen-button" data-action="toggle-gm-screen"><i class="fas fa-book-reader"></i>
-      {{#if isGM}} {{ gmButtonText }} {{else}} {{ playerButtonText }} {{/if}}</button>
+      {{#unless condensedButton}} {{#if isGM}} {{localize 'GMSCR.gmScreen.Open' }} {{else}} {{ localize 'GMSCR.gmScreen.OpenPlayer' }} {{/if}} {{/unless}}
+    </button>
     {{/if}}
 
   </div>

@@ -496,8 +496,7 @@ export class GmScreenApplication extends Application {
     const drawerWidth: number = game.settings.get(MODULE_ID, MySettings.drawerWidth);
     const drawerHeight: number = game.settings.get(MODULE_ID, MySettings.drawerHeight);
     const drawerOpacity: number = game.settings.get(MODULE_ID, MySettings.drawerOpacity);
-    const gmButtonText = game.settings.get(MODULE_ID, MySettings.gmButtonText);
-    const playerButtonText = game.settings.get(MODULE_ID, MySettings.playerButtonText);
+    const condensedButton = game.settings.get(MODULE_ID, MySettings.condensedButton);
 
     const entityOptions = [
       { label: 'ENTITY.Actor', entries: game.actors.entries },
@@ -519,8 +518,7 @@ export class GmScreenApplication extends Application {
       entityOptions,
       grids: this.getHydratedGrids(),
       isGM: game.user.isGM,
-      gmButtonText: gmButtonText,
-      playerButtonText: playerButtonText,
+      condensedButton: condensedButton,
       data: this.data,
       columns: this.columns,
       rows: this.rows,
