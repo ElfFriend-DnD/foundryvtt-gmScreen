@@ -8,6 +8,7 @@ const defaultGmScreenConfig: GmScreenConfig = {
     default: {
       name: 'Main',
       id: 'default',
+      shared: false,
       entries: {},
     },
   },
@@ -108,6 +109,15 @@ export class GmScreenSettings extends FormApplication {
       range: { min: 0.1, max: 1, step: 0.05 },
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.drawerOpacity}.Hint`,
+    });
+
+    game.settings.register(MODULE_ID, MySettings.condensedButton, {
+        name: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Name`,
+        default: false,
+        type: Boolean,
+        scope: 'world',
+        config: true,
+        hint: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Hint`,
     });
 
     game.settings.register(MODULE_ID, MySettings.reset, {
@@ -281,6 +291,7 @@ export class GmScreenSettings extends FormApplication {
         ...grid,
         entries: {},
         name: grid.name ?? '',
+        shared: grid.shared ?? false,
         id: gridId,
       };
 

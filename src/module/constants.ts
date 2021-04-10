@@ -21,6 +21,7 @@ export enum MySettings {
   drawerWidth = 'drawer-width',
   gmScreenConfig = 'gm-screen-config',
   migrated = 'migrated',
+  condensedButton = "condensedButton",
   reset = 'reset',
   rightMargin = 'right-margin',
   rows = 'rows',

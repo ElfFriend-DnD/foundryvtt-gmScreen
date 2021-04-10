@@ -9,6 +9,7 @@
 
   <div class="gm-screen-grid-cell-header">
 
+    {{#if @root/isGM}}
     <a data-action="configureCell"><i class="fas fa-cog"></i></a>
 
     {{#if this.entityUuid}}
@@ -27,6 +28,8 @@
       {{/each}}
       {{/select}}
     </select>
+
+    {{/if}}
 
     {{#if this.entityUuid}}
     <a data-action="open" title="{{localize 'GMSCR.gmScreen.OpenFull'}}">

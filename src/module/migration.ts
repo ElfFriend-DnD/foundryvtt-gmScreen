@@ -49,6 +49,7 @@ export async function _gmScreenMigrate() {
           entries: migratedEntries,
           id: 'default',
           name: 'Main',
+          shared: false,
         },
       },
     };
