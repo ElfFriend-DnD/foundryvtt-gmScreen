@@ -102,7 +102,7 @@ Hooks.once('ready', async function () {
 
   if (game.user.isGM) {
     game.settings.set(MODULE_ID, MySettings.reset, false);
-  }
+/  }
 
   Hooks.callAll(MyHooks.ready);
 });
@@ -127,7 +127,7 @@ function _addGmScreenButton(html) {
 Hooks.on('renderJournalDirectory', (app, html, data) => {
   const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
 
-  if ((game.user.isGM || Object.keys(gmScreenInstance.data.grids).length > 1) && !displayDrawer) {
+  if (game.user.isGM && !displayDrawer) {
     _addGmScreenButton(html);
   }
 });
