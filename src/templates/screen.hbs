@@ -1,5 +1,5 @@
 <div
-  class="gm-screen-app {{#if expanded}}expanded{{/if}} {{classes}} {{#if displayDrawer}}window-app gm-screen-drawer{{/if}}"
+  class="gm-screen-app {{#if expanded}}expanded{{/if}} {{#if hidden}}hidden{{/if}} {{classes}} {{#if displayDrawer}}window-app gm-screen-drawer{{/if}}"
   {{#if displayDrawer}} style="
    opacity: {{drawerOpacity}};
    --gm-screen-width: {{drawerWidth}};
@@ -24,7 +24,13 @@
     </div>
 
     <button class="gm-screen-button" data-action="toggle-gm-screen"><i class="fas fa-book-reader"></i>
-      {{#unless condensedButton}} {{#if isGM}} {{localize 'GMSCR.gmScreen.Open' }} {{else}} {{ localize 'GMSCR.gmScreen.OpenPlayer' }} {{/if}} {{/unless}}
+      {{#unless condensedButton}}
+      {{#if isGM}}
+      {{localize 'GMSCR.gmScreen.Open' }}
+      {{else}}
+      {{ localize 'GMSCR.gmScreen.OpenPlayer' }}
+      {{/if}}
+      {{/unless}}
     </button>
     {{/if}}
 

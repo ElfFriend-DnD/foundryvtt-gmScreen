@@ -69,6 +69,10 @@ export class GmScreenApplication extends Application {
       title: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Title`),
     };
 
+    const gmOptions = {
+      dragDrop: [{ dragSelector: '.gm-screen-grid-cell', dropSelector: '.gm-screen-grid-cell' }],
+    };
+
     // set all of the cells of all the grids to be scrollY managed
     const scrollY = Object.keys(gmScreenConfig.grids).reduce((acc, gridKey) => {
       const gridColumns = gmScreenConfig.grids[gridKey].columnOverride ?? columns;
@@ -89,6 +93,7 @@ export class GmScreenApplication extends Application {
 
     return mergeObject(super.defaultOptions, {
       ...(displayDrawer ? drawerOptions : popOutOptions),
+      ...(game.user.isGM ? gmOptions : {}),
       tabs: [
         {
           navSelector: '.tabs',
@@ -98,7 +103,6 @@ export class GmScreenApplication extends Application {
       ],
       template: TEMPLATES.screen,
       id: 'gm-screen-app',
-      dragDrop: [{ dragSelector: '.gm-screen-grid-cell', dropSelector: '.gm-screen-grid-cell' }],
       scrollY,
     });
   }
@@ -369,6 +373,9 @@ export class GmScreenApplication extends Application {
         break;
       }
       case ClickAction.setActiveGridId: {
+        // do nothing if we are not the GM
+        if (!game.user.isGM) return;
+
         const newActiveGridId = e.currentTarget.dataset.tab;
 
         log(false, 'trying to set active grid', { newActiveGridId });
@@ -399,10 +406,17 @@ export class GmScreenApplication extends Application {
     }
   }
 
+  render(...args) {
+    if (!this.hasUserViewableGrids) {
+    }
+    return super.render(...args);
+  }
+
   refresh() {
     if (game.user.isGM || this.hasUserViewableGrids) {
       this.render();
     } else {
+      this.render();
       this.close();
     }
   }
@@ -434,6 +448,27 @@ export class GmScreenApplication extends Application {
       this.addEntryToActiveGrid(newEntry);
     });
 
+    // stop here if there are no user viewable grids
+    if (!this.hasUserViewableGrids) {
+      return;
+    }
+
+    // populate the --grid-cell-width variable
+    const vanillaGridElement = document.querySelector('.gm-screen-grid');
+    const vanillaGridElementStyles = getComputedStyle(vanillaGridElement);
+    const cols = vanillaGridElementStyles['grid-template-columns'].split(' ');
+    const colWidth = cols[0];
+
+    $(html)
+      .find('.gm-screen-grid')
+      .each((i, gridElement) => {
+        gridElement.style.setProperty('--grid-cell-width', colWidth);
+      });
+  }
+
+  async _renderInner(...args: Parameters<Application['_renderInner']>) {
+    const html = (await super._renderInner(...args)) as JQuery<HTMLElement>;
+
     $(html)
       .find('[data-entity-uuid]')
       .each(function (gridEntry) {
@@ -449,58 +484,56 @@ export class GmScreenApplication extends Application {
     // set some CSS Variables for child element use
     this.updateCSSPropertyVariable(html, '.gm-screen-grid-cell', 'width', '--this-cell-width');
 
-    const vanillaGridElement = document.querySelector('.gm-screen-grid');
-    const vanillaGridElementStyles = window.getComputedStyle(vanillaGridElement);
-    const cols = vanillaGridElementStyles['grid-template-columns'].split(' ');
-    const colWidth = cols[0];
-
-    $(html)
-      .find('.gm-screen-grid')
-      .each((i, gridElement) => {
-        gridElement.style.setProperty('--grid-cell-width', colWidth);
-      });
+    return html;
   }
 
   /**
    * Creates a custom CSS property with the name provide on the element.style of all elements which match
    * the selector provided containing the computed value of the property specified.
    *
-   * @param {HTMLElement} html - Some HTML element to search within for the selector
+   * @param {JQuery<HTMLElement>} html - Some HTML element to search within for the selector
    * @param {string} selector - A CSS style selector which will be used to locate the target elements for this function.
    * @param {keyof CSSStyleDeclaration} property - The name of a CSS property to obtain the computed value of
    * @param {string} name - The name of the CSS variable (custom property) that will be created/updated.
    * @memberof GmScreenApplication
    */
-  updateCSSPropertyVariable(html: HTMLElement, selector: string, property: keyof CSSStyleDeclaration, name: string) {
-    $(html)
-      .find(selector)
-      .each((i, gridCell) => {
-        const value = window.getComputedStyle(gridCell)[property];
-        gridCell.style.setProperty(name, String(value));
-      });
+  updateCSSPropertyVariable(
+    html: JQuery<HTMLElement>,
+    selector: string,
+    property: keyof CSSStyleDeclaration,
+    name: string
+  ) {
+    html.find(selector).each((i, gridCell) => {
+      const value = window.getComputedStyle(gridCell)[property];
+      gridCell.style.setProperty(name, String(value));
+    });
   }
 
   /**
    * All grids with entries hydrated with empty cells
    */
   getHydratedGrids() {
-    return Object.values(this.data.grids)
-      .filter((grid) => game.user.isGM || grid.isShared)
-      .reduce<Record<string, { grid: GmScreenGrid; gridEntries: Partial<GmScreenGridEntry>[] }>>((acc, grid) => {
-        const gridColumns = grid.columnOverride ?? this.columns;
-        const gridRows = grid.rowOverride ?? this.rows;
+    log(false, 'getHydratedGrids', {
+      userViewableGrids: this.userViewableGrids,
+    });
 
-        const emptyCellsNum = Number(gridColumns) * Number(gridRows) - GmScreenApplication.getNumOccupiedCells(grid);
-        const emptyCells: Partial<GmScreenGridEntry>[] =
-          emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
+    return Object.values(this.userViewableGrids).reduce<
+      Record<string, { grid: GmScreenGrid; gridEntries: Partial<GmScreenGridEntry>[] }>
+    >((acc, grid) => {
+      const gridColumns = grid.columnOverride ?? this.columns;
+      const gridRows = grid.rowOverride ?? this.rows;
 
-        acc[grid.id] = {
-          grid,
-          gridEntries: [...Object.values(grid.entries), ...emptyCells],
-        };
+      const emptyCellsNum = Number(gridColumns) * Number(gridRows) - GmScreenApplication.getNumOccupiedCells(grid);
+      const emptyCells: Partial<GmScreenGridEntry>[] =
+        emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
 
-        return acc;
-      }, {});
+      acc[grid.id] = {
+        grid,
+        gridEntries: [...Object.values(grid.entries), ...emptyCells],
+      };
+
+      return acc;
+    }, {});
   }
 
   /**
@@ -542,6 +575,7 @@ export class GmScreenApplication extends Application {
       rightMargin,
       drawerOpacity,
       expanded: this.expanded,
+      hidden: !this.hasUserViewableGrids,
       displayDrawer: this.displayDrawer,
     };
 
@@ -580,6 +614,9 @@ export class GmScreenApplication extends Application {
    */
   async _onDrop(event) {
     event.stopPropagation();
+
+    // do nothing if this user is not the gm
+    if (!game.user.isGM) return;
 
     // Try to extract the data
     let data;
@@ -620,6 +657,7 @@ export class GmScreenApplication extends Application {
   async close(...args) {
     if (this.displayDrawer) {
       log(false, 'intercepting close');
+
       return new Promise((resolve) => {
         this.toggleGmScreenVisibility(false);
         return;

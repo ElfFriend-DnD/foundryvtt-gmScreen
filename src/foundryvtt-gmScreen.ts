@@ -97,7 +97,7 @@ Hooks.once('ready', async function () {
 
   game.modules.get(MODULE_ID).api = {
     toggleGmScreenVisibility: toggleGmScreenOpen,
-    refreshGmScreen: gmScreenInstance?.refresh,
+    refreshGmScreen: gmScreenInstance?.refresh.bind(gmScreenInstance),
   };
 
   window[MODULE_ID] = {

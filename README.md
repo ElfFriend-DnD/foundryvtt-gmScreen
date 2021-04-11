@@ -17,14 +17,14 @@
 Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, actors, and items. Customize your "GM Screen" by dragging and dropping items into cells and have its information available at any time from a button on the bottom right of the UI, near the sidebar. Roll rollable tables, open linked entities, and even place actor sheets into these cells. Obviously the space constraints mean some sheets will work better than others.
 
 ## TODO
-- [] disable setting active grid ID for non-gm users
+- [x] disable setting active grid ID for non-gm users
 - [] fix memory leak in render() not cleaning up old applications
 - [x] create a static method on GM Screen Application to tell if there are gm screen tabs that the active user can see, this might should be a helper actually
 - [] add the button to player UIs if there is a shared gm screen tab in non-drawer mode
 - [x] Auto refresh when gmScreenConfig changes
 - [x] as part of refresh, check if there are any shared grids, if not, close/open the drawer
 - [] Create a placeholder for the grid if there are no tabs, hide the button if no tabs and we are player
-- [] in Drawer mode, fully hide the drawer with css for players who have no tabs
+- [x] in Drawer mode, fully hide the drawer with css for players who have no tabs
 - [] in non-drawer mode, close the application on refresh if there are no longer any tabs
 - [] Change the scope of some settings to be client scope instead of world scoped
 - [] ~~change gm screen `.close()` to behave appropriately for the user type~~ nvm, changing strat

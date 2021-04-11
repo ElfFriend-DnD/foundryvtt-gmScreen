@@ -298,7 +298,7 @@ export class GmScreenSettings extends FormApplication {
         ...grid,
         entries: {},
         name: grid.name ?? '',
-        shared: grid.shared ?? false,
+        isShared: grid.isShared ?? false,
         id: gridId,
       };
 
