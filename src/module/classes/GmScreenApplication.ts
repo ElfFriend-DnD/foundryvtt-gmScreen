@@ -20,10 +20,12 @@ enum ClickAction {
 
 export class GmScreenApplication extends Application {
   expanded: boolean;
+  data: GmScreenConfig;
 
   constructor(options = {}) {
     super(options);
     this.expanded = false;
+    this.data = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
   }
 
   get rows(): number {
@@ -36,10 +38,6 @@ export class GmScreenApplication extends Application {
 
   get displayDrawer(): boolean {
     return game.settings.get(MODULE_ID, MySettings.displayDrawer);
-  }
-
-  get data(): GmScreenConfig {
-    return game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
   }
 
   get userViewableGrids() {
@@ -421,6 +419,15 @@ export class GmScreenApplication extends Application {
    * This currently thinly wraps `this.render`, but might be more complicated in the future.
    */
   refresh() {
+    const newData = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+
+    log(false, 'refreshing gm screen', {
+      newData: duplicate(newData),
+      data: duplicate(this.data),
+    });
+
+    this.data = newData;
+
     this.render();
   }
 

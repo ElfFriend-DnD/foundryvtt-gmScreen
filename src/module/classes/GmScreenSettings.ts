@@ -31,7 +31,6 @@ export class GmScreenSettings extends FormApplication {
       scope: 'world',
       config: false,
       onChange: function (...args) {
-        const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
         log(false, 'gmScreenConfig changed', {
           args,
           currentConfig: { ...game.settings.get(MODULE_ID, MySettings.gmScreenConfig) },

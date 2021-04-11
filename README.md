@@ -30,6 +30,7 @@ Creates a Configurable modular grid that GMs can populate with journal entries, 
 - [x] ~~change gm screen `.close()` to behave appropriately for the user type~~ nvm, changing strat
 - [x] refactor `activateListeners` to not inject html, instead use `_renderHtml()`.
 - [x] refactor the gm screen api to live in the `modules.get(gm-screen).api` place.
+- [ ] display name of entity on player screen
 
 ## Usage
 
