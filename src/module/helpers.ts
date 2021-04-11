@@ -146,6 +146,17 @@ export async function injectCellContents(entityUuid: string, gridCellContentElem
     return;
   }
 
+  // cleanup old cell renderings
+  Object.values(relevantEntity.apps).forEach(async (app) => {
+    //@ts-ignore
+    if (app.targetElement) {
+      log(false, 'cleaning up old apps', relevantEntity.entity, app.appId);
+      delete relevantEntity.apps[app.appId];
+
+      await app.close();
+    }
+  });
+
   switch (relevantEntity.entity) {
     case 'RollTable': {
       const compactRollTableDisplay = new CompactRollTableDisplay(relevantEntity, gridCellContentElement);
