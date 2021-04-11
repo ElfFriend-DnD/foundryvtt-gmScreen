@@ -151,9 +151,8 @@ export async function injectCellContents(entityUuid: string, gridCellContentElem
     //@ts-ignore
     if (app.targetElement) {
       log(false, 'cleaning up old apps', relevantEntity.entity, app.appId);
-      delete relevantEntity.apps[app.appId];
-
       await app.close();
+      delete relevantEntity.apps[app.appId];
     }
   });
 
