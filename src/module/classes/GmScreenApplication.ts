@@ -406,22 +406,22 @@ export class GmScreenApplication extends Application {
     }
   }
 
+  /**
+   * @override
+   */
   render(...args) {
-    debugger;
-    if (!this.hasUserViewableGrids) {
+    if (!this.hasUserViewableGrids && this.rendered) {
       this.close();
-    } else {
-      return super.render(...args);
     }
+
+    return super.render(...args);
   }
 
+  /**
+   * This currently thinly wraps `this.render`, but might be more complicated in the future.
+   */
   refresh() {
-    // if (game.user.isGM || this.hasUserViewableGrids) {
     this.render();
-    // } else {
-    //   this.render();
-    //   this.close();
-    // }
   }
 
   /**
