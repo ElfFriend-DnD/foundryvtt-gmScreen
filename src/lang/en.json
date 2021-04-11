@@ -54,6 +54,7 @@
       }
     },
     "warnings": {
+      "noGrids": "Your GM has not shared any GM Screen Grids.",
       "clearConfirm": {
         "Title": "Clear Grid",
         "Content": "Are you sure you want to clear the grid entries? This action can not be undone."

@@ -26,7 +26,7 @@ Creates a Configurable modular grid that GMs can populate with journal entries, 
 - [] Create a placeholder for the grid if there are no tabs, hide the button if no tabs and we are player
 - [x] in Drawer mode, fully hide the drawer with css for players who have no tabs
 - [] in non-drawer mode, close the application on refresh if there are no longer any tabs
-- [] Change the scope of some settings to be client scope instead of world scoped
+- [x] Change the scope of some settings to be client scope instead of world scoped
 - [] ~~change gm screen `.close()` to behave appropriately for the user type~~ nvm, changing strat
 - [] refactor `activateListeners` to not inject html, instead use `_renderHtml()`.
 - [x] refactor the gm screen api to live in the `modules.get(gm-screen).api` place.

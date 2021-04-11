@@ -72,7 +72,7 @@ export class GmScreenSettings extends FormApplication {
       name: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Name`,
       default: true,
       type: Boolean,
-      scope: 'world',
+      scope: 'client',
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Hint`,
       onChange: () => window.location.reload(),
@@ -122,7 +122,7 @@ export class GmScreenSettings extends FormApplication {
       name: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Name`,
       default: false,
       type: Boolean,
-      scope: 'world',
+      scope: 'client',
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Hint`,
     });

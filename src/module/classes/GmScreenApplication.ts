@@ -407,18 +407,21 @@ export class GmScreenApplication extends Application {
   }
 
   render(...args) {
+    debugger;
     if (!this.hasUserViewableGrids) {
+      this.close();
+    } else {
+      return super.render(...args);
     }
-    return super.render(...args);
   }
 
   refresh() {
-    if (game.user.isGM || this.hasUserViewableGrids) {
-      this.render();
-    } else {
-      this.render();
-      this.close();
-    }
+    // if (game.user.isGM || this.hasUserViewableGrids) {
+    this.render();
+    // } else {
+    //   this.render();
+    //   this.close();
+    // }
   }
 
   /**
@@ -592,13 +595,18 @@ export class GmScreenApplication extends Application {
    */
   _getHeaderButtons() {
     const superButtons = super._getHeaderButtons();
-    return [
+
+    const gmButtons = [
       {
         label: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Reset`),
         class: 'clear',
         icon: 'fas fa-ban',
         onclick: () => this.handleClear.bind(this)(),
       },
+    ];
+
+    return [
+      ...(game.user.isGM ? gmButtons : []),
       {
         label: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Refresh`),
         class: 'refresh',
