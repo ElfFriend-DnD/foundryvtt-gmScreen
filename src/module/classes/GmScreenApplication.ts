@@ -571,9 +571,16 @@ export class GmScreenApplication extends Application {
       };
     });
 
+    const entityNames = Object.values(entityOptions).reduce(
+        (acc, optionGroup) => {
+          return { ...acc, ...optionGroup.options }
+        },
+    {});
+
     const newAppData = {
       ...super.getData(),
       entityOptions,
+      entityNames,
       grids: this.getHydratedGrids(),
       isGM: game.user.isGM,
       condensedButton: condensedButton,
