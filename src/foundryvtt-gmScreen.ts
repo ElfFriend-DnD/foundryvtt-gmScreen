@@ -74,11 +74,6 @@ Handlebars.registerHelper(`${MODULE_ABBREV}-enrich`, function (str) {
   return TextEditor.enrichHTML(str);
 });
 
-Handlebars.registerHelper(`${MODULE_ABBREV}-journal`, function (uuid) {
-    const parsedUuid = uuid.split('.')[1]
-    return game.journal.get(parsedUuid).name;
-});
-
 /* ------------------------------------ */
 /* Initialize module					*/
 /* ------------------------------------ */
