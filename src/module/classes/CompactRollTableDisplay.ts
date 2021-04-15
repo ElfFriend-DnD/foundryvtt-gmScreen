@@ -14,15 +14,15 @@ interface RollableTableData {
 }
 
 export class CompactRollTableDisplay extends RollTableConfig {
-  targetElement: JQuery<HTMLElement>;
+  cellId: string;
 
-  constructor(options, targetElement: JQuery<HTMLElement>) {
+  constructor(options, cellId: string) {
     super(options);
     log(false, 'CompactRollTableDisplay constructor', {
       options,
-      targetElement,
+      cellId,
     });
-    this.targetElement = targetElement;
+    this.cellId = cellId;
   }
 
   static get defaultOptions() {
@@ -33,12 +33,22 @@ export class CompactRollTableDisplay extends RollTableConfig {
     });
   }
 
+  _replaceHTML(element, html, options) {
+    const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
+    //@ts-ignore
+    gridCellContent.html(html);
+    this._element = html;
+  }
+
   _injectHTML(html, options) {
-    log(false, 'CompactRollTableDisplay _injectHTML', {
-      targetElement: this.targetElement,
+    const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
+
+    log(false, 'CompactJournalEntryDisplay _injectHTML', {
+      cellId: this.cellId,
       html,
     });
-    this.targetElement.append(html);
+
+    gridCellContent.append(html);
     this._element = html;
   }
 

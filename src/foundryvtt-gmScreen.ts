@@ -8,7 +8,9 @@ import { _gmScreenMigrate } from './module/migration';
 let gmScreenInstance: GmScreenApplication;
 
 function toggleGmScreenOpen(isOpen?: boolean) {
-  const userViewableGrids = getUserViewableGrids();
+  const gmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+
+  const userViewableGrids = getUserViewableGrids(gmScreenConfig);
   if (!Object.keys(userViewableGrids).length) {
     ui.notifications.notify(game.i18n.localize(`${MODULE_ABBREV}.warnings.noGrids`), 'error');
     return;

@@ -4,9 +4,13 @@ import {
   getGridElementsPosition,
   getUserCellConfigurationInput,
   getUserViewableGrids,
-  injectCellContents,
   log,
+  updateCSSPropertyVariable,
 } from '../helpers';
+
+import { getCompactGenericEntityDisplay } from './CompactGenericDisplay';
+import { CompactJournalEntryDisplay } from './CompactJournalEntryDisplay';
+import { CompactRollTableDisplay } from './CompactRollTableDisplay';
 
 enum ClickAction {
   'clearGrid' = 'clearGrid',
@@ -21,11 +25,13 @@ enum ClickAction {
 export class GmScreenApplication extends Application {
   expanded: boolean;
   data: GmScreenConfig;
+  apps: Record<string, BaseEntitySheet>;
 
   constructor(options = {}) {
     super(options);
     this.expanded = false;
     this.data = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    this.apps = {};
   }
 
   get rows(): number {
@@ -41,7 +47,7 @@ export class GmScreenApplication extends Application {
   }
 
   get userViewableGrids() {
-    return getUserViewableGrids();
+    return getUserViewableGrids(this.data);
   }
 
   get hasUserViewableGrids() {
@@ -122,7 +128,7 @@ export class GmScreenApplication extends Application {
    * @param {boolean} render - ⚠️ DEPRECATED since 2.4.0: whether or not to also render/refresh the grid
    */
   async setGridData(newGridData: GmScreenGrid, render: boolean = true) {
-    const newGmScreenConfig = { ...this.data };
+    const newGmScreenConfig = duplicate(this.data);
 
     const updated = setProperty(newGmScreenConfig, `grids.${newGridData.id}`, newGridData);
 
@@ -173,7 +179,7 @@ export class GmScreenApplication extends Application {
    * @param {string} entryId - entry to remove from the active grid's entries
    */
   async removeEntryFromActiveGrid(entryId: string) {
-    const clearedCell = this.activeGrid.entries[entryId];
+    const clearedCell = duplicate(this.activeGrid.entries[entryId]);
     const shouldKeepCellLayout = clearedCell.spanCols || clearedCell.spanRows;
 
     const newEntries = {
@@ -371,10 +377,11 @@ export class GmScreenApplication extends Application {
         break;
       }
       case ClickAction.setActiveGridId: {
-        // do nothing if we are not the GM
-        if (!game.user.isGM) return;
-
         const newActiveGridId = e.currentTarget.dataset.tab;
+        // do nothing if we are not the GM or if nothing changes
+        if (!game.user.isGM || newActiveGridId === this.data.activeGridId) {
+          return;
+        }
 
         log(false, 'trying to set active grid', { newActiveGridId });
 
@@ -419,14 +426,58 @@ export class GmScreenApplication extends Application {
    * This currently thinly wraps `this.render`, but might be more complicated in the future.
    */
   refresh() {
+    // debugger;
     const newData = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const oldData = duplicate(this.data);
+    const diffData = diffObject(oldData, newData);
 
     log(false, 'refreshing gm screen', {
       newData: duplicate(newData),
-      data: duplicate(this.data),
+      data: oldData,
+      diffData,
     });
 
     this.data = newData;
+
+    if (Object.keys(diffData).length) {
+      if (Object.keys(diffData).every((key) => key === 'activeGridId')) {
+        log(false, 'not rerendering because only activeGridId changed');
+        return;
+      }
+
+      const diffGridIds = Object.keys(diffData.grids);
+      const myNewGridIds = Object.keys(this.userViewableGrids);
+      const myOldGridIds = Object.keys(getUserViewableGrids(oldData));
+
+      // 1. check if the gridIds in diffData have no overlap with the gridIds I can currently see
+
+      const diffOverlapsNewGridIds = !diffGridIds.filter((gridId) => myNewGridIds.includes(gridId)).length;
+      // expect this to be false if there is overlap;
+
+      // 2. check if the gridIds I can currently see are the same as before the diff
+
+      const oldAndNewGridIdsAreEqual =
+        myNewGridIds.length === myOldGridIds.length && myNewGridIds.every((gridId) => myOldGridIds.includes(gridId));
+      // expect this to be true if same
+
+      // 3. IF 1 AND 2; don't rerender
+
+      const shouldNotRerender = diffOverlapsNewGridIds && oldAndNewGridIdsAreEqual;
+
+      log(false, 'gridIdChecks', {
+        diffGridIds,
+        myOldGridIds,
+        myNewGridIds,
+        diffOverlapsNewGridIds,
+        oldAndNewGridIdsAreEqual,
+        shouldNotRerender,
+      });
+
+      if (shouldNotRerender) {
+        log(false, 'not rerendering because none of my visible grids changed');
+        return;
+      }
+    }
 
     this.render();
   }
@@ -463,6 +514,8 @@ export class GmScreenApplication extends Application {
       return;
     }
 
+    this.injectCellContents(html);
+
     // populate the --grid-cell-width variable
     const vanillaGridElement = document.querySelector('.gm-screen-grid');
     const vanillaGridElementStyles = getComputedStyle(vanillaGridElement);
@@ -476,47 +529,146 @@ export class GmScreenApplication extends Application {
       });
   }
 
-  async _renderInner(...args: Parameters<Application['_renderInner']>) {
-    const html = (await super._renderInner(...args)) as JQuery<HTMLElement>;
+  /**
+   * create and cache the custom Application when we need to during GmScreenApplication.render();
+   * and then use that cached Application instance to render
+   *
+   * @param entityUuid - Identifier for the Entity in the cell
+   * @param cellId - Identifier for the Cell
+   * @param gridCellContentElement - the element to inject into
+   * @returns
+   */
+  async getCellApplicationClass(entityUuid: string, cellId: string) {
+    const relevantEntity = await fromUuid(entityUuid);
+
+    if (!relevantEntity) {
+      await this.apps[cellId]?.close();
+      delete this.apps[cellId];
+
+      console.warn('One of the grid cells tried to render an entity that does not exist.', entityUuid);
+      return;
+    }
+
+    // If there is an old app here which isn't this entity's, close it and delete
+    if (this.apps[cellId] && this.apps[cellId]?.object.uuid !== entityUuid) {
+      await this.apps[cellId].close();
+      delete this.apps[cellId];
+    }
+
+    if (this.apps[cellId]) {
+      log(false, `using cached application instance for "${relevantEntity.name}"`, {
+        entityUuid,
+        app: this.apps[cellId],
+      });
+      return this.apps[cellId];
+    }
+
+    const sheet = relevantEntity.sheet;
+
+    if (sheet instanceof JournalSheet) {
+      log(false, `creating compact journal entry for "${relevantEntity.name}"`, {
+        cellId,
+      });
+
+      this.apps[cellId] = new CompactJournalEntryDisplay(relevantEntity, cellId);
+    } else if (sheet instanceof RollTableConfig) {
+      log(false, `creating compact rollTableDisplay for "${relevantEntity.name}"`, {
+        cellId,
+      });
+
+      this.apps[cellId] = new CompactRollTableDisplay(relevantEntity, cellId) as BaseEntitySheet<any, any>;
+    } else {
+      log(false, `creating compact generic for "${relevantEntity.name}"`, {
+        cellId,
+      });
+
+      //@ts-ignore
+      const CompactEntitySheet: BaseEntitySheet = new sheet.constructor(relevantEntity);
+
+      CompactEntitySheet.options.editable = false;
+      CompactEntitySheet.options.popOut = false;
+      //@ts-ignore
+      CompactEntitySheet.cellId = cellId;
+
+      //@ts-ignore
+      CompactEntitySheet._injectHTML = function (html) {
+        const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
+
+        log(false, 'CompactEntitySheet overwritten _injectHTML', {
+          targetElement: gridCellContent,
+          gridCellContent,
+          cellId: this.cellId,
+          html,
+        });
+        gridCellContent.append(html);
+        //@ts-ignore
+        this._element = html;
+      };
+
+      //@ts-ignore
+      CompactEntitySheet._replaceHTML = function (element, html, options) {
+        const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
+        //@ts-ignore
+        gridCellContent.html(html);
+        this._element = html;
+      };
+
+      log(false, `created compact generic for "${relevantEntity.name}"`, {
+        sheet: CompactEntitySheet,
+      });
+
+      this.apps[cellId] = CompactEntitySheet;
+    }
+
+    return this.apps[cellId];
+  }
+
+  injectCellContents(html: JQuery<HTMLElement>) {
+    // const html = (await super._renderInner(...args)) as JQuery<HTMLElement>;
 
     $(html)
       .find('[data-entity-uuid]')
-      .each(function (gridEntry) {
-        // `this` is the parent .gm-screen-grid-cell
-        const relevantUuid = this.dataset.entityUuid;
+      .each((index, gridEntry) => {
+        try {
+          // `this` is the parent .gm-screen-grid-cell
+          const relevantUuid = gridEntry.dataset.entityUuid;
+          const cellId = `#${gridEntry.id}`;
 
-        const gridCellContent = $(this).find('.gm-screen-grid-cell-content');
-        log(false, 'gridEntry with uuid defined found', { gridEntry: this, gridCellContent });
+          // const gridCellContent = $(gridEntry).find('.gm-screen-grid-cell-content');
 
-        injectCellContents(relevantUuid, gridCellContent);
+          log(false, 'gridEntry with uuid defined found', { relevantUuid, cellId, gridEntry });
+
+          this.getCellApplicationClass(relevantUuid, cellId)
+            .then((application) => {
+              log(false, `got application for "${cellId}"`, {
+                application,
+              });
+              const classes = application.options.classes.join(' ');
+              const gridCellContent = $(gridEntry).find('.gm-screen-grid-cell-content');
+
+              gridCellContent.addClass(classes);
+
+              application.render(true);
+            })
+            .catch(() => {
+              log(true, 'error trying to render a gridEntry', {
+                gridEntry,
+                cellId,
+                relevantUuid,
+              });
+            });
+        } catch (e) {
+          log(false, 'erroring', e, {
+            gridEntry,
+          });
+        }
+        // injectCellContents(relevantUuid, gridCellContent);
       });
 
     // set some CSS Variables for child element use
-    this.updateCSSPropertyVariable(html, '.gm-screen-grid-cell', 'width', '--this-cell-width');
+    updateCSSPropertyVariable(html, '.gm-screen-grid-cell', 'width', '--this-cell-width');
 
     return html;
-  }
-
-  /**
-   * Creates a custom CSS property with the name provide on the element.style of all elements which match
-   * the selector provided containing the computed value of the property specified.
-   *
-   * @param {JQuery<HTMLElement>} html - Some HTML element to search within for the selector
-   * @param {string} selector - A CSS style selector which will be used to locate the target elements for this function.
-   * @param {keyof CSSStyleDeclaration} property - The name of a CSS property to obtain the computed value of
-   * @param {string} name - The name of the CSS variable (custom property) that will be created/updated.
-   * @memberof GmScreenApplication
-   */
-  updateCSSPropertyVariable(
-    html: JQuery<HTMLElement>,
-    selector: string,
-    property: keyof CSSStyleDeclaration,
-    name: string
-  ) {
-    html.find(selector).each((i, gridCell) => {
-      const value = window.getComputedStyle(gridCell)[property];
-      gridCell.style.setProperty(name, String(value));
-    });
   }
 
   /**
@@ -571,11 +723,9 @@ export class GmScreenApplication extends Application {
       };
     });
 
-    const entityNames = Object.values(entityOptions).reduce(
-        (acc, optionGroup) => {
-          return { ...acc, ...optionGroup.options }
-        },
-    {});
+    const entityNames = Object.values(entityOptions).reduce((acc, optionGroup) => {
+      return { ...acc, ...optionGroup.options };
+    }, {});
 
     const newAppData = {
       ...super.getData(),
