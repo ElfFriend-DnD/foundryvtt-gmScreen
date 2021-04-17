@@ -1,5 +1,5 @@
 import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../../gridTypes';
-import { MODULE_ABBREV, MODULE_ID, MyHooks, MySettings, numberRegex, TEMPLATES } from '../constants';
+import { MODULE_ABBREV, MODULE_ID, MyHooks, MySettings, TEMPLATES } from '../constants';
 import {
   getGridElementsPosition,
   getUserCellConfigurationInput,
@@ -7,8 +7,6 @@ import {
   log,
   updateCSSPropertyVariable,
 } from '../helpers';
-
-import { getCompactGenericEntityDisplay } from './CompactGenericDisplay';
 import { CompactJournalEntryDisplay } from './CompactJournalEntryDisplay';
 import { CompactRollTableDisplay } from './CompactRollTableDisplay';
 
