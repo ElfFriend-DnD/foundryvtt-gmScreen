@@ -21,6 +21,8 @@ Additionally, any screen you create as GM can be set to be shared with players, 
 
 ## Usage
 
+![Tab Configuration Demo Videa](readme-img/tab-config-demo.mp4)
+
 - Set up tabs in the Module Settings, and optionally share some with your players.
 - Drag and Drop Journal Entries, Rollable Tables, even Actors and Items into cells on the GM Screen.
 - Alternatively use the select menus (not recommended).
