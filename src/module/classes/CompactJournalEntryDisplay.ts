@@ -2,15 +2,15 @@ import { log } from '../helpers';
 import { TEMPLATES } from '../constants';
 
 export class CompactJournalEntryDisplay extends JournalSheet {
-  targetElement: JQuery<HTMLElement>;
+  cellId: string;
 
-  constructor(options, targetElement: JQuery<HTMLElement>) {
+  constructor(options, cellId: string) {
     super(options);
     log(false, 'CompactJournalEntryDisplay constructor', {
       options,
-      targetElement,
+      cellId,
     });
-    this.targetElement = targetElement;
+    this.cellId = cellId;
   }
 
   static get defaultOptions() {
@@ -28,12 +28,23 @@ export class CompactJournalEntryDisplay extends JournalSheet {
     return TEMPLATES.compactJournalEntry;
   }
 
+  _replaceHTML(element, html, options) {
+    const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
+    //@ts-ignore
+    gridCellContent.html(html);
+    this._element = html;
+  }
+
   _injectHTML(html, options) {
+    const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
+
     log(false, 'CompactJournalEntryDisplay _injectHTML', {
-      targetElement: this.targetElement,
+      cellId: this.cellId,
+      gridCellContent,
       html,
     });
-    this.targetElement.append(html);
+
+    gridCellContent.append(html);
     this._element = html;
   }
 

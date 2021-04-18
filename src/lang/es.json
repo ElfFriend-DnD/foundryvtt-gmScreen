@@ -1,0 +1,77 @@
+{
+  "GMSCR": {
+    "Grid": "Cuadrícula",
+    "gmScreen": {
+      "Title": "Pantalla del Director de Juego",
+      "ClearCell": "Limpiar Celda",
+      "Open": "Pantalla DJ",
+      "OpenPlayer": "Pantalla de Jugador",
+      "OpenFull": "Abrir la ficha completa de la Entidad",
+      "Refresh": "Actualizar",
+      "Reset": "Borrar Cuadrícula"
+    },
+    "settings": {
+      "gm-screen-config": {
+        "Name": "Pestañas de la Cuadrícula",
+        "Label": "Configuración de las pestañas",
+        "Hint": "Añade, Elimina y Actualiza las pestañas de la Cuadrícula"
+      },
+      "columns": {
+        "Name": "Columnas",
+        "Hint": "¿Cuántas Columnas quieres? Modificar esta opción puede que requiera borrar la Cuadrícula"
+      },
+      "rows": {
+        "Name": "Filas",
+        "Hint": "¿Cuántas Filas quieres? Modificar esta opción puede que requiera borrar la Cuadrícula"
+      },
+      "right-margin": {
+        "Name": "Solo Bandeja: Margen Derecho",
+        "Hint": "Establece la distancia desde la barra lateral hasta el lado derecho de la Pantalla del DJ. Este número afecta al ancho máximo posible de la pantalla en el modo de visualización de Bandeja."
+      },
+      "drawer-height": {
+        "Name": "Solo Bandeja: Altura",
+        "Hint": "Establece la altura de la Pantalla del DJ en el modo de visualización de Bandeja"
+      },
+      "drawer-width": {
+        "Name": "Solo Bandeja: Anchura",
+        "Hint": "Calculada como un porcentaje de la anchura de pantalla disponible después de tener en cuenta la barra lateral y el margen derecho."
+      },
+      "drawer-opacity": {
+        "Name": "Solo Bandeja: Opacidad",
+        "Hint": "Controla la opacidad de la Bandeja."
+      },
+      "reset": {
+        "Name": "Restablecer",
+        "Hint": "Borra las entradas de la Cuadrícula. Esta acción no se puede deshacer."
+      },
+      "display-as-drawer": {
+        "Name": "Mostrar como Bandeja",
+        "Hint": "Muestra la Pantalla del DJ como una bandeja en la parte inferior de la pantalla, en lugar de una ventana de diálogo normal. Si quieres utilizar PopOut, configura esta opción como falso."
+      }
+    },
+    "warnings": {
+      "clearConfirm": {
+        "Title": "Borrar Cuadrícula",
+        "Content": "¿Estás seguro de que quieres borrar las entradas? Esta acción no se puede deshacer."
+      }
+    },
+    "cellConfigDialog": {
+      "CellConfig": "Configuración de la Celda",
+      "RowSpan": "Filas que ocupar",
+      "ColSpan": "Columnas que ocupar"
+    },
+    "gridConfig": {
+      "GridConfig": "Configuración de la Cuadrícula",
+      "GridTabs": "Configuración de las Pestañas de la Cuadrícula",
+      "table": {
+        "TabLabel": "Nombre de la Pestaña",
+        "Rows": "Sobreescribir Filas",
+        "Columns": "Sobreescribir Columnas",
+        "Add": "Añadir"
+      },
+      "errors": {
+        "empty": "No se puede guardar la cuadrícula sin pestañas."
+      }
+    }
+  }
+}

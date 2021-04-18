@@ -5,6 +5,7 @@
       "Title": "GM Screen",
       "ClearCell": "Clear Cell",
       "Open": "GM Screen",
+      "OpenPlayer": "Player Screen",
       "OpenFull": "Open the full Entity Sheet",
       "Refresh": "Refresh",
       "Reset": "Clear Grid"
@@ -39,6 +40,10 @@
         "Name": "Drawer Only: Opacity",
         "Hint": "Controls how opaque the drawer is."
       },
+      "condensedButton": {
+        "Name": "Condensed GM Screen Button",
+        "Hint": "Removes text from the button"
+      },
       "reset": {
         "Name": "Reset",
         "Hint": "Clear the Grid entries. This action can not be undone."
@@ -49,6 +54,7 @@
       }
     },
     "warnings": {
+      "noGrids": "Your GM has not shared any GM Screen Grids.",
       "clearConfirm": {
         "Title": "Clear Grid",
         "Content": "Are you sure you want to clear the grid entries? This action can not be undone."

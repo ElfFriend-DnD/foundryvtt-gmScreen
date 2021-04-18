@@ -1,15 +1,16 @@
 {
+	"$schema": "https://raw.githubusercontent.com/typhonjs-fvtt/validate-manifest/main/schema/strict/module%2B.json",
 	"name": "gm-screen",
 	"title": "GM Screen",
 	"description": "Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, etc.",
-	"version": "2.3.1",
+	"version": "2.4.0",
 	"author": "Andrew Krigline (akrigline)",
 	"authors": [
 		{
 			"name": "Andrew Krigline",
 			"discord": "Calego#0914",
 			"url": "https://github.com/ElfFriend-DnD",
-			"patreon": "https://www.patreon.com/ElfFriend_DnD"
+			"patreon": "ElfFriend_DnD"
 		}
 	],
 	"esmodules": [
@@ -24,26 +25,59 @@
 			"lang": "en",
 			"name": "English",
 			"path": "lang/en.json"
+		},
+		{
+			"lang": "es",
+			"name": "Español",
+			"path": "lang/es.json"
 		}
 	],
 	"media": [
 		{
 			"type": "cover",
-			"link": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/master/readme-img/cover-image.png"
+			"url": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/readme-img/cover-image.png"
 		},
 		{
 			"type": "screenshot",
-			"link": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/master/readme-img/dnd5e-demo.jpg"
+			"url": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/readme-img/combat-tab.png"
+		},
+		{
+			"type": "screenshot",
+			"url": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/readme-img/rules-tab.png"
+		},
+		{
+			"type": "screenshot",
+			"url": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/readme-img/notes-tab.png"
+		},
+		{
+			"type": "screenshot",
+			"url": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/readme-img/cheat-sheet-tab.png"
+		},
+		{
+			"type": "screenshot",
+			"url": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/readme-img/cheat-sheet-player.png"
+		},
+		{
+			"type": "screenshot",
+			"url": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/readme-img/settings.png"
+		},
+		{
+			"type": "screenshot",
+			"url": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/readme-img/tab-config.png"
+		},
+		{
+			"type": "video",
+			"url": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/readme-img/tab-config-demo.mp4"
 		}
 	],
 	"compatibleCoreVersion": "0.7.9",
 	"minimumCoreVersion": "0.7.7",
 	"bugs": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/issues",
 	"changelog": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases",
-	"download": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/download/v2.3.1/module.zip",
+	"download": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/download/v2.4.0/module.zip",
 	"manifest": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/module.json",
 	"readme": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/README.md",
 	"url": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen",
 	"allowBugReporter": true,
-	"manifestPlusVersion": "1.0.0"
+	"manifestPlusVersion": "1.1.0"
 }

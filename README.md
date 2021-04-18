@@ -13,11 +13,17 @@
 [![ko-fi](https://img.shields.io/badge/-buy%20me%20a%20coke-%23FF5E5B)](https://ko-fi.com/elffriend)
 [![patreon](https://img.shields.io/badge/-patreon-%23FF424D)](https://www.patreon.com/ElfFriend_DnD)
 
+![GM Screen Cover Image](readme-img/cover-image.png)
 
-Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, actors, and items. Customize your "GM Screen" by dragging and dropping items into cells and have its information available at any time from a button on the bottom right of the UI, near the sidebar. Roll rollable tables, open linked entities, and even place actor sheets into these cells. Obviously the space constraints mean some sheets will work better than others.
+Creates a tabbed modular grid that GMs can populate with journal entries, rollable tables, actors, and items. Customize your "GM Screen" by dragging and dropping items into cells and have its information available at any time from a button on the bottom right of the UI, near the sidebar. Roll rollable tables, open linked entities, and even place actor sheets into these cells. Obviously the space constraints mean some sheets will work better than others.
+
+Additionally, any screen you create as GM can be set to be shared with players, so you can provide them with a cheat sheet that is always readily available to them. Be sure you set the permissions correctly on the entities themselves before trying to share them with players on a screen!
 
 ## Usage
 
+![Tab Configuration Demo Videa](readme-img/tab-config-demo.mp4)
+
+- Set up tabs in the Module Settings, and optionally share some with your players.
 - Drag and Drop Journal Entries, Rollable Tables, even Actors and Items into cells on the GM Screen.
 - Alternatively use the select menus (not recommended).
 - Each cell has settings which allow for that cell to span multiple columns or rows.
@@ -33,32 +39,57 @@ https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/mo
 
 ## Screenshots
 
-![Demonstration of the GM Screen Grid with dnd5e content.](readme-img/dnd5e-demo.jpg)
+### GM View
+![GM Screen Grid Tab with Combat information.](readme-img/combat-tab.png)
+![GM Screen Grid Tab with Rules information.](readme-img/rules-tab.png)
+![GM Screen Grid Tab with Notes information.](readme-img/notes-tab.png)
+![GM Screen Grid Tab with a Player Cheat Sheet.](readme-img/cheat-sheet-tab.png)
+
+### Player View (with a tab set to be shared)
+![Demonstration of the GM Screen Grid from the player's perspective.](readme-img/cheat-sheet-player.png)
+
 
 ## Configuration
 
-| **Name**                      | Default | Description                                                                                                                                         |
-| ----------------------------- | :-----: | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Display as Drawer**         |  true   | Controls whether the GM Screen appears as a normal popup dialog or as a drawer. To use the PopOut module with the GM Screen, this needs to checked. |
-| **Columns**                   |    4    | Sets the number of columns in the grid.                                                                                                             |
-| **Rows**                      |    3    | Sets the number of rows in the grid.                                                                                                                |
-| Drawer Only: **Right Margin** |  0(vw)  | Sets the offest from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen.                  |
-| Drawer Only: **Height**       | 60(vh)  | Sets the height of the GM Screen Drawer.                                                                                                            |
-| Drawer Only: **Width**        | 100(%)  | Calculated as a percentage of the available screen width after the sidebar and right margin are taken into account.                                 |
-| Drawer Only: **Opacity**      | 100(%)  | Controls how opaque the drawer is.                                                                                                                  |
-| **Reset Grid**                |  false  | Saving with this checkbox checked will reset the grid (useful if you end up somehow causing it to fail to render).                                  |
+![Screenshot of the GM Screen Configuration](readme-img/settings.png)
+
+| **Name**                       | Scope  | Default | Description                                                                                                                                                                                         |
+| ------------------------------ | :----: | :-----: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Grid Tabs**                  | world  |  Menu   | Allows the user to configure multiple tabs of the grid. Each grid tab created can have its own Column Override and Row Override if the default setting isn't what you want for that particular tab. |
+| **Columns**                    | world  |    4    | Sets the number of columns in the grid.                                                                                                                                                             |
+| **Rows**                       | world  |    3    | Sets the number of rows in the grid.                                                                                                                                                                |
+| **Display as Drawer**          | client |  true   | Controls whether the GM Screen appears as a normal popup dialog or as a drawer. To use the PopOut module with the GM Screen, this needs to checked.                                                 |
+| Drawer Only: **Right Margin**  | client |  0(vw)  | Sets the offset from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen.                                                                  |
+| Drawer Only: **Height**        | client | 60(vh)  | Sets the height of the GM Screen Drawer.                                                                                                                                                            |
+| Drawer Only: **Width**         | client | 100(%)  | Calculated as a percentage of the available screen width after the sidebar and right margin are taken into account.                                                                                 |
+| Drawer Only: **Opacity**       | client | 100(%)  | Controls how opaque the drawer is.                                                                                                                                                                  |
+| **Condensed GM Screen Button** | client |  false  | Removes the text from the GM Screen Button.                                                                                                                                                         |
+| **Reset Grid**                 | world  |  false  | Saving with this checkbox checked will reset the grid (useful if you end up somehow causing it to fail to render).                                                                                  |
 
 Note that changing the grid dimensions after populating the grid might cause unexpected results, and odds are you will have to clear the grid and repopulate things.
+
+### Tab Configuration
+![Screenshot of the GM Screen Tab Configuration](readme-img/tab-config.png)
+
+| **Name**             | Description                                                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Tab Label**        | The name of this tab, this is visible to players if the tab is shared.                                                               |
+| **Columns Override** | Override the number of columns in this specific grid tab.                                                                            |
+| **Rows Override**    | Override the number of rows in this specific grid tab.                                                                               |
+| **Shared**           | Controls whether or not this tab is also visible to players. If there are no shared grids, the players do not see the Screen at all. |
+| **Delete**           | Removes a Tab.                                                                                                                       |
+
+There is no current way to reorder tabs once created.
 
 ## Compatibility
 
 I'm honestly not sure how well this will play with modules that make changes to how journal articles or roll tables interact.
 
-| **Name**                                                               |       Works        | Notes                                            |
-| ---------------------------------------------------------------------- | :----------------: | ------------------------------------------------ |
-| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal)          | :heavy_check_mark: | Works as expected.                               |
-| [MEME](https://github.com/Moerill/fvtt-markdown-editor)                | :heavy_check_mark: | Markdown Renders as expected.                    |
-| [Inline Webviewer](https://github.com/ardittristan/VTTInlineWebviewer) | :heavy_check_mark: | Jounrnal entries with webviews work as expected. |
+| **Name**                                                               |       Works        | Notes                                           |
+| ---------------------------------------------------------------------- | :----------------: | ----------------------------------------------- |
+| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal)          | :heavy_check_mark: | Works as expected.                              |
+| [MEME](https://github.com/Moerill/fvtt-markdown-editor)                | :heavy_check_mark: | Markdown Renders as expected.                   |
+| [Inline Webviewer](https://github.com/ardittristan/VTTInlineWebviewer) | :heavy_check_mark: | Journal entries with webviews work as expected. |
 
 ## API
 
@@ -85,6 +116,8 @@ This hook is called when the GM Screen Opens of Closes with the following as the
 ## Known Issues
 
 - The grid does not refresh automatically when settings are changed, click the "refresh" button.
+- The titles of cells do not refresh automatically when the entity is renamed.
+- Some information will appear to players if they are shared a screen that contains things they do not have permission to view normally.
 - It is possible to overlap your cells with column/row spanning. It should not be possible to make it so you cannot recover from such a situation manually.
 
 ## Acknowledgements

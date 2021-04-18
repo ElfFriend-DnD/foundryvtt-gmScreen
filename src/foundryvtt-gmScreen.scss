@@ -42,6 +42,14 @@ $transition-timing: 400ms;
       }
     }
 
+    &.hidden:not(.expanded) {
+      .gm-screen-actions {
+        > .gm-screen-button {
+          transform: translateY(100%);
+        }
+      }
+    }
+
     .gm-screen-actions {
       position: absolute;
       bottom: calc(100% - 1px);
@@ -50,6 +58,9 @@ $transition-timing: 400ms;
 
       > *:not(.gm-screen-button) {
         transform: translateY(100%);
+      }
+
+      > * {
         transition: transform $transition-timing ease-in;
       }
     }

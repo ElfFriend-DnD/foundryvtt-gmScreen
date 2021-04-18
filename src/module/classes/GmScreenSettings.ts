@@ -8,6 +8,7 @@ const defaultGmScreenConfig: GmScreenConfig = {
     default: {
       name: 'Main',
       id: 'default',
+      isShared: false,
       entries: {},
     },
   },
@@ -15,10 +16,6 @@ const defaultGmScreenConfig: GmScreenConfig = {
 
 export class GmScreenSettings extends FormApplication {
   static init() {
-    // Debug use
-    CONFIG[MODULE_ID] = { debug: false };
-    // CONFIG.debug.hooks = true;
-
     game.settings.registerMenu(MODULE_ID, 'menu', {
       name: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.Name`,
       label: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.Label`,
@@ -33,6 +30,16 @@ export class GmScreenSettings extends FormApplication {
       type: Object,
       scope: 'world',
       config: false,
+      onChange: function (...args) {
+        log(false, 'gmScreenConfig changed', {
+          args,
+          currentConfig: { ...game.settings.get(MODULE_ID, MySettings.gmScreenConfig) },
+        });
+
+        // TODO: Check if we are GM or Player and act accordingly
+
+        game.modules.get(MODULE_ID).api?.refreshGmScreen();
+      },
     });
 
     game.settings.register(MODULE_ID, MySettings.migrated, {
@@ -64,7 +71,7 @@ export class GmScreenSettings extends FormApplication {
       name: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Name`,
       default: true,
       type: Boolean,
-      scope: 'world',
+      scope: 'client',
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Hint`,
       onChange: () => window.location.reload(),
@@ -74,7 +81,7 @@ export class GmScreenSettings extends FormApplication {
       name: `${MODULE_ABBREV}.settings.${MySettings.rightMargin}.Name`,
       default: 0,
       type: Number,
-      scope: 'world',
+      scope: 'client',
       range: { min: 0, max: 75, step: 5 },
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.rightMargin}.Hint`,
@@ -84,7 +91,7 @@ export class GmScreenSettings extends FormApplication {
       name: `${MODULE_ABBREV}.settings.${MySettings.drawerWidth}.Name`,
       default: 100,
       type: Number,
-      scope: 'world',
+      scope: 'client',
       range: { min: 25, max: 100, step: 5 },
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.drawerWidth}.Hint`,
@@ -94,7 +101,7 @@ export class GmScreenSettings extends FormApplication {
       name: `${MODULE_ABBREV}.settings.${MySettings.drawerHeight}.Name`,
       default: 60,
       type: Number,
-      scope: 'world',
+      scope: 'client',
       range: { min: 10, max: 90, step: 5 },
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.drawerHeight}.Hint`,
@@ -104,10 +111,19 @@ export class GmScreenSettings extends FormApplication {
       name: `${MODULE_ABBREV}.settings.${MySettings.drawerOpacity}.Name`,
       default: 1,
       type: Number,
-      scope: 'world',
+      scope: 'client',
       range: { min: 0.1, max: 1, step: 0.05 },
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.drawerOpacity}.Hint`,
+    });
+
+    game.settings.register(MODULE_ID, MySettings.condensedButton, {
+      name: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Name`,
+      default: false,
+      type: Boolean,
+      scope: 'client',
+      config: true,
+      hint: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Hint`,
     });
 
     game.settings.register(MODULE_ID, MySettings.reset, {
@@ -281,6 +297,7 @@ export class GmScreenSettings extends FormApplication {
         ...grid,
         entries: {},
         name: grid.name ?? '',
+        isShared: grid.isShared ?? false,
         id: gridId,
       };
 

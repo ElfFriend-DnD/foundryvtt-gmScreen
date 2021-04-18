@@ -1,14 +1,18 @@
 // Import TypeScript modules
 import { MODULE_ABBREV, MODULE_ID, MyHooks, MySettings, TEMPLATES } from './module/constants';
 import { GmScreenSettings } from './module/classes/GmScreenSettings';
-import { log } from './module/helpers';
+import { getUserViewableGrids, log } from './module/helpers';
 import { GmScreenApplication } from './module/classes/GmScreenApplication';
 import { _gmScreenMigrate } from './module/migration';
 
 let gmScreenInstance: GmScreenApplication;
 
 function toggleGmScreenOpen(isOpen?: boolean) {
-  if (!game.user.isGM) {
+  const gmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+
+  const userViewableGrids = getUserViewableGrids(gmScreenConfig);
+  if (!Object.keys(userViewableGrids).length) {
+    ui.notifications.notify(game.i18n.localize(`${MODULE_ABBREV}.warnings.noGrids`), 'error');
     return;
   }
 
@@ -38,6 +42,12 @@ function toggleGmScreenOpen(isOpen?: boolean) {
       gmScreenInstance.close();
     }
   } catch (e) {}
+}
+
+function refreshGmScreen() {
+  if (gmScreenInstance) {
+    gmScreenInstance.refresh();
+  }
 }
 
 Handlebars.registerHelper(`${MODULE_ABBREV}-path`, (relativePath: string) => {
@@ -90,16 +100,38 @@ Hooks.once('ready', async function () {
   const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
 
   // Do anything once the module is ready
+  if (displayDrawer) {
+    gmScreenInstance = new GmScreenApplication();
+    gmScreenInstance.render(true);
+  }
+
+  game.modules.get(MODULE_ID).api = {
+    toggleGmScreenVisibility: toggleGmScreenOpen,
+    refreshGmScreen: refreshGmScreen,
+  };
+
+  window[MODULE_ID] = {
+    toggleGmScreenVisibility: (...args) => {
+      console.warn(
+        MODULE_ID,
+        'Deprecation Warning:',
+        'window["gm-screen"]?.toggleGmScreenVisibility is deprecated in favor of game.modules.get("gm-screen")?.api?.toggleGmScreenVisibility and will be removed in a future update.'
+      );
+
+      game.modules.get(MODULE_ID)?.api.toggleGmScreenVisibility(...args);
+    },
+    refreshGmScreen: (...args) => {
+      console.warn(
+        MODULE_ID,
+        'Deprecation Warning:',
+        'window["gm-screen"]?.refreshGmScreen is deprecated in favor of game.modules.get("gm-screen")?.api?.refreshGmScreen and will be removed in a future update.'
+      );
+
+      game.modules.get(MODULE_ID)?.api.refreshGmScreen(...args);
+    },
+  };
+
   if (game.user.isGM) {
-    if (displayDrawer) {
-      gmScreenInstance = new GmScreenApplication();
-
-      gmScreenInstance.render(true);
-    }
-
-    window[MODULE_ID].toggleGmScreenVisibility = toggleGmScreenOpen;
-    window[MODULE_ID].refreshGmScreen = gmScreenInstance.render.bind(gmScreenInstance);
-
     game.settings.set(MODULE_ID, MySettings.reset, false);
   }
 
@@ -126,7 +158,7 @@ function _addGmScreenButton(html) {
 Hooks.on('renderJournalDirectory', (app, html, data) => {
   const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
 
-  if (game.user.isGM && !displayDrawer) {
+  if (!displayDrawer) {
     _addGmScreenButton(html);
   }
 });
@@ -147,4 +179,8 @@ Hooks.on('renderGmScreenApplication', (app, html, data) => {
   if (!displayDrawer) {
     Hooks.callAll(MyHooks.openClose, app, { isOpen: true });
   }
+});
+
+Hooks.once('devModeReady', ({ registerPackageDebugFlag }) => {
+  registerPackageDebugFlag(MODULE_ID);
 });
