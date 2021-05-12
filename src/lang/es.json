@@ -1,76 +1,85 @@
 {
   "GMSCR": {
-    "Grid": "Cuadrícula",
+    "I18N": {
+      "LANGUAGE": "Español",
+      "MAINTAINERS": "Git-GoR, @Viriato139ac#0342"
+    },
+    "Grid": "Rejilla",
     "gmScreen": {
-      "Title": "Pantalla del Director de Juego",
-      "ClearCell": "Limpiar Celda",
-      "Open": "Pantalla DJ",
-      "OpenPlayer": "Pantalla de Jugador",
-      "OpenFull": "Abrir la ficha completa de la Entidad",
+      "Title": "Pantalla del GM",
+      "ClearCell": "Limpiar celda",
+      "Open": "Pantalla del GM",
+      "OpenPlayer": "Pantalla del Jugador",
+      "OpenFull": "Abrir la ficha completa de la entidad",
       "Refresh": "Actualizar",
-      "Reset": "Borrar Cuadrícula"
+      "Reset": "Borrar rejilla"
     },
     "settings": {
       "gm-screen-config": {
-        "Name": "Pestañas de la Cuadrícula",
+        "Name": "Pestañas de la rejilla",
         "Label": "Configuración de las pestañas",
-        "Hint": "Añade, Elimina y Actualiza las pestañas de la Cuadrícula"
+        "Hint": "Añade, elimina y actualiza las pestañas de la rejilla"
       },
       "columns": {
         "Name": "Columnas",
-        "Hint": "¿Cuántas Columnas quieres? Modificar esta opción puede que requiera borrar la Cuadrícula"
+        "Hint": "¿Cuántas columnas quiere? Si modifica esta opción puede que necesite borrar la rejilla"
       },
       "rows": {
         "Name": "Filas",
-        "Hint": "¿Cuántas Filas quieres? Modificar esta opción puede que requiera borrar la Cuadrícula"
+        "Hint": "¿Cuántas filas quiere? Si modifica esta opción puede que necesite borrar la rejilla"
       },
       "right-margin": {
-        "Name": "Solo Bandeja: Margen Derecho",
-        "Hint": "Establece la distancia desde la barra lateral hasta el lado derecho de la Pantalla del DJ. Este número afecta al ancho máximo posible de la pantalla en el modo de visualización de Bandeja."
+        "Name": "Solo para la bandeja: Margen derecho",
+        "Hint": "Establece la distancia desde la barra lateral hasta el lado derecho de la pantalla del GM. Este número afecta al ancho máximo posible de la pantalla en el modo de visualización de bandeja"
       },
       "drawer-height": {
-        "Name": "Solo Bandeja: Altura",
-        "Hint": "Establece la altura de la Pantalla del DJ en el modo de visualización de Bandeja"
+        "Name": "Solo para la bandeja: Alto",
+        "Hint": "Establece la altura de la pantalla del GM en el modo de visualización de bandeja"
       },
       "drawer-width": {
-        "Name": "Solo Bandeja: Anchura",
-        "Hint": "Calculada como un porcentaje de la anchura de pantalla disponible después de tener en cuenta la barra lateral y el margen derecho."
+        "Name": "Solo para la bandeja: Ancho",
+        "Hint": "Calculada como un porcentaje de la anchura de pantalla disponible después de tener en cuenta la barra lateral y el margen derecho"
       },
       "drawer-opacity": {
-        "Name": "Solo Bandeja: Opacidad",
-        "Hint": "Controla la opacidad de la Bandeja."
+        "Name": "Solo para la bandeja: Opacidad",
+        "Hint": "Controla la opacidad de la bandeja"
+      },
+      "condensedButton": {
+        "Name": "Botón condensado de pantalla de GM",
+        "Hint": "Quita el texto del botón"
       },
       "reset": {
         "Name": "Restablecer",
-        "Hint": "Borra las entradas de la Cuadrícula. Esta acción no se puede deshacer."
+        "Hint": "Borra las entradas de la rejilla. Esta acción no se puede deshacer"
       },
       "display-as-drawer": {
-        "Name": "Mostrar como Bandeja",
-        "Hint": "Muestra la Pantalla del DJ como una bandeja en la parte inferior de la pantalla, en lugar de una ventana de diálogo normal. Si quieres utilizar PopOut, configura esta opción como falso."
+        "Name": "Mostrar como bandeja",
+        "Hint": "Muestra la pantalla del GM como una bandeja en la parte inferior de la pantalla, en lugar de una ventana de diálogo normal. Si quieres utilizar PopOut!, establece esta opción a falso"
       }
     },
     "warnings": {
+      "noGrids": "Su GM aún no ha compartido ninguna rejilla de pantalla de GM",
       "clearConfirm": {
-        "Title": "Borrar Cuadrícula",
-        "Content": "¿Estás seguro de que quieres borrar las entradas? Esta acción no se puede deshacer."
+        "Title": "Borrar rejilla",
+        "Content": "¿Está seguro de que quiere borrar las entradas de rejillas? Esta acción no se puede deshacer"
       }
     },
     "cellConfigDialog": {
-      "CellConfig": "Configuración de la Celda",
-      "RowSpan": "Filas que ocupar",
-      "ColSpan": "Columnas que ocupar"
+      "CellConfig": "Configuración de la celda",
+      "RowSpan": "Filas a ocupar",
+      "ColSpan": "Columnas a ocupar"
     },
     "gridConfig": {
-      "GridConfig": "Configuración de la Cuadrícula",
-      "GridTabs": "Configuración de las Pestañas de la Cuadrícula",
+      "GridConfig": "Configuración de la rejilla",
+      "GridTabs": "Configuración de las pestañas de la rejilla",
       "table": {
-        "TabLabel": "Nombre de la Pestaña",
-        "Rows": "Sobreescribir Filas",
-        "Columns": "Sobreescribir Columnas",
+        "TabLabel": "Nombre de la pestaña",
+        "Rows": "Sobreescribir filas",
+        "Columns": "Sobreescribir columnas",
         "Add": "Añadir"
       },
       "errors": {
-        "empty": "No se puede guardar la cuadrícula sin pestañas."
+        "empty": "No se puede guardar una rejilla sin pestañas"
       }
     }
   }
