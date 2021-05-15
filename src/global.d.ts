@@ -19,3 +19,23 @@ declare namespace RollTable {
     collection?: string;
   }
 }
+
+/* 0.8.2 overrides */
+
+declare interface Actors {
+  contents: any;
+}
+declare interface Items {
+  contents: any;
+}
+declare interface Journal {
+  contents: any;
+}
+declare interface RollTables {
+  contents: any;
+}
+
+declare interface FoundryDocument {
+  documentName: string;
+  sheet: DocumentSheet;
+}

@@ -707,10 +707,10 @@ export class GmScreenApplication extends Application {
     const condensedButton = game.settings.get(MODULE_ID, MySettings.condensedButton) as boolean;
 
     const entityOptions = [
-      { label: 'ENTITY.Actor', entries: game.actors.entries },
-      { label: 'ENTITY.Item', entries: game.items.entries },
-      { label: 'ENTITY.JournalEntry', entries: game.journal.entries },
-      { label: 'ENTITY.RollTable', entries: game.tables.entries },
+      { label: 'ENTITY.Actor', entries: game.actors.contents },
+      { label: 'ENTITY.Item', entries: game.items.contents },
+      { label: 'ENTITY.JournalEntry', entries: game.journal.contents },
+      { label: 'ENTITY.RollTable', entries: game.tables.contents },
     ].map(({ label, entries }) => {
       return {
         label,

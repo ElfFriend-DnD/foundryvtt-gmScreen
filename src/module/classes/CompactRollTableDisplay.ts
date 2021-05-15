@@ -1,28 +1,15 @@
 import { log } from '../helpers';
 import { TEMPLATES } from '../constants';
 
-interface RollableTableData {
-  results: {
-    type: Number;
-    isText: boolean;
-    isEntity: boolean;
-    isCompendium: boolean;
-    text: string;
-    resultId?: string;
-    collection?: string;
-  }[];
-}
-
 export class CompactRollTableDisplay extends RollTableConfig {
   cellId: string;
 
-  constructor(options, cellId: string) {
-    super(options);
+  constructor(object, options) {
+    super(object, options);
     log(false, 'CompactRollTableDisplay constructor', {
       options,
-      cellId,
     });
-    this.cellId = cellId;
+    this.cellId = options.cellId;
   }
 
   static get defaultOptions() {
@@ -69,15 +56,11 @@ export class CompactRollTableDisplay extends RollTableConfig {
 
         switch (action) {
           case 'rolltable-reset': {
-            this.entity.reset();
+            this.document.reset();
             break;
           }
           case 'rolltable': {
-            let tableRoll = this.entity.roll();
-            const draws = this.entity._getResultsForRoll(tableRoll.roll.total);
-            if (draws.length) {
-              this.entity.draw(tableRoll);
-            }
+            this.document.draw();
             break;
           }
         }
@@ -88,9 +71,8 @@ export class CompactRollTableDisplay extends RollTableConfig {
     // super.activateListeners(html);
   }
 
-  //@ts-ignore
   getData() {
-    const sheetData = super.getData() as RollTableConfig.Data;
+    const sheetData = super.getData();
 
     // TODO: Rolltable.Result and Results wrong
     const enrichedResults = (sheetData.results as unknown as RollTable.Result[]).map((result) => {

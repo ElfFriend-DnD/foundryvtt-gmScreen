@@ -4,13 +4,12 @@ import { TEMPLATES } from '../constants';
 export class CompactJournalEntryDisplay extends JournalSheet {
   cellId: string;
 
-  constructor(options, cellId: string) {
-    super(options);
+  constructor(object, options) {
+    super(object, options);
     log(false, 'CompactJournalEntryDisplay constructor', {
       options,
-      cellId,
     });
-    this.cellId = cellId;
+    this.cellId = options.cellId;
   }
 
   static get defaultOptions() {
