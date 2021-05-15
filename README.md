@@ -1,6 +1,6 @@
 # GM Screen
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ![Latest Release Download Count](https://img.shields.io/badge/dynamic/json?label=Downloads@latest&query=assets%5B1%5D.download_count&url=https%3A%2F%2Fapi.github.com%2Frepos%2FElfFriend-DnD%2Ffoundryvtt-gmScreen%2Freleases%2Flatest)
@@ -140,6 +140,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="https://github.com/saif-ellafi"><img src="https://avatars.githubusercontent.com/u/27952699?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Saif Addin</b></sub></a><br /><a href="https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/commits?author=saif-ellafi" title="Code">💻</a></td>
     <td align="center"><a href="http://lordzeel.com"><img src="https://avatars.githubusercontent.com/u/1721836?v=4?s=100" width="100px;" alt=""/><br /><sub><b>zeel</b></sub></a><br /><a href="https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/commits?author=zeel01" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/lozalojo"><img src="https://avatars.githubusercontent.com/u/16079668?v=4?s=100" width="100px;" alt=""/><br /><sub><b>José E. Lozano</b></sub></a><br /><a href="#translation-lozalojo" title="Translation">🌍</a></td>
   </tr>
 </table>
 
