@@ -20,3 +20,8 @@ export interface GmScreenGridEntry {
   entityUuid?: string;
   entryId: string;
 }
+
+export interface GmScreenApi {
+  toggleGmScreenVisibility(isOpen?: boolean): void;
+  refreshGmScreen(): void;
+}

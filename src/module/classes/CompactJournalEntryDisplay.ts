@@ -15,10 +15,9 @@ export class CompactJournalEntryDisplay extends JournalSheet {
 
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
-      // template: TEMPLATES.compactJournalEntry,
       editable: false,
       popOut: false,
-    });
+    } as Partial<Application.Options>) as JournalSheet['options'];
   }
 
   /** @override */

@@ -26,11 +26,14 @@ export class CompactRollTableDisplay extends RollTableConfig {
   }
 
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
-      template: TEMPLATES.compactRollTable,
-      editable: false,
-      popOut: false,
-    });
+    return mergeObject(
+      super.defaultOptions as RollTableConfig['options'],
+      {
+        template: TEMPLATES.compactRollTable,
+        editable: false,
+        popOut: false,
+      } as Partial<Application.Options>
+    ) as RollTableConfig['options'];
   }
 
   _replaceHTML(element, html, options) {
@@ -87,8 +90,9 @@ export class CompactRollTableDisplay extends RollTableConfig {
 
   //@ts-ignore
   getData() {
-    const sheetData = super.getData() as RollableTableData;
+    const sheetData = super.getData() as RollTableConfig.Data;
 
+    // TODO: Rolltable.Result and Results wrong
     const enrichedResults = sheetData.results.map((result) => {
       let label: string;
 

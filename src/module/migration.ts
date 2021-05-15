@@ -8,6 +8,11 @@ interface GmScreenConfig1 {
   };
 }
 
+interface MigratedSetting {
+  status: boolean;
+  version: string;
+}
+
 export async function _gmScreenMigrate() {
   if (!game.user.isGM) return;
   const NEEDS_MIGRATION_VERSION = '2.0.1';
@@ -15,10 +20,11 @@ export async function _gmScreenMigrate() {
   // Fresh install -> No migration CHECK
   // Skipped multiple versions and upgrading in 0.4.X or higher
   // X round of migrations (bound to happen again, right?)
-  let migrated = game.settings.get(MODULE_ID, MySettings.migrated);
+  let migrated = game.settings.get(MODULE_ID, MySettings.migrated) as MigratedSetting;
   // If we have migrated before
   if (migrated.status) {
     // If our version is newer than the NEEDS_MIGRATION_VERSION
+    //@ts-ignore
     if (isNewerVersion(game.modules.get(MODULE_ID).data.version, NEEDS_MIGRATION_VERSION)) return;
     // If we are on the same version, but have migrated.
     if (migrated.version === NEEDS_MIGRATION_VERSION) return;
@@ -26,7 +32,7 @@ export async function _gmScreenMigrate() {
 
   ui.notifications.notify('GM Screen | Beginning Migration to updated schema.', 'info');
 
-  let gmScreenConfig: GmScreenConfig1 = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+  let gmScreenConfig: GmScreenConfig1 = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig1;
   if (!!gmScreenConfig?.grid?.entries && Array.isArray(gmScreenConfig.grid.entries)) {
     // need to convert gmscreenconfig.grid.entries from array to object
 

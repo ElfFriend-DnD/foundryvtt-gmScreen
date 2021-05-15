@@ -4,11 +4,12 @@ import { GmScreenSettings } from './module/classes/GmScreenSettings';
 import { getUserViewableGrids, log } from './module/helpers';
 import { GmScreenApplication } from './module/classes/GmScreenApplication';
 import { _gmScreenMigrate } from './module/migration';
+import { GmScreenApi, GmScreenConfig } from './gridTypes';
 
 let gmScreenInstance: GmScreenApplication;
 
 function toggleGmScreenOpen(isOpen?: boolean) {
-  const gmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+  const gmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
 
   const userViewableGrids = getUserViewableGrids(gmScreenConfig);
   if (!Object.keys(userViewableGrids).length) {
@@ -16,7 +17,7 @@ function toggleGmScreenOpen(isOpen?: boolean) {
     return;
   }
 
-  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+  const displayDrawer = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
   if (displayDrawer && !!gmScreenInstance) {
     gmScreenInstance.toggleGmScreenVisibility(isOpen);
     return;
@@ -97,7 +98,7 @@ Hooks.once('ready', async function () {
 
   window[MODULE_ID] = { migration: _gmScreenMigrate };
 
-  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
 
   // Do anything once the module is ready
   if (displayDrawer) {
@@ -108,7 +109,7 @@ Hooks.once('ready', async function () {
   game.modules.get(MODULE_ID).api = {
     toggleGmScreenVisibility: toggleGmScreenOpen,
     refreshGmScreen: refreshGmScreen,
-  };
+  } as GmScreenApi;
 
   window[MODULE_ID] = {
     toggleGmScreenVisibility: (...args) => {
@@ -156,7 +157,7 @@ function _addGmScreenButton(html) {
 }
 
 Hooks.on('renderJournalDirectory', (app, html, data) => {
-  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
 
   if (!displayDrawer) {
     _addGmScreenButton(html);
@@ -165,7 +166,7 @@ Hooks.on('renderJournalDirectory', (app, html, data) => {
 
 // when gm screen in non-drawer mode is closed call MyHooks.openClose with isOpen: false
 Hooks.on('closeGmScreenApplication', (app, html, data) => {
-  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
 
   if (!displayDrawer) {
     Hooks.callAll(MyHooks.openClose, app, { isOpen: false });
@@ -174,7 +175,7 @@ Hooks.on('closeGmScreenApplication', (app, html, data) => {
 
 // when gm screen in non-drawer mode is opened call MyHooks.openClose with isOpen: true
 Hooks.on('renderGmScreenApplication', (app, html, data) => {
-  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
+  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
 
   if (!displayDrawer) {
     Hooks.callAll(MyHooks.openClose, app, { isOpen: true });

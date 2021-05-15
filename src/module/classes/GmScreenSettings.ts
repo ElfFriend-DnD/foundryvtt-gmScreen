@@ -33,7 +33,7 @@ export class GmScreenSettings extends FormApplication {
       onChange: function (...args) {
         log(false, 'gmScreenConfig changed', {
           args,
-          currentConfig: { ...game.settings.get(MODULE_ID, MySettings.gmScreenConfig) },
+          currentConfig: { ...(game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig) },
         });
 
         // TODO: Check if we are GM or Player and act accordingly
@@ -146,7 +146,7 @@ export class GmScreenSettings extends FormApplication {
       ...super.defaultOptions,
       classes: ['gm-screen-config'],
       closeOnSubmit: false,
-      height: 'auto',
+      height: 'auto' as 'auto',
       submitOnChange: false,
       submitOnClose: false,
       template: TEMPLATES.settings,
@@ -160,15 +160,15 @@ export class GmScreenSettings extends FormApplication {
   }
 
   get rows(): number {
-    return game.settings.get(MODULE_ID, MySettings.rows);
+    return game.settings.get(MODULE_ID, MySettings.rows) as number;
   }
 
   get columns(): number {
-    return game.settings.get(MODULE_ID, MySettings.columns);
+    return game.settings.get(MODULE_ID, MySettings.columns) as number;
   }
 
   get settingsData() {
-    const gmScreenConfig: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const gmScreenConfig: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
 
     log(false, 'getSettingsData', {
       gmScreenConfig,
@@ -263,7 +263,7 @@ export class GmScreenSettings extends FormApplication {
   // },
 
   async _updateObject(ev, formData) {
-    const gmScreenConfig: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const gmScreenConfig: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
 
     const data = expandObject(formData);
 

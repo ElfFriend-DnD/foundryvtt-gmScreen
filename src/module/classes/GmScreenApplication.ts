@@ -28,20 +28,20 @@ export class GmScreenApplication extends Application {
   constructor(options = {}) {
     super(options);
     this.expanded = false;
-    this.data = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    this.data = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
     this.apps = {};
   }
 
   get rows(): number {
-    return game.settings.get(MODULE_ID, MySettings.rows);
+    return game.settings.get(MODULE_ID, MySettings.rows) as number;
   }
 
   get columns(): number {
-    return game.settings.get(MODULE_ID, MySettings.columns);
+    return game.settings.get(MODULE_ID, MySettings.columns) as number;
   }
 
   get displayDrawer(): boolean {
-    return game.settings.get(MODULE_ID, MySettings.displayDrawer);
+    return game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
   }
 
   get userViewableGrids() {
@@ -53,10 +53,10 @@ export class GmScreenApplication extends Application {
   }
 
   static get defaultOptions() {
-    const columns: number = game.settings.get(MODULE_ID, MySettings.columns);
-    const rows: number = game.settings.get(MODULE_ID, MySettings.rows);
-    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
-    const gmScreenConfig: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const columns: number = game.settings.get(MODULE_ID, MySettings.columns) as number;
+    const rows: number = game.settings.get(MODULE_ID, MySettings.rows) as number;
+    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
+    const gmScreenConfig: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
 
     const drawerOptions = {
       popOut: false,
@@ -106,7 +106,7 @@ export class GmScreenApplication extends Application {
       template: TEMPLATES.screen,
       id: 'gm-screen-app',
       scrollY,
-    });
+    } as Partial<Application.Options>) as Application.Options; // TODO: Open Ticket about this
   }
 
   get activeGrid() {
@@ -177,7 +177,7 @@ export class GmScreenApplication extends Application {
    * @param {string} entryId - entry to remove from the active grid's entries
    */
   async removeEntryFromActiveGrid(entryId: string) {
-    const clearedCell = duplicate(this.activeGrid.entries[entryId]);
+    const clearedCell = duplicate(this.activeGrid.entries[entryId]) as GmScreenGridEntry;
     const shouldKeepCellLayout = clearedCell.spanCols || clearedCell.spanRows;
 
     const newEntries = {
@@ -352,7 +352,7 @@ export class GmScreenApplication extends Application {
           return;
         }
         try {
-          const relevantEntity = await fromUuid(entityUuid);
+          const relevantEntity = (await fromUuid(entityUuid)) as Entity;
           const relevantEntitySheet = relevantEntity?.sheet;
           log(false, 'trying to edit entity', { relevantEntitySheet });
 
@@ -425,9 +425,9 @@ export class GmScreenApplication extends Application {
    */
   refresh() {
     // debugger;
-    const newData = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
-    const oldData = duplicate(this.data);
-    const diffData = diffObject(oldData, newData);
+    const newData = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
+    const oldData = duplicate(this.data) as GmScreenConfig;
+    const diffData: Partial<GmScreenConfig> = diffObject(oldData, newData);
 
     log(false, 'refreshing gm screen', {
       newData: duplicate(newData),
@@ -537,7 +537,7 @@ export class GmScreenApplication extends Application {
    * @returns
    */
   async getCellApplicationClass(entityUuid: string, cellId: string) {
-    const relevantEntity = await fromUuid(entityUuid);
+    const relevantEntity = (await fromUuid(entityUuid)) as Entity;
 
     if (!relevantEntity) {
       await this.apps[cellId]?.close();
@@ -700,11 +700,11 @@ export class GmScreenApplication extends Application {
    * @override
    */
   getData() {
-    const rightMargin: number = game.settings.get(MODULE_ID, MySettings.rightMargin);
-    const drawerWidth: number = game.settings.get(MODULE_ID, MySettings.drawerWidth);
-    const drawerHeight: number = game.settings.get(MODULE_ID, MySettings.drawerHeight);
-    const drawerOpacity: number = game.settings.get(MODULE_ID, MySettings.drawerOpacity);
-    const condensedButton = game.settings.get(MODULE_ID, MySettings.condensedButton);
+    const rightMargin = game.settings.get(MODULE_ID, MySettings.rightMargin) as number;
+    const drawerWidth = game.settings.get(MODULE_ID, MySettings.drawerWidth) as number;
+    const drawerHeight = game.settings.get(MODULE_ID, MySettings.drawerHeight) as number;
+    const drawerOpacity = game.settings.get(MODULE_ID, MySettings.drawerOpacity) as number;
+    const condensedButton = game.settings.get(MODULE_ID, MySettings.condensedButton) as boolean;
 
     const entityOptions = [
       { label: 'ENTITY.Actor', entries: game.actors.entries },
