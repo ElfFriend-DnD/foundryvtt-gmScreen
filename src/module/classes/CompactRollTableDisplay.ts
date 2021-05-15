@@ -12,6 +12,10 @@ export class CompactRollTableDisplay extends RollTableConfig {
     this.cellId = options.cellId;
   }
 
+  get isEditable() {
+    return false;
+  }
+
   static get defaultOptions() {
     return foundry.utils.mergeObject(
       super.defaultOptions as RollTableConfig['options'],

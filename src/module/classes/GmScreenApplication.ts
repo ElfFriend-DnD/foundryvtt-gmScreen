@@ -581,7 +581,7 @@ export class GmScreenApplication extends Application {
       });
 
       //@ts-ignore
-      const CompactEntitySheet: DocumentSheet = new sheet.constructor(relevantEntity);
+      const CompactEntitySheet: DocumentSheet = new sheet.constructor(relevantEntity, { editable: false });
 
       CompactEntitySheet.options.editable = false;
       CompactEntitySheet.options.popOut = false;
@@ -646,7 +646,8 @@ export class GmScreenApplication extends Application {
 
               gridCellContent.addClass(classes);
 
-              application.render(true);
+              //@ts-ignore
+              application.render(true, { editable: false });
             })
             .catch(() => {
               log(true, 'error trying to render a gridEntry', {
