@@ -13,7 +13,7 @@ export class CompactRollTableDisplay extends RollTableConfig {
   }
 
   static get defaultOptions() {
-    return mergeObject(
+    return foundry.utils.mergeObject(
       super.defaultOptions as RollTableConfig['options'],
       {
         template: TEMPLATES.compactRollTable,

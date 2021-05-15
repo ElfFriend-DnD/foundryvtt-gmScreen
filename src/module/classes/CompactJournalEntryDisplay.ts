@@ -6,14 +6,15 @@ export class CompactJournalEntryDisplay extends JournalSheet {
 
   constructor(object, options) {
     super(object, options);
-    log(false, 'CompactJournalEntryDisplay constructor', {
-      options,
-    });
     this.cellId = options.cellId;
   }
 
+  get isEditable() {
+    return false;
+  }
+
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       editable: false,
       popOut: false,
     } as Partial<Application.Options>) as JournalSheet['options'];
