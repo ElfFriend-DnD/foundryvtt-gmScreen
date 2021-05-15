@@ -8,11 +8,11 @@ declare namespace Game {
   }
 }
 
-declare namespace RollTableConfig {
-  interface Data {
-    results: RollTable.Result[];
-  }
-}
+// declare namespace RollTableConfig {
+//   interface Data {
+//     results: RollTable.Result[];
+//   }
+// }
 
 declare namespace RollTable {
   interface Result {

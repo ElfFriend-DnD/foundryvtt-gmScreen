@@ -93,7 +93,7 @@ export class CompactRollTableDisplay extends RollTableConfig {
     const sheetData = super.getData() as RollTableConfig.Data;
 
     // TODO: Rolltable.Result and Results wrong
-    const enrichedResults = sheetData.results.map((result) => {
+    const enrichedResults = (sheetData.results as unknown as RollTable.Result[]).map((result) => {
       let label: string;
 
       switch (result.type) {
