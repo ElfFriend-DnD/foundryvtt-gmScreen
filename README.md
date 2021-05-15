@@ -24,7 +24,7 @@ Additionally, any screen you create as GM can be set to be shared with players, 
 
 ## Usage
 
-![Tab Configuration Demo Videa](readme-img/tab-config-demo.mp4)
+![Tab Configuration Demo Video](readme-img/tab-config-demo.mp4)
 
 - Set up tabs in the Module Settings, and optionally share some with your players.
 - Drag and Drop Journal Entries, Rollable Tables, even Actors and Items into cells on the GM Screen.
@@ -49,7 +49,7 @@ https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/mo
 ![GM Screen Grid Tab with a Player Cheat Sheet.](readme-img/cheat-sheet-tab.png)
 
 ### Player View (with a tab set to be shared)
-![Demonstration of the GM Screen Grid from the player's perspective.](readme-img/cheat-sheet-player.png)
+![Demonstration of the GM Screen Grid from the player's perspective.](readme-img/cheet-sheet-player.png)
 
 
 ## Configuration
