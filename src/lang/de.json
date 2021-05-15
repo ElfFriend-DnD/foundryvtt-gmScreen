@@ -1,0 +1,82 @@
+{
+  "GMSCR": {
+    "Grid": "Raster",
+    "gmScreen": {
+      "Title": "SL Schirm",
+      "ClearCell": "Zelle leeren",
+      "Open": "SL Schirm",
+      "OpenPlayer": "Spieler Schirm",
+      "OpenFull": "Öffne das vollständige Entitäts Blatt",
+      "Refresh": "Aktualisieren",
+      "Reset": "Raster leeren"
+    },
+    "settings": {
+      "gm-screen-config": {
+        "Name": "Raster Reiter",
+        "Label": "Reiter Konfiguration",
+        "Hint": "Füge hinzu, entfernen und aktualisiere Raster Reiter hier."
+      },
+      "columns": {
+        "Name": "Spalten",
+        "Hint": "Wie viele Spalten willst du? Änderungen benötigen eventuell das leeren des Rasters."
+      },
+      "rows": {
+        "Name": "Zeilen",
+        "Hint": "Wie viele Zeilen willst du? Änderungen benötigen eventuell das leeren des Rasters."
+      },
+      "right-margin": {
+        "Name": "Nur Schublade: Rechter Rand",
+        "Hint": "Stellt den Abstand von der Seitenleiste zum rechten Rand des SL Schirms. Diese Zahl beeinflusst die maximale mögliche Breite des Schirms im Schubladen Anzeige-Modus."
+      },
+      "drawer-height": {
+        "Name": "Nur Schublade: Höhe",
+        "Hint": "Stellt die Höhe des SL Schirms im Schubladen Anzeige-Modus ein."
+      },
+      "drawer-width": {
+        "Name": "Nur Schublade: Breite",
+        "Hint": "Berechnet als prozentuelle verfügbare Breite des Schirms nachdem die Seitenleiste und der Rand mit einbezogen wurden."
+      },
+      "drawer-opacity": {
+        "Name": "Nur Schublade: Deckkraft",
+        "Hint": "Steuert, wie undurchsichtig die Schublade ist."
+      },
+      "condensedButton": {
+        "Name": "Verkürzter SL Schirm Schalter",
+        "Hint": "Entfernt den Text des Schalters"
+      },
+      "reset": {
+        "Name": "Zurücksetzen",
+        "Hint": "Leert die Raster Einträge. Dies kann nicht rückgängig gemacht werden."
+      },
+      "display-as-drawer": {
+        "Name": "Als Schublade anzeigen",
+        "Hint": "Zeigt den SL Schirm als Schublade am unteren Rand des Bildschirms an, statt als normaler Dialog. Wenn du PopOut verwenden möchtest, setze dies auf falsch."
+      }
+    },
+    "warnings": {
+      "noGrids": "Dein SL hat keine SL Schirm Raster geteilt.",
+      "clearConfirm": {
+        "Title": "Raster leeren",
+        "Content": "Bist du sicher, dass du die Raster Einträge leeren möchtest? Dies kann nicht rückgängig gemacht werden."
+      }
+    },
+    "cellConfigDialog": {
+      "CellConfig": "Zellenkonfiguration",
+      "RowSpan": "Zeilen zum spannen",
+      "ColSpan": "Spalten zum spannen"
+    },
+    "gridConfig": {
+      "GridConfig": "Rasterkonfiguration",
+      "GridTabs": "Raster-Reiter-Konfiguration",
+      "table": {
+        "TabLabel": "Reiter Bezeichnung",
+        "Rows": "Zeilen Überschreiben",
+        "Columns": "Spalten Überschreiben",
+        "Add": "Hinzufügen"
+      },
+      "errors": {
+        "empty": "Speichern des Rasters ohne Reiter nicht möglich."
+      }
+    }
+  }
+}
