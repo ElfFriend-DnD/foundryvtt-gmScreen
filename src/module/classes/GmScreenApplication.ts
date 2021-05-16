@@ -282,69 +282,73 @@ export class GmScreenApplication extends Application {
         break;
       }
       case ClickAction.configureCell: {
-        const { x, y } = getGridElementsPosition($(e.target).parent());
+        try {
+          const { x, y } = getGridElementsPosition($(e.target).parent());
 
-        const cellToConfigure: GmScreenGridEntry = this.activeGrid.entries[entryId] || {
-          x,
-          y,
-          entryId: `${x}-${y}`,
-        };
+          const cellToConfigure: GmScreenGridEntry = this.activeGrid.entries[entryId] || {
+            x,
+            y,
+            entryId: `${x}-${y}`,
+          };
 
-        log(false, 'configureCell cellToConfigure', cellToConfigure);
+          log(false, 'configureCell cellToConfigure', cellToConfigure);
 
-        const { newSpanRows, newSpanCols } = await getUserCellConfigurationInput(cellToConfigure, {
-          rows: this.rows,
-          columns: this.columns,
-        });
+          const { newSpanRows, newSpanCols } = await getUserCellConfigurationInput(cellToConfigure, {
+            rows: this.rows,
+            columns: this.columns,
+          });
 
-        log(false, 'new span values from dialog', {
-          newSpanRows,
-          newSpanCols,
-        });
+          log(false, 'new span values from dialog', {
+            newSpanRows,
+            newSpanCols,
+          });
 
-        const newCell = {
-          ...cellToConfigure,
-          spanRows: newSpanRows,
-          spanCols: newSpanCols,
-        };
+          const newCell = {
+            ...cellToConfigure,
+            spanRows: newSpanRows,
+            spanCols: newSpanCols,
+          };
 
-        const newEntries = {
-          ...this.activeGrid.entries,
-          [newCell.entryId]: newCell,
-        };
+          const newEntries = {
+            ...this.activeGrid.entries,
+            [newCell.entryId]: newCell,
+          };
 
-        // based on the X, Y, and Span values of `newCell` find all problematic entryIds
-        // BRITTLE if entryId's formula changes
-        const problemCoordinates = [...Array(newCell.spanCols).keys()]
-          .map((_, index) => {
-            const problemX = newCell.x + index;
+          // based on the X, Y, and Span values of `newCell` find all problematic entryIds
+          // BRITTLE if entryId's formula changes
+          const problemCoordinates = [...Array(newCell.spanCols).keys()]
+            .map((_, index) => {
+              const problemX = newCell.x + index;
 
-            return [...Array(newCell.spanRows).keys()].map((_, index) => {
-              const problemY = newCell.y + index;
-              return `${problemX}-${problemY}`; // problem cell's id
-            });
-          })
-          .flat();
+              return [...Array(newCell.spanRows).keys()].map((_, index) => {
+                const problemY = newCell.y + index;
+                return `${problemX}-${problemY}`; // problem cell's id
+              });
+            })
+            .flat();
 
-        log(false, {
-          problemCoordinates,
-        });
+          log(false, {
+            problemCoordinates,
+          });
 
-        // get any overlapped cells and remove them
-        Object.values(newEntries).forEach((entry) => {
-          if (problemCoordinates.includes(entry.entryId) && entry.entryId !== newCell.entryId) {
-            delete newEntries[entry.entryId];
-          }
-        });
+          // get any overlapped cells and remove them
+          Object.values(newEntries).forEach((entry) => {
+            if (problemCoordinates.includes(entry.entryId) && entry.entryId !== newCell.entryId) {
+              delete newEntries[entry.entryId];
+            }
+          });
 
-        log(false, 'newEntries', newEntries);
+          log(false, 'newEntries', newEntries);
 
-        const newGridData = {
-          ...this.activeGrid,
-          entries: newEntries,
-        };
+          const newGridData = {
+            ...this.activeGrid,
+            entries: newEntries,
+          };
 
-        this.setGridData(newGridData);
+          this.setGridData(newGridData);
+        } catch (e) {
+          log(false, 'User exited configure cell Dialog.');
+        }
         break;
       }
       case ClickAction.open: {
@@ -590,6 +594,8 @@ export class GmScreenApplication extends Application {
 
       //@ts-ignore
       CompactEntitySheet._injectHTML = function (html) {
+        $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
+
         const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
 
         log(false, 'CompactEntitySheet overwritten _injectHTML', {
@@ -605,6 +611,8 @@ export class GmScreenApplication extends Application {
 
       //@ts-ignore
       CompactEntitySheet._replaceHTML = function (element, html, options) {
+        $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
+
         const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
         //@ts-ignore
         gridCellContent.html(html);
@@ -632,8 +640,6 @@ export class GmScreenApplication extends Application {
           const relevantUuid = gridEntry.dataset.entityUuid;
           const cellId = `#${gridEntry.id}`;
 
-          // const gridCellContent = $(gridEntry).find('.gm-screen-grid-cell-content');
-
           log(false, 'gridEntry with uuid defined found', { relevantUuid, cellId, gridEntry });
 
           this.getCellApplicationClass(relevantUuid, cellId)
@@ -642,8 +648,8 @@ export class GmScreenApplication extends Application {
                 application,
               });
               const classes = application.options.classes.join(' ');
-              const gridCellContent = $(gridEntry).find('.gm-screen-grid-cell-content');
 
+              const gridCellContent = $(gridEntry).find('.gm-screen-grid-cell-content');
               gridCellContent.addClass(classes);
 
               //@ts-ignore
@@ -707,29 +713,29 @@ export class GmScreenApplication extends Application {
     const drawerOpacity = game.settings.get(MODULE_ID, MySettings.drawerOpacity) as number;
     const condensedButton = game.settings.get(MODULE_ID, MySettings.condensedButton) as boolean;
 
-    const entityOptions = [
-      { label: 'ENTITY.Actor', entries: game.actors.contents },
-      { label: 'ENTITY.Item', entries: game.items.contents },
-      { label: 'ENTITY.JournalEntry', entries: game.journal.contents },
-      { label: 'ENTITY.RollTable', entries: game.tables.contents },
-    ].map(({ label, entries }) => {
-      return {
-        label,
-        options: (entries as unknown as Array<any>).reduce((acc, entity) => {
-          acc[entity.uuid] = entity.data.name;
-          return acc;
-        }, {}),
-      };
-    });
+    // const entityOptions = [
+    //   { label: 'ENTITY.Actor', entries: game.actors.contents },
+    //   { label: 'ENTITY.Item', entries: game.items.contents },
+    //   { label: 'ENTITY.JournalEntry', entries: game.journal.contents },
+    //   { label: 'ENTITY.RollTable', entries: game.tables.contents },
+    // ].map(({ label, entries }) => {
+    //   return {
+    //     label,
+    //     options: (entries as unknown as Array<any>).reduce((acc, document) => {
+    //       acc[document.uuid] = document.data.name;
+    //       return acc;
+    //     }, {}),
+    //   };
+    // });
 
-    const entityNames = Object.values(entityOptions).reduce((acc, optionGroup) => {
-      return { ...acc, ...optionGroup.options };
-    }, {});
+    // const entityNames = Object.values(entityOptions).reduce((acc, optionGroup) => {
+    //   return { ...acc, ...optionGroup.options };
+    // }, {});
 
     const newAppData = {
       ...super.getData(),
-      entityOptions,
-      entityNames,
+      // entityOptions,
+      // entityNames,
       grids: this.getHydratedGrids(),
       isGM: game.user.isGM,
       condensedButton: condensedButton,
@@ -808,7 +814,7 @@ export class GmScreenApplication extends Application {
       return false;
     }
 
-    const entityUuid = `${data.type}.${data.id}`;
+    const entityUuid = `${data.pack ? `Compendium.${data.pack}` : data.type}.${data.id}`;
 
     const gridElementPosition = getGridElementsPosition($(event.target).closest('.gm-screen-grid-cell'));
     const newEntryId = `${gridElementPosition.x}-${gridElementPosition.y}`;

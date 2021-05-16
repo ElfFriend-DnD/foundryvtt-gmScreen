@@ -15,3 +15,9 @@
 @function asset($file-name) {
   @return url('assets/#{$file-name}');
 }
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -28,6 +28,8 @@ export class CompactRollTableDisplay extends RollTableConfig {
   }
 
   _replaceHTML(element, html, options) {
+    $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
+
     const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
     //@ts-ignore
     gridCellContent.html(html);
@@ -35,6 +37,8 @@ export class CompactRollTableDisplay extends RollTableConfig {
   }
 
   _injectHTML(html, options) {
+    $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
+
     const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
 
     log(false, 'CompactJournalEntryDisplay _injectHTML', {

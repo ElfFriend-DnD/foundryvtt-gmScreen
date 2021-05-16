@@ -4,6 +4,8 @@
     "gmScreen": {
       "Title": "GM Screen",
       "ClearCell": "Clear Cell",
+      "ConfigureCell": "Configure Column and Row Spanning",
+      "EmptyCellHint": "Drag and Drop a Journal Entry, Rollable Table, Actor, or Item from either the World or a Compendium.",
       "Open": "GM Screen",
       "OpenPlayer": "Player Screen",
       "OpenFull": "Open the full Entity Sheet",

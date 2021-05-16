@@ -10,7 +10,7 @@
   <div class="gm-screen-grid-cell-header">
 
     {{#if @root/isGM}}
-    <a data-action="configureCell"><i class="fas fa-cog"></i></a>
+    <a data-action="configureCell" title="{{localize 'GMSCR.gmScreen.ConfigureCell'}}"><i class="fas fa-cog"></i></a>
 
     {{#if this.entityUuid}}
     <a data-action="clearCell" title="{{localize 'GMSCR.gmScreen.ClearCell'}}">
@@ -18,24 +18,11 @@
     </a>
     {{/if}}
 
-    <select>
-      {{#select this.entityUuid}}
-      <option value="">None</option>
-      {{#each @root/entityOptions}}
-      <optgroup label="{{localize label}}">
-        {{selectOptions options}}
-      </optgroup>
-      {{/each}}
-      {{/select}}
-    </select>
-
-    {{else}}
-
-    <b style="width: 100%;">
-      {{ lookup @root/entityNames this.entityUuid }}
-    </b>
-
     {{/if}}
+
+    <h5 class="gm-screen-grid-cell-title">
+      {{!-- Contents injected in GmScreenApplication.activateListeners --}}
+    </h5>
 
     {{#if this.entityUuid}}
     <a data-action="open" title="{{localize 'GMSCR.gmScreen.OpenFull'}}">
@@ -58,6 +45,13 @@
   <div class="gm-screen-grid-cell-content-wrapper">
     <div class="gm-screen-grid-cell-content">
       {{!-- Contents injected in GmScreenApplication.activateListeners --}}
+      {{#if @root/isGM}}
+      {{#unless this.entityUuid}}
+      <div class="gm-screen-grid-cell-hint">
+        <h6>{{localize 'GMSCR.gmScreen.EmptyCellHint'}}</h6>
+      </div>
+      {{/unless}}
+      {{/if}}
     </div>
   </div>
 </div>
