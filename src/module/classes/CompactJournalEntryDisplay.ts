@@ -4,17 +4,17 @@ import { TEMPLATES } from '../constants';
 export class CompactJournalEntryDisplay extends JournalSheet {
   cellId: string;
 
-  constructor(options, cellId: string) {
-    super(options);
-    log(false, 'CompactJournalEntryDisplay constructor', {
-      options,
-      cellId,
-    });
-    this.cellId = cellId;
+  constructor(object, options) {
+    super(object, options);
+    this.cellId = options.cellId;
+  }
+
+  get isEditable() {
+    return false;
   }
 
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       editable: false,
       popOut: false,
     } as Partial<Application.Options>) as JournalSheet['options'];

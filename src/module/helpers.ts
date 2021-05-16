@@ -150,6 +150,7 @@ export function getUserViewableGrids(gmScreenConfig: GmScreenConfig) {
 
   return sharedGrids;
 }
+
 /**
  * Creates a custom CSS property with the name provide on the element.style of all elements which match
  * the selector provided containing the computed value of the property specified.
@@ -171,3 +172,74 @@ export function updateCSSPropertyVariable(
     gridCell.style.setProperty(name, String(value));
   });
 }
+
+// old
+// export async function injectCellContents(entityUuid: string, gridCellContentElement: JQuery<HTMLElement>) {
+//   const relevantDocument = (await fromUuid(entityUuid)) as FoundryDocument;
+
+//   if (!relevantDocument) {
+//     console.warn('One of the grid cells tried to render an entity that does not exist.');
+//     return;
+//   }
+
+//   switch (relevantDocument.documentName) {
+//     case 'RollTable': {
+//       const compactRollTableDisplay = new CompactRollTableDisplay(relevantDocument, {
+//         targetElement: gridCellContentElement,
+//       });
+
+//       log(false, 'try rendering compactRollTable', {
+//         compactRollTableDisplay,
+//       });
+
+//       compactRollTableDisplay.render(true);
+
+//       break;
+//     }
+//     case 'JournalEntry': {
+//       const compactJournalEntryDisplay = new CompactJournalEntryDisplay(relevantDocument, {
+//         targetElement: gridCellContentElement,
+//       });
+
+//       log(false, 'try rendering compactJournalEntry', {
+//         compactJournalEntryDisplay,
+//       });
+
+//       gridCellContentElement.addClass(compactJournalEntryDisplay.options.classes.join(' '));
+
+//       compactJournalEntryDisplay.render(true);
+
+//       break;
+//     }
+//     case 'Actor':
+//     case 'Item': {
+//       const SystemSpecificItemDisplayClass = getCompactGenericEntityDisplay(relevantDocument.sheet as DocumentSheet);
+
+//       const entityDisplay = new SystemSpecificItemDisplayClass(relevantDocument, {
+//         targetElement: gridCellContentElement,
+//       });
+
+//       log(false, 'try rendering an Item', {
+//         entityDisplay,
+//       });
+
+//       //@ts-ignore
+//       entityDisplay.render(true);
+//       break;
+//     }
+//     default: {
+//       const sheetClasses = relevantDocument.sheet.options.classes;
+
+//       log(false, "use the entity's sheet", {
+//         sheetClasses,
+//       });
+
+//       gridCellContentElement.addClass(sheetClasses.join(' '));
+
+//       // @ts-ignore
+//       const entitySheetInner = await relevantDocument.sheet._renderInner(relevantDocument.sheet.getData());
+
+//       gridCellContentElement.append(entitySheetInner);
+//     }
+//   }
+// }

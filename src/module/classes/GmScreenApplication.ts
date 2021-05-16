@@ -93,7 +93,7 @@ export class GmScreenApplication extends Application {
       options: displayDrawer ? drawerOptions : popOutOptions,
     });
 
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       ...(displayDrawer ? drawerOptions : popOutOptions),
       ...(game.user.isGM ? gmOptions : {}),
       tabs: [
@@ -568,20 +568,20 @@ export class GmScreenApplication extends Application {
         cellId,
       });
 
-      this.apps[cellId] = new CompactJournalEntryDisplay(relevantEntity, cellId);
+      this.apps[cellId] = new CompactJournalEntryDisplay(relevantEntity, { cellId, editable: false });
     } else if (sheet instanceof RollTableConfig) {
       log(false, `creating compact rollTableDisplay for "${relevantEntity.name}"`, {
         cellId,
       });
 
-      this.apps[cellId] = new CompactRollTableDisplay(relevantEntity, cellId) as BaseEntitySheet<any, any>;
+      this.apps[cellId] = new CompactRollTableDisplay(relevantEntity, { cellId }) as DocumentSheet<any, any>;
     } else {
       log(false, `creating compact generic for "${relevantEntity.name}"`, {
         cellId,
       });
 
       //@ts-ignore
-      const CompactEntitySheet: BaseEntitySheet = new sheet.constructor(relevantEntity);
+      const CompactEntitySheet: DocumentSheet = new sheet.constructor(relevantEntity, { editable: false });
 
       CompactEntitySheet.options.editable = false;
       CompactEntitySheet.options.popOut = false;
@@ -646,7 +646,8 @@ export class GmScreenApplication extends Application {
 
               gridCellContent.addClass(classes);
 
-              application.render(true);
+              //@ts-ignore
+              application.render(true, { editable: false });
             })
             .catch(() => {
               log(true, 'error trying to render a gridEntry', {
@@ -707,14 +708,14 @@ export class GmScreenApplication extends Application {
     const condensedButton = game.settings.get(MODULE_ID, MySettings.condensedButton) as boolean;
 
     const entityOptions = [
-      { label: 'ENTITY.Actor', entries: game.actors.entries },
-      { label: 'ENTITY.Item', entries: game.items.entries },
-      { label: 'ENTITY.JournalEntry', entries: game.journal.entries },
-      { label: 'ENTITY.RollTable', entries: game.tables.entries },
+      { label: 'ENTITY.Actor', entries: game.actors.contents },
+      { label: 'ENTITY.Item', entries: game.items.contents },
+      { label: 'ENTITY.JournalEntry', entries: game.journal.contents },
+      { label: 'ENTITY.RollTable', entries: game.tables.contents },
     ].map(({ label, entries }) => {
       return {
         label,
-        options: ((entries as unknown) as Array<any>).reduce((acc, entity) => {
+        options: (entries as unknown as Array<any>).reduce((acc, entity) => {
           acc[entity.uuid] = entity.data.name;
           return acc;
         }, {}),

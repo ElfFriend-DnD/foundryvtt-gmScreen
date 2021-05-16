@@ -1,20 +1,20 @@
 <form>
-  {{#unless (eq entity.description '')}}
-  <p>{{{ GMSCR-enrich entity.description }}}</p>
-  {{/unless}}
+  {{#if data.description}}
+  <p>{{{ GMSCR-enrich data.description }}}</p>
+  {{/if}}
 
   <!-- Roll Table Results Loop -->
   <table class="results">
     <thead>
       <tr>
         <th>
-          <a data-action="rolltable" data-entity-uuid="{{entityUuid}}" title="{{ entity.formula }}"><i
+          <a data-action="rolltable" data-entity-uuid="{{entityUuid}}" title="{{ data.formula }}"><i
               class="fas fa-dice-d20"></i></a>
         </th>
         <th>
           <span>{{ localize "TABLE.ResultDetails" }}</span>
-          {{#unless entity.replacement}}
-          <a data-action="rolltable-reset" data-entity-uuid="{{entityUuid}}" title="{{ localize "TABLE.Reset" }}"><i
+          {{#unless data.replacement}}
+          <a data-action="rolltable-reset" data-entity-uuid="{{entityUuid}}" title="{{ localize " TABLE.Reset" }}"><i
               class="fas fa-undo"></i></a>
           {{/unless}}
         </th>
@@ -24,7 +24,7 @@
       {{#each enrichedResults as |result i|}}
 
       <tr class="{{#if result.drawn}}drawn{{/if}}">
-        <td class="range" title="{{ localize "TABLE.ResultWeight" }}: {{result.weight}}">
+        <td class="range" title="{{ localize " TABLE.ResultWeight" }}: {{result.weight}}">
           {{#if (eq result.range.[0] result.range.[1])}}
           {{result.range.[0]}}
           {{else}}
