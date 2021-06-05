@@ -8,6 +8,8 @@
     "gmScreen": {
       "Title": "Pantalla del GM",
       "ClearCell": "Limpiar celda",
+      "ConfigureCell": "Ajustar espacio entre filas y columnas",
+      "EmptyCellHint": "Arrastrar una entrada de diaro, una tabla, actor u objeto desde un mundo o compendio",
       "Open": "Pantalla del GM",
       "OpenPlayer": "Pantalla del Jugador",
       "OpenFull": "Abrir la ficha completa de la entidad",
