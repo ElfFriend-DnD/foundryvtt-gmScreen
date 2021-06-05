@@ -1,6 +1,6 @@
 # GM Screen
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ![Latest Release Download Count](https://img.shields.io/badge/dynamic/json?label=Downloads@latest&query=assets%5B1%5D.download_count&url=https%3A%2F%2Fapi.github.com%2Frepos%2FElfFriend-DnD%2Ffoundryvtt-gmScreen%2Freleases%2Flatest)
@@ -24,7 +24,7 @@ Additionally, any screen you create as GM can be set to be shared with players, 
 
 ## Usage
 
-![Tab Configuration Demo Videa](readme-img/tab-config-demo.mp4)
+![Tab Configuration Demo Video](readme-img/tab-config-demo.mp4)
 
 - Set up tabs in the Module Settings, and optionally share some with your players.
 - Drag and Drop Journal Entries, Rollable Tables, even Actors and Items into cells on the GM Screen.
@@ -49,7 +49,7 @@ https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/mo
 ![GM Screen Grid Tab with a Player Cheat Sheet.](readme-img/cheat-sheet-tab.png)
 
 ### Player View (with a tab set to be shared)
-![Demonstration of the GM Screen Grid from the player's perspective.](readme-img/cheat-sheet-player.png)
+![Demonstration of the GM Screen Grid from the player's perspective.](readme-img/cheet-sheet-player.png)
 
 
 ## Configuration
@@ -140,6 +140,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="https://github.com/saif-ellafi"><img src="https://avatars.githubusercontent.com/u/27952699?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Saif Addin</b></sub></a><br /><a href="https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/commits?author=saif-ellafi" title="Code">💻</a></td>
     <td align="center"><a href="http://lordzeel.com"><img src="https://avatars.githubusercontent.com/u/1721836?v=4?s=100" width="100px;" alt=""/><br /><sub><b>zeel</b></sub></a><br /><a href="https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/commits?author=zeel01" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Git-GoR"><img src="https://avatars.githubusercontent.com/u/58085266?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Git-GoR</b></sub></a><br /><a href="#translation-Git-GoR" title="Translation">🌍</a></td>
+    <td align="center"><a href="https://github.com/lozalojo"><img src="https://avatars.githubusercontent.com/u/16079668?v=4?s=100" width="100px;" alt=""/><br /><sub><b>José E. Lozano</b></sub></a><br /><a href="#translation-lozalojo" title="Translation">🌍</a></td>
+    <td align="center"><a href="https://github.com/CarnVanBeck"><img src="https://avatars.githubusercontent.com/u/1398052?v=4?s=100" width="100px;" alt=""/><br /><sub><b>CarnVanBeck</b></sub></a><br /><a href="#translation-CarnVanBeck" title="Translation">🌍</a></td>
   </tr>
 </table>
 

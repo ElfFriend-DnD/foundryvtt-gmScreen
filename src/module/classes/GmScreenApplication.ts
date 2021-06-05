@@ -28,20 +28,20 @@ export class GmScreenApplication extends Application {
   constructor(options = {}) {
     super(options);
     this.expanded = false;
-    this.data = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    this.data = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
     this.apps = {};
   }
 
   get rows(): number {
-    return game.settings.get(MODULE_ID, MySettings.rows);
+    return game.settings.get(MODULE_ID, MySettings.rows) as number;
   }
 
   get columns(): number {
-    return game.settings.get(MODULE_ID, MySettings.columns);
+    return game.settings.get(MODULE_ID, MySettings.columns) as number;
   }
 
   get displayDrawer(): boolean {
-    return game.settings.get(MODULE_ID, MySettings.displayDrawer);
+    return game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
   }
 
   get userViewableGrids() {
@@ -53,10 +53,10 @@ export class GmScreenApplication extends Application {
   }
 
   static get defaultOptions() {
-    const columns: number = game.settings.get(MODULE_ID, MySettings.columns);
-    const rows: number = game.settings.get(MODULE_ID, MySettings.rows);
-    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer);
-    const gmScreenConfig: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const columns: number = game.settings.get(MODULE_ID, MySettings.columns) as number;
+    const rows: number = game.settings.get(MODULE_ID, MySettings.rows) as number;
+    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
+    const gmScreenConfig: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
 
     const drawerOptions = {
       popOut: false,
@@ -93,7 +93,7 @@ export class GmScreenApplication extends Application {
       options: displayDrawer ? drawerOptions : popOutOptions,
     });
 
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       ...(displayDrawer ? drawerOptions : popOutOptions),
       ...(game.user.isGM ? gmOptions : {}),
       tabs: [
@@ -106,7 +106,7 @@ export class GmScreenApplication extends Application {
       template: TEMPLATES.screen,
       id: 'gm-screen-app',
       scrollY,
-    });
+    } as Partial<Application.Options>) as Application.Options; // TODO: Open Ticket about this
   }
 
   get activeGrid() {
@@ -177,7 +177,7 @@ export class GmScreenApplication extends Application {
    * @param {string} entryId - entry to remove from the active grid's entries
    */
   async removeEntryFromActiveGrid(entryId: string) {
-    const clearedCell = duplicate(this.activeGrid.entries[entryId]);
+    const clearedCell = duplicate(this.activeGrid.entries[entryId]) as GmScreenGridEntry;
     const shouldKeepCellLayout = clearedCell.spanCols || clearedCell.spanRows;
 
     const newEntries = {
@@ -282,69 +282,73 @@ export class GmScreenApplication extends Application {
         break;
       }
       case ClickAction.configureCell: {
-        const { x, y } = getGridElementsPosition($(e.target).parent());
+        try {
+          const { x, y } = getGridElementsPosition($(e.target).parent());
 
-        const cellToConfigure: GmScreenGridEntry = this.activeGrid.entries[entryId] || {
-          x,
-          y,
-          entryId: `${x}-${y}`,
-        };
+          const cellToConfigure: GmScreenGridEntry = this.activeGrid.entries[entryId] || {
+            x,
+            y,
+            entryId: `${x}-${y}`,
+          };
 
-        log(false, 'configureCell cellToConfigure', cellToConfigure);
+          log(false, 'configureCell cellToConfigure', cellToConfigure);
 
-        const { newSpanRows, newSpanCols } = await getUserCellConfigurationInput(cellToConfigure, {
-          rows: this.rows,
-          columns: this.columns,
-        });
+          const { newSpanRows, newSpanCols } = await getUserCellConfigurationInput(cellToConfigure, {
+            rows: this.rows,
+            columns: this.columns,
+          });
 
-        log(false, 'new span values from dialog', {
-          newSpanRows,
-          newSpanCols,
-        });
+          log(false, 'new span values from dialog', {
+            newSpanRows,
+            newSpanCols,
+          });
 
-        const newCell = {
-          ...cellToConfigure,
-          spanRows: newSpanRows,
-          spanCols: newSpanCols,
-        };
+          const newCell = {
+            ...cellToConfigure,
+            spanRows: newSpanRows,
+            spanCols: newSpanCols,
+          };
 
-        const newEntries = {
-          ...this.activeGrid.entries,
-          [newCell.entryId]: newCell,
-        };
+          const newEntries = {
+            ...this.activeGrid.entries,
+            [newCell.entryId]: newCell,
+          };
 
-        // based on the X, Y, and Span values of `newCell` find all problematic entryIds
-        // BRITTLE if entryId's formula changes
-        const problemCoordinates = [...Array(newCell.spanCols).keys()]
-          .map((_, index) => {
-            const problemX = newCell.x + index;
+          // based on the X, Y, and Span values of `newCell` find all problematic entryIds
+          // BRITTLE if entryId's formula changes
+          const problemCoordinates = [...Array(newCell.spanCols).keys()]
+            .map((_, index) => {
+              const problemX = newCell.x + index;
 
-            return [...Array(newCell.spanRows).keys()].map((_, index) => {
-              const problemY = newCell.y + index;
-              return `${problemX}-${problemY}`; // problem cell's id
-            });
-          })
-          .flat();
+              return [...Array(newCell.spanRows).keys()].map((_, index) => {
+                const problemY = newCell.y + index;
+                return `${problemX}-${problemY}`; // problem cell's id
+              });
+            })
+            .flat();
 
-        log(false, {
-          problemCoordinates,
-        });
+          log(false, {
+            problemCoordinates,
+          });
 
-        // get any overlapped cells and remove them
-        Object.values(newEntries).forEach((entry) => {
-          if (problemCoordinates.includes(entry.entryId) && entry.entryId !== newCell.entryId) {
-            delete newEntries[entry.entryId];
-          }
-        });
+          // get any overlapped cells and remove them
+          Object.values(newEntries).forEach((entry) => {
+            if (problemCoordinates.includes(entry.entryId) && entry.entryId !== newCell.entryId) {
+              delete newEntries[entry.entryId];
+            }
+          });
 
-        log(false, 'newEntries', newEntries);
+          log(false, 'newEntries', newEntries);
 
-        const newGridData = {
-          ...this.activeGrid,
-          entries: newEntries,
-        };
+          const newGridData = {
+            ...this.activeGrid,
+            entries: newEntries,
+          };
 
-        this.setGridData(newGridData);
+          this.setGridData(newGridData);
+        } catch (e) {
+          log(false, 'User exited configure cell Dialog.');
+        }
         break;
       }
       case ClickAction.open: {
@@ -352,7 +356,7 @@ export class GmScreenApplication extends Application {
           return;
         }
         try {
-          const relevantEntity = await fromUuid(entityUuid);
+          const relevantEntity = (await fromUuid(entityUuid)) as Entity;
           const relevantEntitySheet = relevantEntity?.sheet;
           log(false, 'trying to edit entity', { relevantEntitySheet });
 
@@ -425,9 +429,9 @@ export class GmScreenApplication extends Application {
    */
   refresh() {
     // debugger;
-    const newData = game.settings.get(MODULE_ID, MySettings.gmScreenConfig);
-    const oldData = duplicate(this.data);
-    const diffData = diffObject(oldData, newData);
+    const newData = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
+    const oldData = duplicate(this.data) as GmScreenConfig;
+    const diffData: Partial<GmScreenConfig> = diffObject(oldData, newData);
 
     log(false, 'refreshing gm screen', {
       newData: duplicate(newData),
@@ -537,7 +541,7 @@ export class GmScreenApplication extends Application {
    * @returns
    */
   async getCellApplicationClass(entityUuid: string, cellId: string) {
-    const relevantEntity = await fromUuid(entityUuid);
+    const relevantEntity = (await fromUuid(entityUuid)) as Entity;
 
     if (!relevantEntity) {
       await this.apps[cellId]?.close();
@@ -568,20 +572,20 @@ export class GmScreenApplication extends Application {
         cellId,
       });
 
-      this.apps[cellId] = new CompactJournalEntryDisplay(relevantEntity, cellId);
+      this.apps[cellId] = new CompactJournalEntryDisplay(relevantEntity, { cellId, editable: false });
     } else if (sheet instanceof RollTableConfig) {
       log(false, `creating compact rollTableDisplay for "${relevantEntity.name}"`, {
         cellId,
       });
 
-      this.apps[cellId] = new CompactRollTableDisplay(relevantEntity, cellId) as BaseEntitySheet<any, any>;
+      this.apps[cellId] = new CompactRollTableDisplay(relevantEntity, { cellId }) as DocumentSheet<any, any>;
     } else {
       log(false, `creating compact generic for "${relevantEntity.name}"`, {
         cellId,
       });
 
       //@ts-ignore
-      const CompactEntitySheet: BaseEntitySheet = new sheet.constructor(relevantEntity);
+      const CompactEntitySheet: DocumentSheet = new sheet.constructor(relevantEntity, { editable: false });
 
       CompactEntitySheet.options.editable = false;
       CompactEntitySheet.options.popOut = false;
@@ -590,6 +594,8 @@ export class GmScreenApplication extends Application {
 
       //@ts-ignore
       CompactEntitySheet._injectHTML = function (html) {
+        $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
+
         const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
 
         log(false, 'CompactEntitySheet overwritten _injectHTML', {
@@ -605,6 +611,8 @@ export class GmScreenApplication extends Application {
 
       //@ts-ignore
       CompactEntitySheet._replaceHTML = function (element, html, options) {
+        $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
+
         const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
         //@ts-ignore
         gridCellContent.html(html);
@@ -632,8 +640,6 @@ export class GmScreenApplication extends Application {
           const relevantUuid = gridEntry.dataset.entityUuid;
           const cellId = `#${gridEntry.id}`;
 
-          // const gridCellContent = $(gridEntry).find('.gm-screen-grid-cell-content');
-
           log(false, 'gridEntry with uuid defined found', { relevantUuid, cellId, gridEntry });
 
           this.getCellApplicationClass(relevantUuid, cellId)
@@ -642,11 +648,12 @@ export class GmScreenApplication extends Application {
                 application,
               });
               const classes = application.options.classes.join(' ');
-              const gridCellContent = $(gridEntry).find('.gm-screen-grid-cell-content');
 
+              const gridCellContent = $(gridEntry).find('.gm-screen-grid-cell-content');
               gridCellContent.addClass(classes);
 
-              application.render(true);
+              //@ts-ignore
+              application.render(true, { editable: false });
             })
             .catch(() => {
               log(true, 'error trying to render a gridEntry', {
@@ -700,35 +707,35 @@ export class GmScreenApplication extends Application {
    * @override
    */
   getData() {
-    const rightMargin: number = game.settings.get(MODULE_ID, MySettings.rightMargin);
-    const drawerWidth: number = game.settings.get(MODULE_ID, MySettings.drawerWidth);
-    const drawerHeight: number = game.settings.get(MODULE_ID, MySettings.drawerHeight);
-    const drawerOpacity: number = game.settings.get(MODULE_ID, MySettings.drawerOpacity);
-    const condensedButton = game.settings.get(MODULE_ID, MySettings.condensedButton);
+    const rightMargin = game.settings.get(MODULE_ID, MySettings.rightMargin) as number;
+    const drawerWidth = game.settings.get(MODULE_ID, MySettings.drawerWidth) as number;
+    const drawerHeight = game.settings.get(MODULE_ID, MySettings.drawerHeight) as number;
+    const drawerOpacity = game.settings.get(MODULE_ID, MySettings.drawerOpacity) as number;
+    const condensedButton = game.settings.get(MODULE_ID, MySettings.condensedButton) as boolean;
 
-    const entityOptions = [
-      { label: 'ENTITY.Actor', entries: game.actors.entries },
-      { label: 'ENTITY.Item', entries: game.items.entries },
-      { label: 'ENTITY.JournalEntry', entries: game.journal.entries },
-      { label: 'ENTITY.RollTable', entries: game.tables.entries },
-    ].map(({ label, entries }) => {
-      return {
-        label,
-        options: ((entries as unknown) as Array<any>).reduce((acc, entity) => {
-          acc[entity.uuid] = entity.data.name;
-          return acc;
-        }, {}),
-      };
-    });
+    // const entityOptions = [
+    //   { label: 'ENTITY.Actor', entries: game.actors.contents },
+    //   { label: 'ENTITY.Item', entries: game.items.contents },
+    //   { label: 'ENTITY.JournalEntry', entries: game.journal.contents },
+    //   { label: 'ENTITY.RollTable', entries: game.tables.contents },
+    // ].map(({ label, entries }) => {
+    //   return {
+    //     label,
+    //     options: (entries as unknown as Array<any>).reduce((acc, document) => {
+    //       acc[document.uuid] = document.data.name;
+    //       return acc;
+    //     }, {}),
+    //   };
+    // });
 
-    const entityNames = Object.values(entityOptions).reduce((acc, optionGroup) => {
-      return { ...acc, ...optionGroup.options };
-    }, {});
+    // const entityNames = Object.values(entityOptions).reduce((acc, optionGroup) => {
+    //   return { ...acc, ...optionGroup.options };
+    // }, {});
 
     const newAppData = {
       ...super.getData(),
-      entityOptions,
-      entityNames,
+      // entityOptions,
+      // entityNames,
       grids: this.getHydratedGrids(),
       isGM: game.user.isGM,
       condensedButton: condensedButton,
@@ -807,7 +814,7 @@ export class GmScreenApplication extends Application {
       return false;
     }
 
-    const entityUuid = `${data.type}.${data.id}`;
+    const entityUuid = `${data.pack ? `Compendium.${data.pack}` : data.type}.${data.id}`;
 
     const gridElementPosition = getGridElementsPosition($(event.target).closest('.gm-screen-grid-cell'));
     const newEntryId = `${gridElementPosition.x}-${gridElementPosition.y}`;

@@ -22,6 +22,33 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Git-GoR",
+      "name": "Git-GoR",
+      "avatar_url": "https://avatars.githubusercontent.com/u/58085266?v=4",
+      "profile": "https://github.com/Git-GoR",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "lozalojo",
+      "name": "José E. Lozano",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16079668?v=4",
+      "profile": "https://github.com/lozalojo",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "CarnVanBeck",
+      "name": "CarnVanBeck",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1398052?v=4",
+      "profile": "https://github.com/CarnVanBeck",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,

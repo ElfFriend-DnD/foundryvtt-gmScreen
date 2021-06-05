@@ -4,21 +4,20 @@ import { TEMPLATES } from '../constants';
 export class CompactJournalEntryDisplay extends JournalSheet {
   cellId: string;
 
-  constructor(options, cellId: string) {
-    super(options);
-    log(false, 'CompactJournalEntryDisplay constructor', {
-      options,
-      cellId,
-    });
-    this.cellId = cellId;
+  constructor(object, options) {
+    super(object, options);
+    this.cellId = options.cellId;
+  }
+
+  get isEditable() {
+    return false;
   }
 
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
-      // template: TEMPLATES.compactJournalEntry,
+    return foundry.utils.mergeObject(super.defaultOptions, {
       editable: false,
       popOut: false,
-    });
+    } as Partial<Application.Options>) as JournalSheet['options'];
   }
 
   /** @override */
@@ -29,6 +28,8 @@ export class CompactJournalEntryDisplay extends JournalSheet {
   }
 
   _replaceHTML(element, html, options) {
+    $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
+
     const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
     //@ts-ignore
     gridCellContent.html(html);
@@ -36,6 +37,8 @@ export class CompactJournalEntryDisplay extends JournalSheet {
   }
 
   _injectHTML(html, options) {
+    $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
+
     const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
 
     log(false, 'CompactJournalEntryDisplay _injectHTML', {

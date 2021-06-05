@@ -1,22 +1,21 @@
 {
 	"private": true,
 	"name": "foundryvtt-gmScreen",
-	"version": "2.4.0",
+	"version": "2.5.0",
 	"description": "",
 	"scripts": {
 		"publish": "gulp publish",
 		"lint": "prettier --write .",
 		"build": "gulp build",
 		"build:watch": "gulp watch",
-		"clean": "gulp clean && gulp link --clean",
-		"update": "npm install --save-dev gitlab:foundry-projects/foundry-pc/foundry-pc-types"
+		"clean": "gulp clean && gulp link --clean"
 	},
 	"author": "",
 	"license": "",
 	"devDependencies": {
+		"@league-of-foundry-developers/foundry-vtt-types": "^0.7.9-5",
 		"archiver": "^5.1.0",
 		"chalk": "^4.1.0",
-		"foundry-pc-types": "gitlab:foundry-projects/foundry-pc/foundry-pc-types",
 		"fs-extra": "^9.0.1",
 		"gulp": "^4.0.2",
 		"gulp-git": "^2.10.1",
@@ -27,5 +26,6 @@
 		"sass": "^1.29.0",
 		"typescript": "^4.1.2",
 		"yargs": "^16.1.1"
-	}
+	},
+	"dependencies": {}
 }
