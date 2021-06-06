@@ -569,7 +569,13 @@ export class GmScreenApplication extends Application {
     //@ts-ignore
     const sheet = relevantEntity.sheet;
 
-    if (sheet instanceof JournalSheet) {
+    log(false, 'relevantEntity sheet', {
+      sheet,
+      name: sheet.constructor.name,
+    });
+
+    //@ts-ignore
+    if (sheet instanceof JournalSheet && !sheet?.isKankaEntry) {
       log(false, `creating compact journal entry for "${relevantEntity.name}"`, {
         cellId,
       });
