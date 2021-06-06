@@ -356,7 +356,8 @@ export class GmScreenApplication extends Application {
           return;
         }
         try {
-          const relevantEntity = (await fromUuid(entityUuid)) as Entity;
+          const relevantEntity = await fromUuid(entityUuid);
+          //@ts-ignore
           const relevantEntitySheet = relevantEntity?.sheet;
           log(false, 'trying to edit entity', { relevantEntitySheet });
 
@@ -541,7 +542,7 @@ export class GmScreenApplication extends Application {
    * @returns
    */
   async getCellApplicationClass(entityUuid: string, cellId: string) {
-    const relevantEntity = (await fromUuid(entityUuid)) as Entity;
+    const relevantEntity = await fromUuid(entityUuid);
 
     if (!relevantEntity) {
       await this.apps[cellId]?.close();
@@ -565,6 +566,7 @@ export class GmScreenApplication extends Application {
       return this.apps[cellId];
     }
 
+    //@ts-ignore
     const sheet = relevantEntity.sheet;
 
     if (sheet instanceof JournalSheet) {
@@ -578,7 +580,7 @@ export class GmScreenApplication extends Application {
         cellId,
       });
 
-      this.apps[cellId] = new CompactRollTableDisplay(relevantEntity, { cellId }) as DocumentSheet<any, any>;
+      this.apps[cellId] = new CompactRollTableDisplay(relevantEntity, { cellId }) as unknown as DocumentSheet<any, any>;
     } else {
       log(false, `creating compact generic for "${relevantEntity.name}"`, {
         cellId,
