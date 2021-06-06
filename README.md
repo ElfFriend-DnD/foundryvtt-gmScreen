@@ -93,6 +93,7 @@ I'm honestly not sure how well this will play with modules that make changes to 
 | [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal)          | :heavy_check_mark: | Works as expected.                              |
 | [MEME](https://github.com/Moerill/fvtt-markdown-editor)                | :heavy_check_mark: | Markdown Renders as expected.                   |
 | [Inline Webviewer](https://github.com/ardittristan/VTTInlineWebviewer) | :heavy_check_mark: | Journal entries with webviews work as expected. |
+| [Kanka-Foundry](https://github.com/eXaminator/kanka-foundry) | :heavy_check_mark: | Journal entries are displayed as expected. |
 
 ## API
 
