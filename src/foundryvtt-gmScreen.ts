@@ -185,3 +185,34 @@ Hooks.on('renderGmScreenApplication', (app, html, data) => {
 Hooks.once('devModeReady', ({ registerPackageDebugFlag }) => {
   registerPackageDebugFlag(MODULE_ID);
 });
+
+/* Entity Sheet Override */
+
+Hooks.on('renderEntitySheetConfig', async (app, html, data) => {
+  if (!game.user.isGM) {
+    return;
+  }
+
+  const htmlToInject = await renderTemplate(TEMPLATES['entitySheetInjection'], {
+    ...data,
+    gmScreenSheetClass: app.object.getFlag(MODULE_ID, 'gmScreenSheetClass'),
+  });
+
+  log(false, 'rendering entity sheet config', {
+    htmlToInject,
+    target: html.find('[name=submit]'),
+    current: app.object.getFlag(MODULE_ID, 'gmScreenSheetClass'),
+  });
+
+  html.find('[name=submit]').before(htmlToInject);
+
+  html.on('change', 'select[name=gmScreenSheetClass]', (event) => {
+    log(false, 'custom change listener firing', {
+      event,
+      value: event.target.value,
+    });
+    app.object.setFlag(MODULE_ID, 'gmScreenSheetClass', event.target.value);
+  });
+
+  app.setPosition({ height: 'auto' });
+});

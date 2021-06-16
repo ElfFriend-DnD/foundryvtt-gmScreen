@@ -552,22 +552,33 @@ export class GmScreenApplication extends Application {
       return;
     }
 
+    const gmScreenSpecificSheetFlag = relevantEntity.getFlag(MODULE_ID, 'gmScreenSheetClass');
+
     // If there is an old app here which isn't this entity's, close it and delete
     if (this.apps[cellId] && this.apps[cellId]?.object.uuid !== entityUuid) {
       await this.apps[cellId].close();
       delete this.apps[cellId];
     }
 
-    if (this.apps[cellId]) {
+    //@ts-ignore
+    const sheet = relevantEntity.sheet;
+
+    let sheetClass = sheet.constructor;
+
+    if (gmScreenSpecificSheetFlag) {
+      sheetClass =
+        //@ts-ignore
+        CONFIG[relevantEntity.documentName]?.sheetClasses?.[relevantEntity.type]?.[gmScreenSpecificSheetFlag]?.cls;
+    }
+
+    if (this.apps[cellId] && this.apps[cellId].constructor.name === sheetClass.name) {
       log(false, `using cached application instance for "${relevantEntity.name}"`, {
         entityUuid,
         app: this.apps[cellId],
       });
+
       return this.apps[cellId];
     }
-
-    //@ts-ignore
-    const sheet = relevantEntity.sheet;
 
     log(false, 'relevantEntity sheet', {
       sheet,
@@ -592,8 +603,10 @@ export class GmScreenApplication extends Application {
         cellId,
       });
 
+      // somewhere in here we need to check relevantEntity.flags for gmScreenSheetClass and use that instead of `sheet.constructor`
+
       //@ts-ignore
-      const CompactEntitySheet: DocumentSheet = new sheet.constructor(relevantEntity, { editable: false });
+      const CompactEntitySheet: DocumentSheet = new sheetClass(relevantEntity, { editable: false });
 
       CompactEntitySheet.options.editable = false;
       CompactEntitySheet.options.popOut = false;
