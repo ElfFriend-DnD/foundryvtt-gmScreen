@@ -176,7 +176,7 @@ export class GmScreenApplication extends Application {
    * Remove a given entry from the Active Grid
    * @param {string} entryId - entry to remove from the active grid's entries
    */
-  async removeEntryFromActiveGrid(entryId: string) {
+  async removeEntryFromActiveGrid(entryId: string, gridCellId?: string) {
     const clearedCell = duplicate(this.activeGrid.entries[entryId]) as GmScreenGridEntry;
     const shouldKeepCellLayout = clearedCell.spanCols || clearedCell.spanRows;
 
@@ -189,6 +189,12 @@ export class GmScreenApplication extends Application {
       newEntries[entryId] = clearedCell;
     } else {
       delete newEntries[entryId];
+    }
+
+    if (gridCellId) {
+      const appKey = `#${gridCellId}`;
+      await this.apps[appKey].close();
+      delete this.apps[appKey];
     }
 
     const newGridData: GmScreenGrid = {
@@ -248,6 +254,7 @@ export class GmScreenApplication extends Application {
       title: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Title`),
       content: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Content`),
       yes: async () => {
+        this.apps = {};
         this.setGridData({
           ...this.activeGrid,
           entries: {},
@@ -263,6 +270,7 @@ export class GmScreenApplication extends Application {
     const action: ClickAction = e.currentTarget.dataset.action as ClickAction;
     const entityUuid = $(e.currentTarget).parents('[data-entity-uuid]')?.data()?.entityUuid;
     const entryId = $(e.currentTarget).parents('[data-entry-id]')?.data()?.entryId;
+    const gridCellId = $(e.currentTarget).parents('[data-entry-id]')?.attr('id');
 
     log(false, 'handleClickEvent', {
       e,
@@ -274,7 +282,8 @@ export class GmScreenApplication extends Application {
         if (!entryId) {
           return;
         }
-        this.removeEntryFromActiveGrid(entryId);
+
+        this.removeEntryFromActiveGrid(entryId, gridCellId);
         break;
       }
       case ClickAction.clearGrid: {
