@@ -563,7 +563,7 @@ export class GmScreenApplication extends Application {
 
     const gmScreenSpecificSheetFlag = relevantEntity.getFlag(MODULE_ID, 'gmScreenSheetClass');
 
-    // If there is an old app here which isn't this entity's, close it and delete
+    /* If there is an old app here which isn't this entity's, destroy it */
     if (this.apps[cellId] && this.apps[cellId]?.object.uuid !== entityUuid) {
       await this.apps[cellId].close();
       delete this.apps[cellId];
@@ -580,6 +580,13 @@ export class GmScreenApplication extends Application {
         CONFIG[relevantEntity.documentName]?.sheetClasses?.[relevantEntity.type]?.[gmScreenSpecificSheetFlag]?.cls;
     }
 
+    /* If the currently cached sheet class does not match the sheet class, destroy it */
+    if (this.apps[cellId] && this.apps[cellId].constructor.name !== sheetClass.name) {
+      await this.apps[cellId].close();
+      delete this.apps[cellId];
+    }
+
+    /* If the currently cached sheet class does match the sheet class, return it */
     if (this.apps[cellId] && this.apps[cellId].constructor.name === sheetClass.name) {
       log(false, `using cached application instance for "${relevantEntity.name}"`, {
         entityUuid,
@@ -685,11 +692,12 @@ export class GmScreenApplication extends Application {
               //@ts-ignore
               application.render(true, { editable: false });
             })
-            .catch(() => {
+            .catch((e) => {
               log(true, 'error trying to render a gridEntry', {
                 gridEntry,
                 cellId,
                 relevantUuid,
+                error: e,
               });
             });
         } catch (e) {
