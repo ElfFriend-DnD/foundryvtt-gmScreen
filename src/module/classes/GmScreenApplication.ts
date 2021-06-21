@@ -176,7 +176,7 @@ export class GmScreenApplication extends Application {
    * Remove a given entry from the Active Grid
    * @param {string} entryId - entry to remove from the active grid's entries
    */
-  async removeEntryFromActiveGrid(entryId: string) {
+  async removeEntryFromActiveGrid(entryId: string, gridCellId?: string) {
     const clearedCell = duplicate(this.activeGrid.entries[entryId]) as GmScreenGridEntry;
     const shouldKeepCellLayout = clearedCell.spanCols || clearedCell.spanRows;
 
@@ -189,6 +189,12 @@ export class GmScreenApplication extends Application {
       newEntries[entryId] = clearedCell;
     } else {
       delete newEntries[entryId];
+    }
+
+    if (gridCellId) {
+      const appKey = `#${gridCellId}`;
+      await this.apps[appKey].close();
+      delete this.apps[appKey];
     }
 
     const newGridData: GmScreenGrid = {
@@ -248,6 +254,7 @@ export class GmScreenApplication extends Application {
       title: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Title`),
       content: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Content`),
       yes: async () => {
+        this.apps = {};
         this.setGridData({
           ...this.activeGrid,
           entries: {},
@@ -263,6 +270,7 @@ export class GmScreenApplication extends Application {
     const action: ClickAction = e.currentTarget.dataset.action as ClickAction;
     const entityUuid = $(e.currentTarget).parents('[data-entity-uuid]')?.data()?.entityUuid;
     const entryId = $(e.currentTarget).parents('[data-entry-id]')?.data()?.entryId;
+    const gridCellId = $(e.currentTarget).parents('[data-entry-id]')?.attr('id');
 
     log(false, 'handleClickEvent', {
       e,
@@ -274,7 +282,8 @@ export class GmScreenApplication extends Application {
         if (!entryId) {
           return;
         }
-        this.removeEntryFromActiveGrid(entryId);
+
+        this.removeEntryFromActiveGrid(entryId, gridCellId);
         break;
       }
       case ClickAction.clearGrid: {
@@ -356,7 +365,8 @@ export class GmScreenApplication extends Application {
           return;
         }
         try {
-          const relevantEntity = (await fromUuid(entityUuid)) as Entity;
+          const relevantEntity = await fromUuid(entityUuid);
+          //@ts-ignore
           const relevantEntitySheet = relevantEntity?.sheet;
           log(false, 'trying to edit entity', { relevantEntitySheet });
 
@@ -541,7 +551,7 @@ export class GmScreenApplication extends Application {
    * @returns
    */
   async getCellApplicationClass(entityUuid: string, cellId: string) {
-    const relevantEntity = (await fromUuid(entityUuid)) as Entity;
+    const relevantEntity = await fromUuid(entityUuid);
 
     if (!relevantEntity) {
       await this.apps[cellId]?.close();
@@ -551,23 +561,48 @@ export class GmScreenApplication extends Application {
       return;
     }
 
-    // If there is an old app here which isn't this entity's, close it and delete
+    const gmScreenSpecificSheetFlag = relevantEntity.getFlag(MODULE_ID, 'gmScreenSheetClass');
+
+    /* If there is an old app here which isn't this entity's, destroy it */
     if (this.apps[cellId] && this.apps[cellId]?.object.uuid !== entityUuid) {
       await this.apps[cellId].close();
       delete this.apps[cellId];
     }
 
-    if (this.apps[cellId]) {
+    //@ts-ignore
+    const sheet = relevantEntity.sheet;
+
+    let sheetClass = sheet.constructor;
+
+    if (gmScreenSpecificSheetFlag) {
+      sheetClass =
+        //@ts-ignore
+        CONFIG[relevantEntity.documentName]?.sheetClasses?.[relevantEntity.type]?.[gmScreenSpecificSheetFlag]?.cls;
+    }
+
+    /* If the currently cached sheet class does not match the sheet class, destroy it */
+    if (this.apps[cellId] && this.apps[cellId].constructor.name !== sheetClass.name) {
+      await this.apps[cellId].close();
+      delete this.apps[cellId];
+    }
+
+    /* If the currently cached sheet class does match the sheet class, return it */
+    if (this.apps[cellId] && this.apps[cellId].constructor.name === sheetClass.name) {
       log(false, `using cached application instance for "${relevantEntity.name}"`, {
         entityUuid,
         app: this.apps[cellId],
       });
+
       return this.apps[cellId];
     }
 
-    const sheet = relevantEntity.sheet;
+    log(false, 'relevantEntity sheet', {
+      sheet,
+      name: sheet.constructor.name,
+    });
 
-    if (sheet instanceof JournalSheet) {
+    //@ts-ignore
+    if (sheet instanceof JournalSheet && !sheet?.isKankaEntry) {
       log(false, `creating compact journal entry for "${relevantEntity.name}"`, {
         cellId,
       });
@@ -578,14 +613,16 @@ export class GmScreenApplication extends Application {
         cellId,
       });
 
-      this.apps[cellId] = new CompactRollTableDisplay(relevantEntity, { cellId }) as DocumentSheet<any, any>;
+      this.apps[cellId] = new CompactRollTableDisplay(relevantEntity, { cellId }) as unknown as DocumentSheet<any, any>;
     } else {
       log(false, `creating compact generic for "${relevantEntity.name}"`, {
         cellId,
       });
 
+      // somewhere in here we need to check relevantEntity.flags for gmScreenSheetClass and use that instead of `sheet.constructor`
+
       //@ts-ignore
-      const CompactEntitySheet: DocumentSheet = new sheet.constructor(relevantEntity, { editable: false });
+      const CompactEntitySheet: DocumentSheet = new sheetClass(relevantEntity, { editable: false });
 
       CompactEntitySheet.options.editable = false;
       CompactEntitySheet.options.popOut = false;
@@ -655,11 +692,12 @@ export class GmScreenApplication extends Application {
               //@ts-ignore
               application.render(true, { editable: false });
             })
-            .catch(() => {
+            .catch((e) => {
               log(true, 'error trying to render a gridEntry', {
                 gridEntry,
                 cellId,
                 relevantUuid,
+                error: e,
               });
             });
         } catch (e) {

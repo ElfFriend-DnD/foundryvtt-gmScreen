@@ -3,7 +3,7 @@
 	"name": "gm-screen",
 	"title": "GM Screen",
 	"description": "Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, etc.",
-	"version": "2.5.0",
+	"version": "2.7.1",
 	"author": "Andrew Krigline (akrigline)",
 	"authors": [
 		{
@@ -75,11 +75,11 @@
 			"url": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/readme-img/tab-config-demo.mp4"
 		}
 	],
-	"compatibleCoreVersion": "0.8.3",
+	"compatibleCoreVersion": "0.8.7",
 	"minimumCoreVersion": "0.8.3",
 	"bugs": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/issues",
 	"changelog": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases",
-	"download": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/download/v2.5.0/module.zip",
+	"download": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/download/v2.7.1/module.zip",
 	"manifest": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/module.json",
 	"readme": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/README.md",
 	"url": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen",

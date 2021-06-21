@@ -79,6 +79,10 @@
       "errors": {
         "empty": "Cannot save the grid with no tabs."
       }
+    },
+    "entitySheet": {
+      "Label": "GM Screen Sheet",
+      "Hint": "Set the sheet used specifically on GM Screen for this item."
     }
   }
 }

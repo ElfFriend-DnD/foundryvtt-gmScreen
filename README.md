@@ -84,15 +84,25 @@ Note that changing the grid dimensions after populating the grid might cause une
 
 There is no current way to reorder tabs once created.
 
+### Entity Sheet Configuration
+
+It is possible to select a specific sheet for use when an Entity is rendered in the GM Screen which the same entity will not use during normal usage. The best example of this would be to use a specifically designed compact sheet for GM Screen view, but have the normal sheet for usual usage.
+
+![Screenshot of the Entity Sheet Configuration](readme-img/entity-sheet-config.png)
+
+
 ## Compatibility
 
 I'm honestly not sure how well this will play with modules that make changes to how journal articles or roll tables interact.
 
-| **Name**                                                               |       Works        | Notes                                           |
-| ---------------------------------------------------------------------- | :----------------: | ----------------------------------------------- |
-| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal)          | :heavy_check_mark: | Works as expected.                              |
-| [MEME](https://github.com/Moerill/fvtt-markdown-editor)                | :heavy_check_mark: | Markdown Renders as expected.                   |
-| [Inline Webviewer](https://github.com/ardittristan/VTTInlineWebviewer) | :heavy_check_mark: | Journal entries with webviews work as expected. |
+| **Name**                                                                        |       Works        | Notes                                                    |
+| ------------------------------------------------------------------------------- | :----------------: | -------------------------------------------------------- |
+| [OneJournal](https://gitlab.com/fvtt-modules-lab/one-journal)                   | :heavy_check_mark: | Works as expected.                                       |
+| [MEME](https://github.com/Moerill/fvtt-markdown-editor)                         | :heavy_check_mark: | Markdown Renders as expected.                            |
+| [Inline Webviewer](https://github.com/ardittristan/VTTInlineWebviewer)          | :heavy_check_mark: | Journal entries with webviews work as expected.          |
+| [Kanka-Foundry](https://github.com/eXaminator/kanka-foundry)                    | :heavy_check_mark: | Journal entries are displayed as expected.               |
+| [Monk's Enhanced Journal](https://github.com/ironmonk88/monks-enhanced-journal) |        :x:         | Not compatible.                                          |
+| [PDF Foundry](https://github.com/Djphoenix719/PDFoundry)                        |        :x:         | Currently not possible to embed pdfs into the GM Screen. |
 
 ## API
 
