@@ -83,6 +83,10 @@
       "errors": {
         "empty": "No se puede guardar una rejilla sin pestañas"
       }
+    },
+    "entitySheet": {
+      "Label": "Hoja de pantalla de GM",
+      "Hint": "Configura para este objeto la hoja usada específicamente en GM Screen"
     }
   }
 }
