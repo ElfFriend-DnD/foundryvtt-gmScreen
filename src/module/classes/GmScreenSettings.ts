@@ -234,6 +234,46 @@ export class GmScreenSettings extends FormApplication {
       this.setPosition({}); // recalc height
     };
 
+    let draggedRow: JQuery<any>;
+
+    html.on('mousedown', (e) => {
+      e.stopPropagation();
+      const currentTarget = $(e.target).closest('button.reorder-row')[0];
+
+      if (!currentTarget) {
+        return;
+      }
+
+      const row = $(currentTarget).closest('tr').attr('draggable', true);
+    });
+
+    html.on('dragend', (e) => {
+      e.stopPropagation();
+      $(e.target).attr('draggable', false);
+    });
+
+    html.on('dragstart', (e) => {
+      draggedRow = e.target;
+    });
+
+    html.on('dragover', (e) => {
+      e.preventDefault();
+
+      const currentTarget = $(e.target).closest('tbody tr')[0];
+
+      if (!currentTarget) {
+        return;
+      }
+
+      let children = Array.from($(e.target).closest('tbody').children());
+
+      if (children.indexOf($(e.target).closest('tr')[0])>children.indexOf(draggedRow)) {
+        $(e.target).closest('tr')[0].after(draggedRow);
+      } else {
+        $(e.target).closest('tr')[0].before(draggedRow);
+      }
+    });
+
     html.on('click', (e) => {
       const currentTarget = $(e.target).closest('button')[0];
 

@@ -69,6 +69,7 @@
       "GridConfig": "Rasterkonfiguration",
       "GridTabs": "Raster-Reiter-Konfiguration",
       "table": {
+        "TabOrder": "Tab order",
         "TabLabel": "Reiter Bezeichnung",
         "Rows": "Zeilen Überschreiben",
         "Columns": "Spalten Überschreiben",

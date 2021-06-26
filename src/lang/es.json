@@ -75,6 +75,7 @@
       "GridConfig": "Configuración de la rejilla",
       "GridTabs": "Configuración de las pestañas de la rejilla",
       "table": {
+        "TabOrder": "Tab order",
         "TabLabel": "Nombre de la pestaña",
         "Rows": "Sobreescribir filas",
         "Columns": "Sobreescribir columnas",

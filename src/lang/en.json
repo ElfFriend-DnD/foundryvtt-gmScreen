@@ -71,6 +71,7 @@
       "GridConfig": "Grid Configuration",
       "GridTabs": "Grid Tab Configuration",
       "table": {
+        "TabOrder": "Tab order",
         "TabLabel": "Tab Label",
         "Rows": "Rows Override",
         "Columns": "Columns Override",
