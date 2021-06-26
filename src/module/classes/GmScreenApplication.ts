@@ -506,6 +506,53 @@ export class GmScreenApplication extends Application {
       $(html).on('mousedown', this.bringToTop.bind(this));
     }
 
+    let draggedTab: JQuery<any>;
+
+    html.on('dragstart', '.item', (e) => {
+      const currentTarget = $(e.target).closest('div.grid-tabs .item')[0];
+
+      if (!currentTarget || !game.user.isGM) {
+        return;
+      }
+
+      draggedTab = e.target;
+    });
+
+    html.on('dragover', (e) => {
+      e.preventDefault();
+
+      const currentTarget = $(e.target).closest('div.grid-tabs .item')[0];
+
+      if (!currentTarget || !game.user.isGM) {
+        return;
+      }
+
+      let children = Array.from($(e.target).closest('div.grid-tabs').children());
+
+      if (children.indexOf(e.target)>children.indexOf(draggedTab)) {
+        e.target.after(draggedTab);
+      } else {
+        e.target.before(draggedTab);
+      }
+    });
+
+    html.on('dragend', async (e) => {
+      const currentTarget = $(e.target).closest('div.grid-tabs .item')[0];
+
+      if (!currentTarget || !game.user.isGM) {
+        return;
+      }
+
+      const newGmScreenConfig = duplicate(this.data);
+      newGmScreenConfig.grids = {}
+      $(e.target).closest('div.grid-tabs').children().each((index, item) => {
+        const gridId = $(item).attr('data-tab');
+        newGmScreenConfig.grids[gridId] = this.data.grids[gridId];
+      });
+
+      await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
+    });
+
     $(html).on('click', 'button', this.handleClickEvent.bind(this));
     $(html).on('click', 'a', this.handleClickEvent.bind(this));
 
