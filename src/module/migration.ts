@@ -1,6 +1,6 @@
 import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../gridTypes';
 import { MODULE_ID, MySettings } from './constants';
-import { log } from './helpers';
+import { getGame, log } from './helpers';
 
 interface GmScreenConfig1 {
   grid: {
@@ -14,25 +14,24 @@ interface MigratedSetting {
 }
 
 export async function _gmScreenMigrate() {
-  if (!game.user.isGM) return;
+  if (!getGame().user?.isGM) return;
   const NEEDS_MIGRATION_VERSION = '2.0.1';
   // Updating from old install -> Migrated
   // Fresh install -> No migration CHECK
   // Skipped multiple versions and upgrading in 0.4.X or higher
   // X round of migrations (bound to happen again, right?)
-  let migrated = game.settings.get(MODULE_ID, MySettings.migrated) as MigratedSetting;
+  let migrated = getGame().settings.get(MODULE_ID, MySettings.migrated) as MigratedSetting;
   // If we have migrated before
   if (migrated.status) {
     // If our version is newer than the NEEDS_MIGRATION_VERSION
-    //@ts-ignore
-    if (isNewerVersion(game.modules.get(MODULE_ID).data.version, NEEDS_MIGRATION_VERSION)) return;
+    if (isNewerVersion(getGame().modules.get(MODULE_ID)?.data.version ?? '0', NEEDS_MIGRATION_VERSION)) return;
     // If we are on the same version, but have migrated.
     if (migrated.version === NEEDS_MIGRATION_VERSION) return;
   }
 
-  ui.notifications.notify('GM Screen | Beginning Migration to updated schema.', 'info');
+  ui.notifications?.notify('GM Screen | Beginning Migration to updated schema.', 'info');
 
-  let gmScreenConfig: GmScreenConfig1 = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig1;
+  let gmScreenConfig: GmScreenConfig1 = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig1;
   if (!!gmScreenConfig?.grid?.entries && Array.isArray(gmScreenConfig.grid.entries)) {
     // need to convert gmscreenconfig.grid.entries from array to object
 
@@ -64,10 +63,10 @@ export async function _gmScreenMigrate() {
       output,
     });
 
-    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, output);
+    await getGame().settings.set(MODULE_ID, MySettings.gmScreenConfig, output);
   }
 
-  ui.notifications.notify('GM Screen | Migration Complete.', 'info');
+  ui.notifications?.notify('GM Screen | Migration Complete.', 'info');
 
-  await game.settings.set(MODULE_ID, MySettings.migrated, { status: true, version: NEEDS_MIGRATION_VERSION });
+  await getGame().settings.set(MODULE_ID, MySettings.migrated, { status: true, version: NEEDS_MIGRATION_VERSION });
 }

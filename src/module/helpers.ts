@@ -2,8 +2,7 @@ import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../gridTypes';
 import { MODULE_ABBREV, MODULE_ID, MySettings, numberRegex } from './constants';
 
 export function log(force: boolean, ...args) {
-  //@ts-ignore
-  const shouldLog = force || game.modules.get('_dev-mode')?.api?.getPackageDebugValue(MODULE_ID);
+  const shouldLog = force || getGame().modules.get('_dev-mode')?.api?.getPackageDebugValue(MODULE_ID);
 
   if (shouldLog) {
     console.log(MODULE_ID, '|', ...args);
@@ -22,17 +21,17 @@ export function getUserCellConfigurationInput(
     newSpanCols: number;
   }>((resolve, reject) => {
     new Dialog({
-      title: game.i18n.localize(`${MODULE_ABBREV}.cellConfigDialog.CellConfig`),
+      title: getGame().i18n.localize(`${MODULE_ABBREV}.cellConfigDialog.CellConfig`),
       content: `
   <form class="flexcol">
     <div class="form-group">
-      <label for="spanRows">${game.i18n.localize(`${MODULE_ABBREV}.cellConfigDialog.RowSpan`)}</label>
+      <label for="spanRows">${getGame().i18n.localize(`${MODULE_ABBREV}.cellConfigDialog.RowSpan`)}</label>
       <input type="number" step="1" name="spanRows" min="1" max="${gridDetails.rows + 1 - cellToConfigure.y}" value="${
         cellToConfigure.spanRows || 1
       }">
     </div>
     <div class="form-group">
-      <label for="spanCols">${game.i18n.localize(`${MODULE_ABBREV}.cellConfigDialog.ColSpan`)}</label>
+      <label for="spanCols">${getGame().i18n.localize(`${MODULE_ABBREV}.cellConfigDialog.ColSpan`)}</label>
       <input type="number" step="1" name="spanCols" min="1" max="${
         gridDetails.columns + 1 - cellToConfigure.x
       }" value="${cellToConfigure.spanCols || 1}">
@@ -42,11 +41,11 @@ export function getUserCellConfigurationInput(
       buttons: {
         no: {
           icon: '<i class="fas fa-times"></i>',
-          label: game.i18n.localize('Cancel'),
+          label: getGame().i18n.localize('Cancel'),
         },
         reset: {
           icon: '<i class="fas fa-undo"></i>',
-          label: game.i18n.localize('Default'),
+          label: getGame().i18n.localize('Default'),
           callback: (html: JQuery<HTMLElement>) => {
             const formValues = {
               newSpanRows: 1,
@@ -60,7 +59,7 @@ export function getUserCellConfigurationInput(
         },
         yes: {
           icon: '<i class="fas fa-check"></i>',
-          label: game.i18n.localize('Submit'),
+          label: getGame().i18n.localize('Submit'),
           callback: (html: JQuery<HTMLElement>) => {
             const formValues = {
               newSpanRows: Number(html.find('[name="spanRows"]').val()),
@@ -136,7 +135,7 @@ export function getGridElementsPosition(element: JQuery<HTMLElement>) {
 }
 
 export function getUserViewableGrids(gmScreenConfig: GmScreenConfig) {
-  if (game.user.isGM) {
+  if (getGame().user?.isGM) {
     return gmScreenConfig.grids;
   }
 
@@ -173,73 +172,9 @@ export function updateCSSPropertyVariable(
   });
 }
 
-// old
-// export async function injectCellContents(entityUuid: string, gridCellContentElement: JQuery<HTMLElement>) {
-//   const relevantDocument = (await fromUuid(entityUuid)) as FoundryDocument;
-
-//   if (!relevantDocument) {
-//     console.warn('One of the grid cells tried to render an entity that does not exist.');
-//     return;
-//   }
-
-//   switch (relevantDocument.documentName) {
-//     case 'RollTable': {
-//       const compactRollTableDisplay = new CompactRollTableDisplay(relevantDocument, {
-//         targetElement: gridCellContentElement,
-//       });
-
-//       log(false, 'try rendering compactRollTable', {
-//         compactRollTableDisplay,
-//       });
-
-//       compactRollTableDisplay.render(true);
-
-//       break;
-//     }
-//     case 'JournalEntry': {
-//       const compactJournalEntryDisplay = new CompactJournalEntryDisplay(relevantDocument, {
-//         targetElement: gridCellContentElement,
-//       });
-
-//       log(false, 'try rendering compactJournalEntry', {
-//         compactJournalEntryDisplay,
-//       });
-
-//       gridCellContentElement.addClass(compactJournalEntryDisplay.options.classes.join(' '));
-
-//       compactJournalEntryDisplay.render(true);
-
-//       break;
-//     }
-//     case 'Actor':
-//     case 'Item': {
-//       const SystemSpecificItemDisplayClass = getCompactGenericEntityDisplay(relevantDocument.sheet as DocumentSheet);
-
-//       const entityDisplay = new SystemSpecificItemDisplayClass(relevantDocument, {
-//         targetElement: gridCellContentElement,
-//       });
-
-//       log(false, 'try rendering an Item', {
-//         entityDisplay,
-//       });
-
-//       //@ts-ignore
-//       entityDisplay.render(true);
-//       break;
-//     }
-//     default: {
-//       const sheetClasses = relevantDocument.sheet.options.classes;
-
-//       log(false, "use the entity's sheet", {
-//         sheetClasses,
-//       });
-
-//       gridCellContentElement.addClass(sheetClasses.join(' '));
-
-//       // @ts-ignore
-//       const entitySheetInner = await relevantDocument.sheet._renderInner(relevantDocument.sheet.getData());
-
-//       gridCellContentElement.append(entitySheetInner);
-//     }
-//   }
-// }
+export function getGame(): Game {
+  if (!(game instanceof Game)) {
+    throw new Error('game is not initialized yet!');
+  }
+  return game;
+}

@@ -27,16 +27,15 @@ export class CompactRollTableDisplay extends RollTableConfig {
     ) as RollTableConfig['options'];
   }
 
-  _replaceHTML(element, html, options) {
+  _replaceHTML(element, html) {
     $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
 
     const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
-    //@ts-ignore
     gridCellContent.html(html);
     this._element = html;
   }
 
-  _injectHTML(html, options) {
+  _injectHTML(html) {
     $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
 
     const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
@@ -83,7 +82,6 @@ export class CompactRollTableDisplay extends RollTableConfig {
     const sheetData = super.getData();
 
     // TODO: Rolltable.Result and Results wrong
-    //@ts-ignore
     const enrichedResults = sheetData.results.map((result) => {
       let label: string;
 

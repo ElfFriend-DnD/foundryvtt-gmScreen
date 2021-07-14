@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { MODULE_ABBREV, MODULE_ID, MyHooks, MySettings, TEMPLATES } from './module/constants';
 import { GmScreenSettings } from './module/classes/GmScreenSettings';
-import { getUserViewableGrids, log } from './module/helpers';
+import { getGame, getUserViewableGrids, log } from './module/helpers';
 import { GmScreenApplication } from './module/classes/GmScreenApplication';
 import { _gmScreenMigrate } from './module/migration';
 import { GmScreenApi, GmScreenConfig } from './gridTypes';
@@ -9,15 +9,15 @@ import { GmScreenApi, GmScreenConfig } from './gridTypes';
 let gmScreenInstance: GmScreenApplication;
 
 function toggleGmScreenOpen(isOpen?: boolean) {
-  const gmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
+  const gmScreenConfig = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
 
   const userViewableGrids = getUserViewableGrids(gmScreenConfig);
   if (!Object.keys(userViewableGrids).length) {
-    ui.notifications.notify(game.i18n.localize(`${MODULE_ABBREV}.warnings.noGrids`), 'error');
+    ui.notifications?.notify(getGame().i18n.localize(`${MODULE_ABBREV}.warnings.noGrids`), 'error');
     return;
   }
 
-  const displayDrawer = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
+  const displayDrawer = getGame().settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
   if (displayDrawer && !!gmScreenInstance) {
     gmScreenInstance.toggleGmScreenVisibility(isOpen);
     return;
@@ -98,7 +98,7 @@ Hooks.once('ready', async function () {
 
   window[MODULE_ID] = { migration: _gmScreenMigrate };
 
-  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
+  const displayDrawer: boolean = getGame().settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
 
   // Do anything once the module is ready
   if (displayDrawer) {
@@ -106,34 +106,38 @@ Hooks.once('ready', async function () {
     gmScreenInstance.render(true);
   }
 
-  game.modules.get(MODULE_ID).api = {
-    toggleGmScreenVisibility: toggleGmScreenOpen,
-    refreshGmScreen: refreshGmScreen,
-  } as GmScreenApi;
+  const gmScreenModuleData = getGame().modules.get(MODULE_ID);
+
+  if (gmScreenModuleData) {
+    gmScreenModuleData.api = {
+      toggleGmScreenVisibility: toggleGmScreenOpen,
+      refreshGmScreen: refreshGmScreen,
+    } as GmScreenApi;
+  }
 
   window[MODULE_ID] = {
     toggleGmScreenVisibility: (...args) => {
       console.warn(
         MODULE_ID,
         'Deprecation Warning:',
-        'window["gm-screen"]?.toggleGmScreenVisibility is deprecated in favor of game.modules.get("gm-screen")?.api?.toggleGmScreenVisibility and will be removed in a future update.'
+        'window["gm-screen"]?.toggleGmScreenVisibility is deprecated in favor of getGame().modules.get("gm-screen")?.api?.toggleGmScreenVisibility and will be removed in a future update.'
       );
 
-      game.modules.get(MODULE_ID)?.api.toggleGmScreenVisibility(...args);
+      gmScreenModuleData?.api?.toggleGmScreenVisibility(...args);
     },
     refreshGmScreen: (...args) => {
       console.warn(
         MODULE_ID,
         'Deprecation Warning:',
-        'window["gm-screen"]?.refreshGmScreen is deprecated in favor of game.modules.get("gm-screen")?.api?.refreshGmScreen and will be removed in a future update.'
+        'window["gm-screen"]?.refreshGmScreen is deprecated in favor of getGame().modules.get("gm-screen")?.api?.refreshGmScreen and will be removed in a future update.'
       );
 
-      game.modules.get(MODULE_ID)?.api.refreshGmScreen(...args);
+      gmScreenModuleData?.api?.refreshGmScreen(...args);
     },
   };
 
-  if (game.user.isGM) {
-    game.settings.set(MODULE_ID, MySettings.reset, false);
+  if (getGame().user?.isGM) {
+    getGame().settings.set(MODULE_ID, MySettings.reset, false);
   }
 
   Hooks.callAll(MyHooks.ready);
@@ -143,7 +147,7 @@ function _addGmScreenButton(html) {
   const actionButtons = html.find('.action-buttons');
 
   const gmScreenButtonHtml = `<button class="gm-screen-button">
-          <i class="fas fa-book-reader"></i> ${game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Open`)}
+          <i class="fas fa-book-reader"></i> ${getGame().i18n.localize(`${MODULE_ABBREV}.gmScreen.Open`)}
       </button>`;
 
   actionButtons.append(gmScreenButtonHtml);
@@ -157,7 +161,7 @@ function _addGmScreenButton(html) {
 }
 
 Hooks.on('renderJournalDirectory', (app, html, data) => {
-  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
+  const displayDrawer: boolean = getGame().settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
 
   if (!displayDrawer) {
     _addGmScreenButton(html);
@@ -166,7 +170,7 @@ Hooks.on('renderJournalDirectory', (app, html, data) => {
 
 // when gm screen in non-drawer mode is closed call MyHooks.openClose with isOpen: false
 Hooks.on('closeGmScreenApplication', (app, html, data) => {
-  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
+  const displayDrawer: boolean = getGame().settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
 
   if (!displayDrawer) {
     Hooks.callAll(MyHooks.openClose, app, { isOpen: false });
@@ -175,7 +179,7 @@ Hooks.on('closeGmScreenApplication', (app, html, data) => {
 
 // when gm screen in non-drawer mode is opened call MyHooks.openClose with isOpen: true
 Hooks.on('renderGmScreenApplication', (app, html, data) => {
-  const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
+  const displayDrawer: boolean = getGame().settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
 
   if (!displayDrawer) {
     Hooks.callAll(MyHooks.openClose, app, { isOpen: true });
@@ -189,7 +193,7 @@ Hooks.once('devModeReady', ({ registerPackageDebugFlag }) => {
 /* Entity Sheet Override */
 
 Hooks.on('renderEntitySheetConfig', async (app, html, data) => {
-  if (!game.user.isGM) {
+  if (!getGame().user?.isGM) {
     return;
   }
 

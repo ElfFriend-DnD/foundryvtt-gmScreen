@@ -1,6 +1,7 @@
 import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../../gridTypes';
 import { MODULE_ABBREV, MODULE_ID, MyHooks, MySettings, TEMPLATES } from '../constants';
 import {
+  getGame,
   getGridElementsPosition,
   getUserCellConfigurationInput,
   getUserViewableGrids,
@@ -21,28 +22,30 @@ enum ClickAction {
   'setActiveGridId' = 'setActiveGridId',
 }
 
+type GmScreenApp = ActorSheet | ItemSheet | JournalSheet | RollTableConfig;
+
 export class GmScreenApplication extends Application {
   expanded: boolean;
   data: GmScreenConfig;
-  apps: Record<string, BaseEntitySheet>;
+  apps: Record<string, GmScreenApp>;
 
   constructor(options = {}) {
     super(options);
     this.expanded = false;
-    this.data = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
+    this.data = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
     this.apps = {};
   }
 
   get rows(): number {
-    return game.settings.get(MODULE_ID, MySettings.rows) as number;
+    return getGame().settings.get(MODULE_ID, MySettings.rows) as number;
   }
 
   get columns(): number {
-    return game.settings.get(MODULE_ID, MySettings.columns) as number;
+    return getGame().settings.get(MODULE_ID, MySettings.columns) as number;
   }
 
   get displayDrawer(): boolean {
-    return game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
+    return getGame().settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
   }
 
   get userViewableGrids() {
@@ -54,10 +57,13 @@ export class GmScreenApplication extends Application {
   }
 
   static get defaultOptions() {
-    const columns: number = game.settings.get(MODULE_ID, MySettings.columns) as number;
-    const rows: number = game.settings.get(MODULE_ID, MySettings.rows) as number;
-    const displayDrawer: boolean = game.settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
-    const gmScreenConfig: GmScreenConfig = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
+    const columns: number = getGame().settings.get(MODULE_ID, MySettings.columns) as number;
+    const rows: number = getGame().settings.get(MODULE_ID, MySettings.rows) as number;
+    const displayDrawer: boolean = getGame().settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
+    const gmScreenConfig: GmScreenConfig = getGame().settings.get(
+      MODULE_ID,
+      MySettings.gmScreenConfig
+    ) as GmScreenConfig;
 
     const drawerOptions = {
       popOut: false,
@@ -69,7 +75,7 @@ export class GmScreenApplication extends Application {
       width: Number(columns) * 400,
       height: Number(rows) * 300,
       resizable: true,
-      title: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Title`),
+      title: getGame().i18n.localize(`${MODULE_ABBREV}.gmScreen.Title`),
     };
 
     const gmOptions = {
@@ -87,7 +93,7 @@ export class GmScreenApplication extends Application {
         (_, index) => `#gm-screen-${gridKey}-cell-${index} .gm-screen-grid-cell-content`
       );
       return acc.concat(gridKeyScrollY);
-    }, []);
+    }, [] as string[]);
 
     log(false, {
       displayDrawer,
@@ -96,7 +102,7 @@ export class GmScreenApplication extends Application {
 
     return foundry.utils.mergeObject(super.defaultOptions, {
       ...(displayDrawer ? drawerOptions : popOutOptions),
-      ...(game.user.isGM ? gmOptions : {}),
+      ...(getGame().user?.isGM ? gmOptions : {}),
       tabs: [
         {
           navSelector: '.tabs',
@@ -138,7 +144,7 @@ export class GmScreenApplication extends Application {
     }
 
     // changing this setting will auto-refresh the screen
-    await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
+    await getGame().settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
 
     // if (render) {
     //   this.refresh();
@@ -223,7 +229,6 @@ export class GmScreenApplication extends Application {
     if (this.expanded) {
       ui.windows[this.appId] = this; // add our window to the stack, pretending we are an open Application
 
-      //@ts-ignore
       this.bringToTop();
 
       $('.gm-screen-app').addClass('expanded');
@@ -252,8 +257,8 @@ export class GmScreenApplication extends Application {
     log(false, 'handleClear');
 
     Dialog.confirm({
-      title: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Title`),
-      content: game.i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Content`),
+      title: getGame().i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Title`),
+      content: getGame().i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Content`),
       yes: async () => {
         this.apps = {};
         this.setGridData({
@@ -301,11 +306,14 @@ export class GmScreenApplication extends Application {
         .children()
         .each((index, item) => {
           const gridId = $(item).attr('data-tab');
+          if (!gridId) {
+            return;
+          }
           newGmScreenConfig.grids[gridId] = this.data.grids[gridId];
         });
 
       draggedTab = undefined;
-      await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
+      await getGame().settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
     });
   }
 
@@ -410,20 +418,22 @@ export class GmScreenApplication extends Application {
           return;
         }
         try {
-          const relevantEntity = await fromUuid(entityUuid);
-          //@ts-ignore
-          const relevantEntitySheet = relevantEntity?.sheet;
-          log(false, 'trying to edit entity', { relevantEntitySheet });
+          const relevantDocument = await this.getRelevantGmScreenDocument(entityUuid);
+          const relevantDocumentSheet = relevantDocument?.sheet;
+          log(false, 'trying to edit entity', { relevantEntitySheet: relevantDocumentSheet });
+
+          if (!relevantDocumentSheet) {
+            return;
+          }
 
           // If the relevantEntitySheet is already rendered:
-          if (relevantEntitySheet.rendered) {
-            relevantEntitySheet.maximize();
-            //@ts-ignore
-            relevantEntitySheet.bringToTop();
+          if (relevantDocumentSheet.rendered) {
+            relevantDocumentSheet.maximize();
+            relevantDocumentSheet.bringToTop();
           }
 
           // Otherwise render the relevantEntitySheet
-          else relevantEntitySheet.render(true);
+          else relevantDocumentSheet.render(true);
         } catch (error) {
           log(true, 'error opening entity sheet', error);
         }
@@ -436,7 +446,7 @@ export class GmScreenApplication extends Application {
       case ClickAction.setActiveGridId: {
         const newActiveGridId = e.currentTarget.dataset.tab;
         // do nothing if we are not the GM or if nothing changes
-        if (!game.user.isGM || newActiveGridId === this.data.activeGridId) {
+        if (!getGame().user?.isGM || newActiveGridId === this.data.activeGridId) {
           return;
         }
 
@@ -448,7 +458,7 @@ export class GmScreenApplication extends Application {
             activeGridId: e.currentTarget.dataset.tab,
           };
 
-          await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
+          await getGame().settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
         } catch (error) {
           log(true, 'error setting active tab', error);
         }
@@ -483,10 +493,9 @@ export class GmScreenApplication extends Application {
    * This currently thinly wraps `this.render`, but might be more complicated in the future.
    */
   refresh() {
-    // debugger;
-    const newData = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
+    const newData = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
     const oldData = foundry.utils.deepClone(this.data) as GmScreenConfig;
-    const diffData: Partial<GmScreenConfig> = diffObject(oldData, newData);
+    const diffData: Partial<GmScreenConfig> = foundry.utils.diffObject(oldData, newData);
 
     log(false, 'refreshing gm screen', {
       newData: foundry.utils.deepClone(newData),
@@ -502,7 +511,7 @@ export class GmScreenApplication extends Application {
         return;
       }
 
-      const diffGridIds = Object.keys(diffData.grids);
+      const diffGridIds = Object.keys(diffData?.grids ?? {});
       const myNewGridIds = Object.keys(this.userViewableGrids);
       const myOldGridIds = Object.keys(getUserViewableGrids(oldData));
 
@@ -547,7 +556,6 @@ export class GmScreenApplication extends Application {
 
     if (this.displayDrawer) {
       // bring to top on click
-      //@ts-ignore
       $(html).on('mousedown', (event) => {
         log(false, 'buttons', event.buttons);
         if (event.buttons === 2) {
@@ -557,12 +565,12 @@ export class GmScreenApplication extends Application {
       });
     }
 
-    if (game.user.isGM) {
+    if (getGame().user?.isGM) {
       this._dragListeners(html);
     }
 
     $('.gm-screen-button').on('contextmenu', () => {
-      const config = new GmScreenSettings();
+      const config = new GmScreenSettings({});
       config.render(true);
     });
 
@@ -590,6 +598,9 @@ export class GmScreenApplication extends Application {
 
     // populate the --grid-cell-width variable
     const vanillaGridElement = document.querySelector('.gm-screen-grid');
+    if (!vanillaGridElement) {
+      return;
+    }
     const vanillaGridElementStyles = getComputedStyle(vanillaGridElement);
     const cols = vanillaGridElementStyles['grid-template-columns'].split(' ');
     const colWidth = cols[0];
@@ -602,6 +613,29 @@ export class GmScreenApplication extends Application {
   }
 
   /**
+   * Utility method to help typescript understand that these are only
+   * actors, items, journals, or rolltables
+   *
+   * @param entityUuid - relevant entityUuid
+   */
+  async getRelevantGmScreenDocument(entityUuid) {
+    const relevantDocument = await fromUuid(entityUuid);
+
+    if (
+      !(
+        relevantDocument instanceof Actor ||
+        relevantDocument instanceof Item ||
+        relevantDocument instanceof JournalEntry ||
+        relevantDocument instanceof RollTable
+      )
+    ) {
+      return;
+    }
+
+    return relevantDocument;
+  }
+
+  /**
    * create and cache the custom Application when we need to during GmScreenApplication.render();
    * and then use that cached Application instance to render
    *
@@ -611,9 +645,9 @@ export class GmScreenApplication extends Application {
    * @returns
    */
   async getCellApplicationClass(entityUuid: string, cellId: string) {
-    const relevantEntity = await fromUuid(entityUuid);
+    const relevantDocument = await this.getRelevantGmScreenDocument(entityUuid);
 
-    if (!relevantEntity) {
+    if (!relevantDocument) {
       await this.apps[cellId]?.close();
       delete this.apps[cellId];
 
@@ -621,7 +655,7 @@ export class GmScreenApplication extends Application {
       return;
     }
 
-    const gmScreenSpecificSheetFlag = relevantEntity.getFlag(MODULE_ID, 'gmScreenSheetClass');
+    const gmScreenSpecificSheetFlag = relevantDocument.getFlag(MODULE_ID, 'gmScreenSheetClass') as string | undefined;
 
     /* If there is an old app here which isn't this entity's, destroy it */
     if (this.apps[cellId] && this.apps[cellId]?.object.uuid !== entityUuid) {
@@ -629,26 +663,25 @@ export class GmScreenApplication extends Application {
       delete this.apps[cellId];
     }
 
-    //@ts-ignore
-    const sheet = relevantEntity.sheet;
+    const sheet = relevantDocument.sheet;
 
-    let sheetClass = sheet.constructor;
+    let sheetClass = sheet?.constructor;
 
-    if (gmScreenSpecificSheetFlag) {
-      sheetClass =
-        //@ts-ignore
-        CONFIG[relevantEntity.documentName]?.sheetClasses?.[relevantEntity.type]?.[gmScreenSpecificSheetFlag]?.cls;
+    if (gmScreenSpecificSheetFlag && (relevantDocument instanceof Item || relevantDocument instanceof Actor)) {
+      const gmScreenSpecificSheetConstructor =
+        CONFIG[relevantDocument.documentName]?.sheetClasses?.[relevantDocument.type]?.[gmScreenSpecificSheetFlag]?.cls;
+      sheetClass = gmScreenSpecificSheetConstructor ?? sheetClass;
     }
 
     /* If the currently cached sheet class does not match the sheet class, destroy it */
-    if (this.apps[cellId] && this.apps[cellId].constructor.name !== sheetClass.name) {
+    if (this.apps[cellId] && this.apps[cellId].constructor.name !== sheetClass?.name) {
       await this.apps[cellId].close();
       delete this.apps[cellId];
     }
 
     /* If the currently cached sheet class does match the sheet class, return it */
-    if (this.apps[cellId] && this.apps[cellId].constructor.name === sheetClass.name) {
-      log(false, `using cached application instance for "${relevantEntity.name}"`, {
+    if (this.apps[cellId] && this.apps[cellId].constructor.name === sheetClass?.name) {
+      log(false, `using cached application instance for "${relevantDocument.name}"`, {
         entityUuid,
         app: this.apps[cellId],
       });
@@ -658,39 +691,38 @@ export class GmScreenApplication extends Application {
 
     log(false, 'relevantEntity sheet', {
       sheet,
-      name: sheet.constructor.name,
+      name: sheetClass?.name,
     });
 
-    //@ts-ignore
     if (sheet instanceof JournalSheet && !sheet?.isKankaEntry) {
-      log(false, `creating compact journal entry for "${relevantEntity.name}"`, {
+      log(false, `creating compact journal entry for "${relevantDocument.name}"`, {
         cellId,
       });
 
-      this.apps[cellId] = new CompactJournalEntryDisplay(relevantEntity, { cellId, editable: false });
+      this.apps[cellId] = new CompactJournalEntryDisplay(relevantDocument, { cellId, editable: false });
     } else if (sheet instanceof RollTableConfig) {
-      log(false, `creating compact rollTableDisplay for "${relevantEntity.name}"`, {
+      log(false, `creating compact rollTableDisplay for "${relevantDocument.name}"`, {
         cellId,
       });
 
-      this.apps[cellId] = new CompactRollTableDisplay(relevantEntity, { cellId }) as unknown as DocumentSheet<any, any>;
+      this.apps[cellId] = new CompactRollTableDisplay(relevantDocument, { cellId });
     } else {
-      log(false, `creating compact generic for "${relevantEntity.name}"`, {
+      log(false, `creating compact generic for "${relevantDocument.name}"`, {
         cellId,
       });
 
-      // somewhere in here we need to check relevantEntity.flags for gmScreenSheetClass and use that instead of `sheet.constructor`
+      //@ts-ignore
+      const CompactDocumentSheet: ItemSheet | ActorSheet = new sheetClass(relevantDocument, {
+        editable: false,
+      });
+
+      CompactDocumentSheet.options.editable = false;
+      CompactDocumentSheet.options.popOut = false;
+      //@ts-ignore
+      CompactDocumentSheet.cellId = cellId;
 
       //@ts-ignore
-      const CompactEntitySheet: DocumentSheet = new sheetClass(relevantEntity, { editable: false });
-
-      CompactEntitySheet.options.editable = false;
-      CompactEntitySheet.options.popOut = false;
-      //@ts-ignore
-      CompactEntitySheet.cellId = cellId;
-
-      //@ts-ignore
-      CompactEntitySheet._injectHTML = function (html) {
+      CompactDocumentSheet._injectHTML = function (html) {
         $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
 
         const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
@@ -702,39 +734,38 @@ export class GmScreenApplication extends Application {
           html,
         });
         gridCellContent.append(html);
-        //@ts-ignore
         this._element = html;
       };
 
       //@ts-ignore
-      CompactEntitySheet._replaceHTML = function (element, html, options) {
+      CompactDocumentSheet._replaceHTML = function (element, html, options) {
         $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
 
         const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
-        //@ts-ignore
         gridCellContent.html(html);
         this._element = html;
       };
 
-      log(false, `created compact generic for "${relevantEntity.name}"`, {
-        sheet: CompactEntitySheet,
+      log(false, `created compact generic for "${relevantDocument.name}"`, {
+        sheet: CompactDocumentSheet,
       });
 
-      this.apps[cellId] = CompactEntitySheet;
+      this.apps[cellId] = CompactDocumentSheet;
     }
 
     return this.apps[cellId];
   }
 
   injectCellContents(html: JQuery<HTMLElement>) {
-    // const html = (await super._renderInner(...args)) as JQuery<HTMLElement>;
-
     $(html)
       .find('[data-entity-uuid]')
       .each((index, gridEntry) => {
         try {
           // `this` is the parent .gm-screen-grid-cell
           const relevantUuid = gridEntry.dataset.entityUuid;
+          if (!relevantUuid) {
+            return;
+          }
           const cellId = `#${gridEntry.id}`;
 
           log(false, 'gridEntry with uuid defined found', { relevantUuid, cellId, gridEntry });
@@ -744,13 +775,17 @@ export class GmScreenApplication extends Application {
               log(false, `got application for "${cellId}"`, {
                 application,
               });
+
+              if (!application) {
+                throw new Error('no application exists to render');
+              }
+
               const classes = application.options.classes.join(' ');
 
               const gridCellContent = $(gridEntry).find('.gm-screen-grid-cell-content');
               gridCellContent.addClass(classes);
 
-              //@ts-ignore
-              application.render(true, { editable: false });
+              application.render(true);
             })
             .catch((e) => {
               log(true, 'error trying to render a gridEntry', {
@@ -765,7 +800,6 @@ export class GmScreenApplication extends Application {
             gridEntry,
           });
         }
-        // injectCellContents(relevantUuid, gridCellContent);
       });
 
     // set some CSS Variables for child element use
@@ -805,37 +839,16 @@ export class GmScreenApplication extends Application {
    * @override
    */
   getData() {
-    const rightMargin = game.settings.get(MODULE_ID, MySettings.rightMargin) as number;
-    const drawerWidth = game.settings.get(MODULE_ID, MySettings.drawerWidth) as number;
-    const drawerHeight = game.settings.get(MODULE_ID, MySettings.drawerHeight) as number;
-    const drawerOpacity = game.settings.get(MODULE_ID, MySettings.drawerOpacity) as number;
-    const condensedButton = game.settings.get(MODULE_ID, MySettings.condensedButton) as boolean;
-
-    // const entityOptions = [
-    //   { label: 'ENTITY.Actor', entries: game.actors.contents },
-    //   { label: 'ENTITY.Item', entries: game.items.contents },
-    //   { label: 'ENTITY.JournalEntry', entries: game.journal.contents },
-    //   { label: 'ENTITY.RollTable', entries: game.tables.contents },
-    // ].map(({ label, entries }) => {
-    //   return {
-    //     label,
-    //     options: (entries as unknown as Array<any>).reduce((acc, document) => {
-    //       acc[document.uuid] = document.data.name;
-    //       return acc;
-    //     }, {}),
-    //   };
-    // });
-
-    // const entityNames = Object.values(entityOptions).reduce((acc, optionGroup) => {
-    //   return { ...acc, ...optionGroup.options };
-    // }, {});
+    const rightMargin = getGame().settings.get(MODULE_ID, MySettings.rightMargin) as number;
+    const drawerWidth = getGame().settings.get(MODULE_ID, MySettings.drawerWidth) as number;
+    const drawerHeight = getGame().settings.get(MODULE_ID, MySettings.drawerHeight) as number;
+    const drawerOpacity = getGame().settings.get(MODULE_ID, MySettings.drawerOpacity) as number;
+    const condensedButton = getGame().settings.get(MODULE_ID, MySettings.condensedButton) as boolean;
 
     const newAppData = {
       ...super.getData(),
-      // entityOptions,
-      // entityNames,
       grids: this.getHydratedGrids(),
-      isGM: game.user.isGM,
+      isGM: !!getGame().user?.isGM,
       condensedButton: condensedButton,
       data: this.data,
       columns: this.columns,
@@ -865,7 +878,7 @@ export class GmScreenApplication extends Application {
 
     const gmButtons = [
       {
-        label: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Reset`),
+        label: getGame().i18n.localize(`${MODULE_ABBREV}.gmScreen.Reset`),
         class: 'clear',
         icon: 'fas fa-ban',
         onclick: () => this.handleClear.bind(this)(),
@@ -873,9 +886,9 @@ export class GmScreenApplication extends Application {
     ];
 
     return [
-      ...(game.user.isGM ? gmButtons : []),
+      ...(getGame().user?.isGM ? gmButtons : []),
       {
-        label: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Refresh`),
+        label: getGame().i18n.localize(`${MODULE_ABBREV}.gmScreen.Refresh`),
         class: 'refresh',
         icon: 'fas fa-sync',
         onclick: () => this.refresh(),
@@ -891,7 +904,7 @@ export class GmScreenApplication extends Application {
     event.stopPropagation();
 
     // do nothing if this user is not the gm
-    if (!game.user.isGM) return;
+    if (!getGame().user?.isGM) return;
 
     // Try to extract the data
     let data;
@@ -932,13 +945,11 @@ export class GmScreenApplication extends Application {
   async close(...args) {
     if (this.displayDrawer) {
       log(false, 'intercepting close');
+      this.toggleGmScreenVisibility(false);
 
-      return new Promise((resolve) => {
-        this.toggleGmScreenVisibility(false);
-        return;
-      });
+      return;
     }
-    // @ts-ignore
+
     return super.close(...args);
   }
 }

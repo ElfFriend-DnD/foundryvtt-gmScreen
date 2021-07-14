@@ -22,21 +22,19 @@ export class CompactJournalEntryDisplay extends JournalSheet {
 
   /** @override */
   get template() {
-    // @ts-ignore
     if (this._sheetMode === 'image') return ImagePopout.defaultOptions.template;
     return TEMPLATES.compactJournalEntry;
   }
 
-  _replaceHTML(element, html, options) {
+  _replaceHTML(element, html) {
     $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
 
     const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
-    //@ts-ignore
     gridCellContent.html(html);
     this._element = html;
   }
 
-  _injectHTML(html, options) {
+  _injectHTML(html) {
     $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
 
     const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
