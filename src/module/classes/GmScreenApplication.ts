@@ -9,6 +9,7 @@ import {
 } from '../helpers';
 import { CompactJournalEntryDisplay } from './CompactJournalEntryDisplay';
 import { CompactRollTableDisplay } from './CompactRollTableDisplay';
+import { GmScreenSettings } from './GmScreenSettings';
 
 enum ClickAction {
   'clearGrid' = 'clearGrid',
@@ -547,12 +548,23 @@ export class GmScreenApplication extends Application {
     if (this.displayDrawer) {
       // bring to top on click
       //@ts-ignore
-      $(html).on('mousedown', this.bringToTop.bind(this));
+      $(html).on('mousedown', (event) => {
+        log(false, 'buttons', event.buttons);
+        if (event.buttons === 2) {
+          return;
+        }
+        this.bringToTop();
+      });
     }
 
     if (game.user.isGM) {
       this._dragListeners(html);
     }
+
+    $('.gm-screen-button').on('contextmenu', () => {
+      const config = new GmScreenSettings();
+      config.render(true);
+    });
 
     $(html).on('click', 'button', this.handleClickEvent.bind(this));
     $(html).on('click', 'a', this.handleClickEvent.bind(this));

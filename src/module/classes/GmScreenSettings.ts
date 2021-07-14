@@ -149,14 +149,11 @@ export class GmScreenSettings extends FormApplication {
       height: 'auto' as 'auto',
       submitOnChange: false,
       submitOnClose: false,
+      id: 'gm-screen-tabs-config',
       template: TEMPLATES.settings,
       title: game.i18n.localize(`${MODULE_ABBREV}.gridConfig.GridConfig`),
       width: 600,
     };
-  }
-
-  constructor(object = {}, options) {
-    super(object, options);
   }
 
   get rows(): number {
