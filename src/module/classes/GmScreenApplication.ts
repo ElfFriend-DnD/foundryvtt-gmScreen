@@ -126,7 +126,7 @@ export class GmScreenApplication extends Application {
    * @param {boolean} render - ⚠️ DEPRECATED since 2.4.0: whether or not to also render/refresh the grid
    */
   async setGridData(newGridData: GmScreenGrid, render: boolean = true) {
-    const newGmScreenConfig = duplicate(this.data);
+    const newGmScreenConfig = foundry.utils.deepClone(this.data);
 
     const updated = setProperty(newGmScreenConfig, `grids.${newGridData.id}`, newGridData);
 
@@ -177,7 +177,7 @@ export class GmScreenApplication extends Application {
    * @param {string} entryId - entry to remove from the active grid's entries
    */
   async removeEntryFromActiveGrid(entryId: string, gridCellId?: string) {
-    const clearedCell = duplicate(this.activeGrid.entries[entryId]) as GmScreenGridEntry;
+    const clearedCell = foundry.utils.deepClone(this.activeGrid.entries[entryId]) as GmScreenGridEntry;
     const shouldKeepCellLayout = clearedCell.spanCols || clearedCell.spanRows;
 
     const newEntries = {
@@ -261,6 +261,50 @@ export class GmScreenApplication extends Application {
         });
       },
       no: () => {},
+    });
+  }
+
+  _dragListeners(html: JQuery<any>) {
+    let draggedTab: HTMLElement | undefined;
+    const tabElement = html.find('.gm-screen-tabs');
+
+    tabElement.on('dragstart', '.item', (e) => {
+      draggedTab = e.target;
+    });
+
+    tabElement.on('dragover', (e) => {
+      if (!draggedTab) {
+        return;
+      }
+
+      let children = Array.from($(e.target).closest('.gm-screen-tabs').children());
+
+      if (children.indexOf(e.target) > children.indexOf(draggedTab)) {
+        e.target.after(draggedTab);
+      } else {
+        e.target.before(draggedTab);
+      }
+    });
+
+    tabElement.on('dragend', async (e) => {
+      if (!draggedTab) {
+        return;
+      }
+
+      const newGmScreenConfig = foundry.utils.deepClone(this.data);
+      newGmScreenConfig.grids = {};
+
+      // rebuild gmScreenConfig based on the current layout of the tabs
+      $(e.target)
+        .closest('.gm-screen-tabs')
+        .children()
+        .each((index, item) => {
+          const gridId = $(item).attr('data-tab');
+          newGmScreenConfig.grids[gridId] = this.data.grids[gridId];
+        });
+
+      draggedTab = undefined;
+      await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
     });
   }
 
@@ -440,11 +484,11 @@ export class GmScreenApplication extends Application {
   refresh() {
     // debugger;
     const newData = game.settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
-    const oldData = duplicate(this.data) as GmScreenConfig;
+    const oldData = foundry.utils.deepClone(this.data) as GmScreenConfig;
     const diffData: Partial<GmScreenConfig> = diffObject(oldData, newData);
 
     log(false, 'refreshing gm screen', {
-      newData: duplicate(newData),
+      newData: foundry.utils.deepClone(newData),
       data: oldData,
       diffData,
     });
@@ -506,52 +550,9 @@ export class GmScreenApplication extends Application {
       $(html).on('mousedown', this.bringToTop.bind(this));
     }
 
-    let draggedTab: JQuery<any>;
-
-    html.on('dragstart', '.item', (e) => {
-      const currentTarget = $(e.target).closest('div.grid-tabs .item')[0];
-
-      if (!currentTarget || !game.user.isGM) {
-        return;
-      }
-
-      draggedTab = e.target;
-    });
-
-    html.on('dragover', (e) => {
-      e.preventDefault();
-
-      const currentTarget = $(e.target).closest('div.grid-tabs .item')[0];
-
-      if (!currentTarget || !game.user.isGM) {
-        return;
-      }
-
-      let children = Array.from($(e.target).closest('div.grid-tabs').children());
-
-      if (children.indexOf(e.target)>children.indexOf(draggedTab)) {
-        e.target.after(draggedTab);
-      } else {
-        e.target.before(draggedTab);
-      }
-    });
-
-    html.on('dragend', async (e) => {
-      const currentTarget = $(e.target).closest('div.grid-tabs .item')[0];
-
-      if (!currentTarget || !game.user.isGM) {
-        return;
-      }
-
-      const newGmScreenConfig = duplicate(this.data);
-      newGmScreenConfig.grids = {}
-      $(e.target).closest('div.grid-tabs').children().each((index, item) => {
-        const gridId = $(item).attr('data-tab');
-        newGmScreenConfig.grids[gridId] = this.data.grids[gridId];
-      });
-
-      await game.settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
-    });
+    if (game.user.isGM) {
+      this._dragListeners(html);
+    }
 
     $(html).on('click', 'button', this.handleClickEvent.bind(this));
     $(html).on('click', 'a', this.handleClickEvent.bind(this));

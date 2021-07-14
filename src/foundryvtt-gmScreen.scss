@@ -125,6 +125,11 @@ $transition-timing: 400ms;
     > * {
       flex: unset;
     }
+
+    .gm-screen-tabs {
+      display: flex;
+      gap: $space / 2;
+    }
   }
 
   .gm-screen-grid {

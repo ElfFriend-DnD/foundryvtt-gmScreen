@@ -191,7 +191,39 @@ export class GmScreenSettings extends FormApplication {
     return data;
   }
 
-  activateListeners(html) {
+  _dragListeners(html: JQuery<any>) {
+    let draggedRow: JQuery<any> | undefined;
+
+    html.on('dragstart', (e) => {
+      draggedRow = e.target;
+    });
+
+    html.on('dragover', (e) => {
+      if (!draggedRow) {
+        return;
+      }
+
+      const targetRow = $(e.target).parents('tbody tr')[0];
+
+      if (!targetRow) {
+        return;
+      }
+
+      let tableRows = Array.from($(e.target).parents('tbody').children());
+
+      if (tableRows.indexOf(targetRow) > tableRows.indexOf(draggedRow)) {
+        targetRow.after(draggedRow);
+      } else {
+        targetRow.before(draggedRow);
+      }
+    });
+
+    html.on('dragend', (e) => {
+      draggedRow = undefined;
+    });
+  }
+
+  activateListeners(html: JQuery<any>) {
     super.activateListeners(html);
 
     log(false, 'activateListeners', {
@@ -204,9 +236,7 @@ export class GmScreenSettings extends FormApplication {
       });
 
       const table = currentTarget.data().table;
-
-      const tableElement = currentTarget.siblings('table');
-      const tbodyElement = $(tableElement).find('tbody');
+      const tbodyElement = $(html).find('tbody');
 
       const newGridRowTemplateData = {
         gridId: randomID(),
@@ -234,45 +264,7 @@ export class GmScreenSettings extends FormApplication {
       this.setPosition({}); // recalc height
     };
 
-    let draggedRow: JQuery<any>;
-
-    html.on('mousedown', (e) => {
-      e.stopPropagation();
-      const currentTarget = $(e.target).closest('button.reorder-row')[0];
-
-      if (!currentTarget) {
-        return;
-      }
-
-      const row = $(currentTarget).closest('tr').attr('draggable', true);
-    });
-
-    html.on('dragend', (e) => {
-      e.stopPropagation();
-      $(e.target).attr('draggable', false);
-    });
-
-    html.on('dragstart', (e) => {
-      draggedRow = e.target;
-    });
-
-    html.on('dragover', (e) => {
-      e.preventDefault();
-
-      const currentTarget = $(e.target).closest('tbody tr')[0];
-
-      if (!currentTarget) {
-        return;
-      }
-
-      let children = Array.from($(e.target).closest('tbody').children());
-
-      if (children.indexOf($(e.target).closest('tr')[0])>children.indexOf(draggedRow)) {
-        $(e.target).closest('tr')[0].after(draggedRow);
-      } else {
-        $(e.target).closest('tr')[0].before(draggedRow);
-      }
-    });
+    this._dragListeners(html);
 
     html.on('click', (e) => {
       const currentTarget = $(e.target).closest('button')[0];

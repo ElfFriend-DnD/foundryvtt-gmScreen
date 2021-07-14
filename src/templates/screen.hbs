@@ -9,9 +9,10 @@
 
   <div class='gm-screen-actions tabs'>
 
-    <div class="grid-tabs">
+    <div class="gm-screen-tabs">
       {{#each grids}}
-      <button type='button' class='item' data-tab='{{grid.id}}' data-action='setActiveGridId' draggable="true">{{grid.name}}</button>
+      <button type='button' class='item' data-tab='{{grid.id}}' data-action='setActiveGridId'
+        draggable="true">{{grid.name}}</button>
       {{/each}}
     </div>
 
