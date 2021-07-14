@@ -28,9 +28,9 @@ Additionally, any screen you create as GM can be set to be shared with players, 
 
 - Set up tabs in the Module Settings, and optionally share some with your players.
 - Drag and Drop Journal Entries, Rollable Tables, even Actors and Items into cells on the GM Screen.
-- Alternatively use the select menus (not recommended).
 - Each cell has settings which allow for that cell to span multiple columns or rows.
 - Clicking the little icon on the top-right of the cell will pop out the full sized sheet for whatever entity is in the cell. The GM Screen is intended to be read-only, so edits to things inside it will happen for the most part by popping the entity out.
+- Tabs can be reordered from either the settings or by directly dragging and dropping them in the drawer display.
 
 ## Installation
 
