@@ -27,7 +27,7 @@ export class GmScreenSettings extends FormApplication {
 
     getGame().settings.register(MODULE_ID, MySettings.gmScreenConfig, {
       default: defaultGmScreenConfig,
-      type: Object,
+      type: defaultGmScreenConfig.constructor as ConstructorOf<GmScreenConfig>,
       scope: 'world',
       config: false,
       onChange: function (...args) {
@@ -35,8 +35,6 @@ export class GmScreenSettings extends FormApplication {
           args,
           currentConfig: { ...(getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig) },
         });
-
-        // TODO: Check if we are GM or Player and act accordingly
 
         getGame().modules.get(MODULE_ID)?.api?.refreshGmScreen();
       },
@@ -46,7 +44,7 @@ export class GmScreenSettings extends FormApplication {
       config: false,
       default: { status: false, version: '1.2.2' },
       scope: 'world',
-      type: Object,
+      type: Object as unknown as ConstructorOf<{ status: boolean; version: string }>,
     });
 
     getGame().settings.register(MODULE_ID, MySettings.columns, {
@@ -82,7 +80,6 @@ export class GmScreenSettings extends FormApplication {
       default: 0,
       type: Number,
       scope: 'client',
-      //@ts-ignore
       range: { min: 0, max: 75, step: 5 },
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.rightMargin}.Hint`,
@@ -93,7 +90,6 @@ export class GmScreenSettings extends FormApplication {
       default: 100,
       type: Number,
       scope: 'client',
-      //@ts-ignore
       range: { min: 25, max: 100, step: 5 },
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.drawerWidth}.Hint`,
@@ -104,7 +100,6 @@ export class GmScreenSettings extends FormApplication {
       default: 60,
       type: Number,
       scope: 'client',
-      //@ts-ignore
       range: { min: 10, max: 90, step: 5 },
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.drawerHeight}.Hint`,
@@ -115,7 +110,6 @@ export class GmScreenSettings extends FormApplication {
       default: 1,
       type: Number,
       scope: 'client',
-      //@ts-ignore
       range: { min: 0.1, max: 1, step: 0.05 },
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.drawerOpacity}.Hint`,
@@ -150,7 +144,7 @@ export class GmScreenSettings extends FormApplication {
       ...super.defaultOptions,
       classes: ['gm-screen-config'],
       closeOnSubmit: false,
-      height: 'auto' as 'auto',
+      height: 'auto' as const,
       submitOnChange: false,
       submitOnClose: false,
       id: 'gm-screen-tabs-config',
@@ -160,19 +154,16 @@ export class GmScreenSettings extends FormApplication {
     };
   }
 
-  get rows(): number {
-    return getGame().settings.get(MODULE_ID, MySettings.rows) as number;
+  get rows() {
+    return getGame().settings.get(MODULE_ID, MySettings.rows);
   }
 
-  get columns(): number {
-    return getGame().settings.get(MODULE_ID, MySettings.columns) as number;
+  get columns() {
+    return getGame().settings.get(MODULE_ID, MySettings.columns);
   }
 
   get settingsData() {
-    const gmScreenConfig: GmScreenConfig = getGame().settings.get(
-      MODULE_ID,
-      MySettings.gmScreenConfig
-    ) as GmScreenConfig;
+    const gmScreenConfig = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig);
 
     log(false, 'getSettingsData', {
       gmScreenConfig,
@@ -299,10 +290,7 @@ export class GmScreenSettings extends FormApplication {
   // },
 
   async _updateObject(ev, formData) {
-    const gmScreenConfig: GmScreenConfig = getGame().settings.get(
-      MODULE_ID,
-      MySettings.gmScreenConfig
-    ) as GmScreenConfig;
+    const gmScreenConfig = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig);
 
     const data = expandObject(formData);
 

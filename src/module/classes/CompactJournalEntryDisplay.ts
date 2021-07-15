@@ -17,7 +17,7 @@ export class CompactJournalEntryDisplay extends JournalSheet {
     return foundry.utils.mergeObject(super.defaultOptions, {
       editable: false,
       popOut: false,
-    } as Partial<Application.Options>) as JournalSheet['options'];
+    });
   }
 
   /** @override */
@@ -53,8 +53,4 @@ export class CompactJournalEntryDisplay extends JournalSheet {
   get id() {
     return `gmscreen-journal-${this.object.id}`;
   }
-
-  // we want no listeners
-  /** @override */
-  // activateListeners(html) {}
 }

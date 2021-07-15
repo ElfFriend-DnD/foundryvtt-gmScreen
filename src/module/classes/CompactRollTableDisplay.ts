@@ -17,14 +17,11 @@ export class CompactRollTableDisplay extends RollTableConfig {
   }
 
   static get defaultOptions() {
-    return foundry.utils.mergeObject(
-      super.defaultOptions as RollTableConfig['options'],
-      {
-        template: TEMPLATES.compactRollTable,
-        editable: false,
-        popOut: false,
-      } as Partial<Application.Options>
-    ) as RollTableConfig['options'];
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      template: TEMPLATES.compactRollTable,
+      editable: false,
+      popOut: false,
+    });
   }
 
   _replaceHTML(element, html) {

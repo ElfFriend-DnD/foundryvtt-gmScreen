@@ -32,20 +32,20 @@ export class GmScreenApplication extends Application {
   constructor(options = {}) {
     super(options);
     this.expanded = false;
-    this.data = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
+    this.data = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig);
     this.apps = {};
   }
 
-  get rows(): number {
-    return getGame().settings.get(MODULE_ID, MySettings.rows) as number;
+  get rows() {
+    return getGame().settings.get(MODULE_ID, MySettings.rows);
   }
 
-  get columns(): number {
-    return getGame().settings.get(MODULE_ID, MySettings.columns) as number;
+  get columns() {
+    return getGame().settings.get(MODULE_ID, MySettings.columns);
   }
 
-  get displayDrawer(): boolean {
-    return getGame().settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
+  get displayDrawer() {
+    return getGame().settings.get(MODULE_ID, MySettings.displayDrawer);
   }
 
   get userViewableGrids() {
@@ -57,13 +57,10 @@ export class GmScreenApplication extends Application {
   }
 
   static get defaultOptions() {
-    const columns: number = getGame().settings.get(MODULE_ID, MySettings.columns) as number;
-    const rows: number = getGame().settings.get(MODULE_ID, MySettings.rows) as number;
-    const displayDrawer: boolean = getGame().settings.get(MODULE_ID, MySettings.displayDrawer) as boolean;
-    const gmScreenConfig: GmScreenConfig = getGame().settings.get(
-      MODULE_ID,
-      MySettings.gmScreenConfig
-    ) as GmScreenConfig;
+    const columns = getGame().settings.get(MODULE_ID, MySettings.columns);
+    const rows = getGame().settings.get(MODULE_ID, MySettings.rows);
+    const displayDrawer = getGame().settings.get(MODULE_ID, MySettings.displayDrawer);
+    const gmScreenConfig = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig);
 
     const drawerOptions = {
       popOut: false,
@@ -102,7 +99,11 @@ export class GmScreenApplication extends Application {
 
     return foundry.utils.mergeObject(super.defaultOptions, {
       ...(displayDrawer ? drawerOptions : popOutOptions),
-      ...(getGame().user?.isGM ? gmOptions : {}),
+      ...(getGame().user?.isGM
+        ? gmOptions
+        : {
+            dragDrop: [],
+          }),
       tabs: [
         {
           navSelector: '.tabs',
@@ -113,7 +114,7 @@ export class GmScreenApplication extends Application {
       template: TEMPLATES.screen,
       id: 'gm-screen-app',
       scrollY,
-    } as Partial<Application.Options>) as Application.Options; // TODO: Open Ticket about this
+    });
   }
 
   get activeGrid() {
@@ -184,7 +185,7 @@ export class GmScreenApplication extends Application {
    * @param {string} entryId - entry to remove from the active grid's entries
    */
   async removeEntryFromActiveGrid(entryId: string, gridCellId?: string) {
-    const clearedCell = foundry.utils.deepClone(this.activeGrid.entries[entryId]) as GmScreenGridEntry;
+    const clearedCell = foundry.utils.deepClone(this.activeGrid.entries[entryId]);
     const shouldKeepCellLayout = clearedCell.spanCols || clearedCell.spanRows;
 
     const newEntries = {
@@ -320,7 +321,7 @@ export class GmScreenApplication extends Application {
   async handleClickEvent(e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
     e.preventDefault();
 
-    const action: ClickAction = e.currentTarget.dataset.action as ClickAction;
+    const action = e.currentTarget.dataset.action as ClickAction;
     const entityUuid = $(e.currentTarget).parents('[data-entity-uuid]')?.data()?.entityUuid;
     const entryId = $(e.currentTarget).parents('[data-entry-id]')?.data()?.entryId;
     const gridCellId = $(e.currentTarget).parents('[data-entry-id]')?.attr('id');
@@ -446,7 +447,7 @@ export class GmScreenApplication extends Application {
       case ClickAction.setActiveGridId: {
         const newActiveGridId = e.currentTarget.dataset.tab;
         // do nothing if we are not the GM or if nothing changes
-        if (!getGame().user?.isGM || newActiveGridId === this.data.activeGridId) {
+        if (!getGame().user?.isGM || newActiveGridId === this.data.activeGridId || !newActiveGridId) {
           return;
         }
 
@@ -455,7 +456,7 @@ export class GmScreenApplication extends Application {
         try {
           const newGmScreenConfig = {
             ...this.data,
-            activeGridId: e.currentTarget.dataset.tab,
+            activeGridId: newActiveGridId,
           };
 
           await getGame().settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
@@ -493,8 +494,8 @@ export class GmScreenApplication extends Application {
    * This currently thinly wraps `this.render`, but might be more complicated in the future.
    */
   refresh() {
-    const newData = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig) as GmScreenConfig;
-    const oldData = foundry.utils.deepClone(this.data) as GmScreenConfig;
+    const newData = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig);
+    const oldData = foundry.utils.deepClone(this.data);
     const diffData: Partial<GmScreenConfig> = foundry.utils.diffObject(oldData, newData);
 
     log(false, 'refreshing gm screen', {
@@ -839,11 +840,11 @@ export class GmScreenApplication extends Application {
    * @override
    */
   getData() {
-    const rightMargin = getGame().settings.get(MODULE_ID, MySettings.rightMargin) as number;
-    const drawerWidth = getGame().settings.get(MODULE_ID, MySettings.drawerWidth) as number;
-    const drawerHeight = getGame().settings.get(MODULE_ID, MySettings.drawerHeight) as number;
-    const drawerOpacity = getGame().settings.get(MODULE_ID, MySettings.drawerOpacity) as number;
-    const condensedButton = getGame().settings.get(MODULE_ID, MySettings.condensedButton) as boolean;
+    const rightMargin = getGame().settings.get(MODULE_ID, MySettings.rightMargin);
+    const drawerWidth = getGame().settings.get(MODULE_ID, MySettings.drawerWidth);
+    const drawerHeight = getGame().settings.get(MODULE_ID, MySettings.drawerHeight);
+    const drawerOpacity = getGame().settings.get(MODULE_ID, MySettings.drawerOpacity);
+    const condensedButton = getGame().settings.get(MODULE_ID, MySettings.condensedButton);
 
     const newAppData = {
       ...super.getData(),
