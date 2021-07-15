@@ -201,7 +201,7 @@ export class GmScreenApplication extends Application {
 
     if (gridCellId) {
       const appKey = `#${gridCellId}`;
-      await this.apps[appKey].close();
+      await this.apps[appKey]?.close();
       delete this.apps[appKey];
     }
 
