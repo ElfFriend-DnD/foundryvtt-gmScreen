@@ -106,15 +106,15 @@ I'm honestly not sure how well this will play with modules that make changes to 
 
 ## API
 
-After the hook `gmScreenReady` is fired, the following api methods are expected to be on `window['gm-screen']`:
+After the hook `gmScreenReady` is fired, the following api methods are expected to be on `game.modules.get('gm-screen')?.api`:
 ### `toggleGmScreenVisibility(isOpen: boolean)`
 
 Opens or Closes the GM Screen. By default will toggle the current state.
 
 ```js
-window['gm-screen'].toggleGmScreenVisibility(false); // always closes
-window['gm-screen'].toggleGmScreenVisibility(true); // always opens
-window['gm-screen'].toggleGmScreenVisibility(); // always toggles
+game.modules.get('gm-screen')?.api?.toggleGmScreenVisibility(false); // always closes
+game.modules.get('gm-screen')?.api?.toggleGmScreenVisibility(true); // always opens
+game.modules.get('gm-screen')?.api?.toggleGmScreenVisibility(); // always toggles
 ```
 
 
