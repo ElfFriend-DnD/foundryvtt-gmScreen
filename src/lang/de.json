@@ -4,6 +4,8 @@
     "gmScreen": {
       "Title": "SL Schirm",
       "ClearCell": "Zelle leeren",
+      "ConfigureCell": "Spalten- und Zeilenübergreifen konfigurieren",
+      "EmptyCellHint": "Drag&Drop einen Notizbucheintrag, Würfeltabelle, Akteur, oder Gegenstand aus der Welt oder aus einem Kompendium",
       "Open": "SL Schirm",
       "OpenPlayer": "Spieler Schirm",
       "OpenFull": "Öffne das vollständige Entitäts Blatt",
@@ -78,6 +80,10 @@
       "errors": {
         "empty": "Speichern des Rasters ohne Reiter nicht möglich."
       }
+    },
+    "entitySheet": {
+      "Label": "SL Schirm Bogen",
+      "Hint": "Setze den Bogen, der speziell im SL Schirm für diesen Gegenstand verwendet werden soll."
     }
   }
 }
