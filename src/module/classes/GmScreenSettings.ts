@@ -90,7 +90,7 @@ export class GmScreenSettings extends FormApplication {
       default: 100,
       type: Number,
       scope: 'client',
-      range: { min: 25, max: 100, step: 5 },
+      range: { min: 25, max: 100, step: 1 },
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.drawerWidth}.Hint`,
     });
@@ -100,7 +100,7 @@ export class GmScreenSettings extends FormApplication {
       default: 60,
       type: Number,
       scope: 'client',
-      range: { min: 10, max: 90, step: 5 },
+      range: { min: 10, max: 90, step: 1 },
       config: true,
       hint: `${MODULE_ABBREV}.settings.${MySettings.drawerHeight}.Hint`,
     });
