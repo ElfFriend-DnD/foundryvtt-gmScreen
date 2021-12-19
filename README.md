@@ -1,6 +1,6 @@
 # GM Screen
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ![Latest Release Download Count](https://img.shields.io/badge/dynamic/json?label=Downloads@latest&query=assets%5B1%5D.download_count&url=https%3A%2F%2Fapi.github.com%2Frepos%2FElfFriend-DnD%2Ffoundryvtt-gmScreen%2Freleases%2Flatest)
@@ -154,6 +154,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/lozalojo"><img src="https://avatars.githubusercontent.com/u/16079668?v=4?s=100" width="100px;" alt=""/><br /><sub><b>José E. Lozano</b></sub></a><br /><a href="#translation-lozalojo" title="Translation">🌍</a></td>
     <td align="center"><a href="https://github.com/CarnVanBeck"><img src="https://avatars.githubusercontent.com/u/1398052?v=4?s=100" width="100px;" alt=""/><br /><sub><b>CarnVanBeck</b></sub></a><br /><a href="#translation-CarnVanBeck" title="Translation">🌍</a></td>
     <td align="center"><a href="https://github.com/DarKDinDoN"><img src="https://avatars.githubusercontent.com/u/1687854?v=4?s=100" width="100px;" alt=""/><br /><sub><b>DarKDinDoN</b></sub></a><br /><a href="https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/commits?author=DarKDinDoN" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/BrotherSharper"><img src="https://avatars.githubusercontent.com/u/41280723?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Brother Sharp</b></sub></a><br /><a href="#translation-BrotherSharper" title="Translation">🌍</a></td>
   </tr>
 </table>
 
