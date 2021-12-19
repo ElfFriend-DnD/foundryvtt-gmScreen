@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "foundryvtt-gmScreen",
-	"version": "2.9.0",
+	"version": "3.0.0",
 	"description": "",
 	"scripts": {
 		"publish": "gulp publish",

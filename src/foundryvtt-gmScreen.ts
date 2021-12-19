@@ -219,3 +219,17 @@ Hooks.on('renderEntitySheetConfig', async (app, html, data) => {
 
   app.setPosition({ height: 'auto' });
 });
+
+/**
+ * Hacky way to ensure our drawer stays in the right place as the sidebar collapses and uncollapses
+ */
+Hooks.on('collapseSidebar', () => {
+  const uiRight = document.querySelector('#ui-right');
+  if (!uiRight) {
+    return;
+  }
+
+  const uiRightStyles = getComputedStyle(uiRight);
+
+  document.querySelector('body')?.style.setProperty('--ui-right-width', uiRightStyles.width);
+});

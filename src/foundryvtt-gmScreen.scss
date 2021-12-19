@@ -6,22 +6,18 @@ $transition-timing: 400ms;
 
 /* Expand the GM Screen Sideways when Sidebar is Collapsed */
 :root {
-  --sidebar-width: 310px;
-}
-
-#sidebar.app.collapsed ~ .gm-screen-app {
-  --sidebar-width: 30px;
+  --ui-right-width: 310px;
 }
 
 .gm-screen-app {
   position: relative;
 
   &.gm-screen-drawer {
-    width: calc(var(--gm-screen-width) / 100 * (100vw - var(--gm-screen-right-offset) - var(--sidebar-width)));
+    width: calc(var(--gm-screen-width) / 100 * (100vw - var(--gm-screen-right-offset) - var(--ui-right-width)));
     height: var(--gm-screen-height);
     top: 100%;
     position: fixed;
-    right: calc(var(--sidebar-width) + var(--gm-screen-right-offset));
+    right: calc(var(--ui-right-width) + var(--gm-screen-right-offset));
     transform: translateY(0);
     transition: all $transition-timing ease-in-out;
     z-index: 99;
