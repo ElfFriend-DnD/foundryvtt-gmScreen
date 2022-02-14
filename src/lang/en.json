@@ -28,7 +28,7 @@
       },
       "right-margin": {
         "Name": "Drawer Only: Right Margin",
-        "Hint": "Sets the offest from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen in drawer display mode."
+        "Hint": "Sets the offset from the sidebar to the right side of the GM Screen. This number affects the maximum possible width of the screen in drawer display mode."
       },
       "drawer-height": {
         "Name": "Drawer Only: Height",
