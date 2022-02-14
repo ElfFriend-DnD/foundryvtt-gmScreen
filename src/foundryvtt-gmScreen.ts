@@ -231,5 +231,5 @@ Hooks.on('collapseSidebar', () => {
 
   const uiRightStyles = getComputedStyle(uiRight);
 
-  document.querySelector('body')?.style.setProperty('--ui-right-width', uiRightStyles.width);
+  document.querySelector('body')?.style.setProperty('--gm-screen-ui-right-width', uiRightStyles.width);
 });
