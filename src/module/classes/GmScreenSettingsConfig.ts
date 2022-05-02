@@ -80,10 +80,6 @@ export class GmScreenSettingsConfig extends FormApplication<
   }
 
   handleNewRowClick = async (currentTarget: JQuery) => {
-    log(false, 'add row clicked', {
-      data: currentTarget.data(),
-    });
-
     const tbodyElement = $(this.element).find('tbody');
 
     const newGridRowTemplateData = {
@@ -108,7 +104,7 @@ export class GmScreenSettingsConfig extends FormApplication<
       currentTarget,
     });
 
-    currentTarget.parentsUntil('tbody').remove();
+    currentTarget.closest('tr').remove();
     this.setPosition({}); // recalc height
   };
 

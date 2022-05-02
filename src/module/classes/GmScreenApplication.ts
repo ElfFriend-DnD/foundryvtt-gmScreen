@@ -61,7 +61,7 @@ export class GmScreenApplicationCommon extends Application {
         : undefined),
       tabs: [
         {
-          navSelector: '.tabs',
+          navSelector: '.gm-screen-tabs',
           contentSelector: '.gm-screen-app',
           initial: activeGmGridId,
         },
