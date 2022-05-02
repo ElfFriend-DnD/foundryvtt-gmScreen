@@ -1,0 +1,33 @@
+<form class="{{classes}}" autocomplete="off">
+
+  <h2>{{localize 'GMSCR.gridConfig.GridTabs'}}</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>{{localize 'GMSCR.gridConfig.table.TabOrder'}}</th>
+        <th>{{localize 'GMSCR.gridConfig.table.TabLabel'}}</th>
+        <th>{{localize 'GMSCR.gridConfig.table.Columns'}}</th>
+        <th>{{localize 'GMSCR.gridConfig.table.Rows'}}</th>
+        <th>{{localize 'Shared'}}</th>
+        <th>{{localize 'Delete'}}</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {{#each settings.grids as | grid id |}}
+      {{> 'modules/gm-screen/templates/parts/settings-grid-config-table-row.hbs' gridId=id grid=grid
+      defaultColumns=@root/defaultColumns
+      defaultRows=@root/defaultRows}}
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div class="flexrow">
+    <button type="button" data-action="add-row">
+      <i class="fa fa-plus"></i> <span>{{localize 'GMSCR.gridConfig.table.Add'}}</span>
+    </button>
+
+    <button type='submit'><i class="fa fa-save"></i> {{localize 'Save Changes'}}</button>
+  </div>
+</form>

@@ -1,0 +1,23 @@
+@import './variables';
+
+@mixin spaced($spacing: $space) {
+  > :not(:last-child) {
+    margin-right: $spacing;
+  }
+}
+
+@mixin spaced-vertical($spacing: $space) {
+  > :not(:last-child) {
+    margin-bottom: $spacing;
+  }
+}
+
+@function asset($file-name) {
+  @return url('assets/#{$file-name}');
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

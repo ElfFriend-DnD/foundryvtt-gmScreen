@@ -1,0 +1,28 @@
+.gm-screen-config {
+  .hidden {
+    display: none;
+  }
+
+  .reorder-row {
+    cursor: grab;
+  }
+
+  .gm-screen-icon-button {
+    align-self: center;
+    background: transparent;
+    border: 0;
+    color: inherit;
+    line-height: normal;
+    padding: 0;
+
+    & > i {
+      margin-right: 0;
+    }
+
+    &:hover,
+    &:focus {
+      box-shadow: none;
+      text-shadow: 0 0 5px red;
+    }
+  }
+}

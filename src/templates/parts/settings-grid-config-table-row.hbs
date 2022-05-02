@@ -1,0 +1,28 @@
+<tr draggable="true">
+  <td>
+    <button type="button" class="reorder-row gm-screen-icon-button">
+      <i class="fa fa-grip-lines"></i>
+    </button>
+  </td>
+  <td>
+    <input type="text" name="grids.{{gridId}}.name" value="{{grid.name}}" data-dtype="String">
+  </td>
+  <td>
+    <input type="number" name="grids.{{gridId}}.columnOverride" placeholder="{{defaultColumns}}"
+      value="{{grid.columnOverride}}" data-dtype="Number">
+  </td>
+  <td>
+    <input type="number" name="grids.{{gridId}}.rowOverride" placeholder="{{defaultRows}}" value="{{grid.rowOverride}}"
+      data-dtype="Number">
+  </td>
+  <td class="textCenter">
+    <input type="checkbox" name="grids.{{gridId}}.isShared" {{#if grid.isShared}}checked{{/if}}>
+  </td>
+  <td class="textCenter">
+    <input type="string" name="grids.{{gridId}}.id" value="{{gridId}}" data-dtype="String" class="hidden">
+
+    <button type="button" title="{{localize 'Delete'}}" data-action="delete-row" class='gm-screen-icon-button'>
+      <i class="fa fa-trash"></i>
+    </button>
+  </td>
+</tr>

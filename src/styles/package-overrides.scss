@@ -1,0 +1,12 @@
+/* MODULE SPECIFIC OVERRIDES */
+
+.gm-screen-app {
+  .journal-sheet form .cm-s-easymde {
+    height: 100%;
+  }
+
+  /* One Journal */
+  .sheet .editor-content {
+    visibility: visible;
+  }
+}
