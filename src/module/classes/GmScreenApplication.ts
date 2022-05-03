@@ -1,10 +1,9 @@
 import { GmScreenGridEntry } from '../../types';
 import { MODULE_ABBREV, MODULE_ID } from '../constants';
-import { getUserCellConfigurationInput, log, updateCSSPropertyVariable } from '../helpers';
-import { applyGmScreenCellSheetOverrides, _getGmScreenSheetClass } from './DocumentSheets/GmScreenCellApplication';
+import { log, updateCSSPropertyVariable } from '../helpers';
+import { GmScreenCell } from './GmScreenCell';
 import { GmScreen } from './GmScreen';
 import { GmScreenDataManager } from './GmScreenData';
-// import { GmScreenData } from './GmScreenData';
 
 enum ClickAction {
   'clearGrid' = 'clearGrid',
@@ -56,7 +55,7 @@ export class GmScreenApplicationCommon extends Application {
       ...super.defaultOptions,
       ...(game.user?.isGM
         ? {
-            dragDrop: [{ dragSelector: '.gm-screen-grid-cell', dropSelector: '.gm-screen-grid-cell' }],
+            dragDrop: [{ dropSelector: '.gm-screen-grid-cell' }],
           }
         : undefined),
       tabs: [
@@ -226,12 +225,15 @@ export class GmScreenApplicationCommon extends Application {
     });
   }
 
+  /**
+   * Handles Common Mouse Events for all types of gm screen
+   */
   async handleClickEvent(e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
     e.preventDefault();
 
     const action = e.currentTarget.dataset.action as ClickAction;
-    const entityUuid = $(e.currentTarget).parents('[data-entity-uuid]')?.data()?.entityUuid;
-    const entryId = $(e.currentTarget).parents('[data-entry-id]')?.data()?.entryId;
+    const entityUuid: string | undefined = $(e.currentTarget).parents('[data-entity-uuid]')?.data()?.entityUuid;
+    const entryId: string | undefined = $(e.currentTarget).parents('[data-entry-id]')?.data()?.entryId;
 
     log(false, 'handleClickEvent', {
       e,
@@ -248,106 +250,18 @@ export class GmScreenApplicationCommon extends Application {
         break;
       }
       case ClickAction.configureCell: {
-        try {
-          const { x, y } = GmScreenApplicationCommon.getGridElementsPosition($(e.target).parent());
-
-          const cellToConfigure: GmScreenGridEntry = GmScreen.dataManager.activeGmGrid.entries[entryId] || {
-            x,
-            y,
-            entryId: `${x}-${y}`,
-          };
-
-          log(false, 'configureCell cellToConfigure', cellToConfigure);
-
-          const { newSpanRows, newSpanCols } = await getUserCellConfigurationInput(cellToConfigure, {
-            rows: GmScreen.dataManager.activeGmGrid.rowOverride ?? GmScreen.dataManager.applicationData.rows,
-            columns: GmScreen.dataManager.activeGmGrid.columnOverride ?? GmScreen.dataManager.applicationData.columns,
-          });
-
-          log(false, 'new span values from dialog', {
-            newSpanRows,
-            newSpanCols,
-          });
-
-          const newCell = {
-            ...cellToConfigure,
-            spanRows: newSpanRows,
-            spanCols: newSpanCols,
-          };
-
-          const newEntries = {
-            ...GmScreen.dataManager.activeGmGrid.entries,
-            [newCell.entryId]: newCell,
-          };
-
-          // based on the X, Y, and Span values of `newCell` find all problematic entryIds
-          // BRITTLE if entryId's formula changes
-          const problemCoordinates = [...Array(newCell.spanCols).keys()]
-            .map((_, index) => {
-              const problemX = newCell.x + index;
-
-              return [...Array(newCell.spanRows).keys()].map((_, index) => {
-                const problemY = newCell.y + index;
-                return `${problemX}-${problemY}`; // problem cell's id
-              });
-            })
-            .flat();
-
-          log(false, {
-            problemCoordinates,
-          });
-
-          // get any overlapped cells and remove them
-          Object.values(newEntries).forEach((entry) => {
-            if (problemCoordinates.includes(entry.entryId) && entry.entryId !== newCell.entryId) {
-              delete newEntries[entry.entryId];
-            }
-          });
-
-          log(false, 'newEntries', newEntries);
-
-          const newGridData = {
-            ...GmScreen.dataManager.activeGmGrid,
-            entries: newEntries,
-          };
-
-          GmScreen.dataManager.setGridData(newGridData);
-        } catch (e) {
-          log(false, 'User exited configure cell Dialog.');
-        }
+        const coordinates = GmScreenApplicationCommon.getGridElementsPosition($(e.target).parent());
+        GmScreenCell._onConfigureGridEntry(coordinates, entryId);
         break;
       }
       case ClickAction.open: {
-        if (!entityUuid) {
-          return;
-        }
-        try {
-          const relevantDocument = await GmScreenDataManager.getRelevantGmScreenDocument(entityUuid);
-          const relevantDocumentSheet = relevantDocument?.sheet;
-          log(false, 'trying to edit entity', { relevantEntitySheet: relevantDocumentSheet });
-
-          if (!relevantDocumentSheet) {
-            return;
-          }
-
-          // If the sheet is already rendered:
-          if (relevantDocumentSheet.rendered) {
-            relevantDocumentSheet.bringToTop();
-            return relevantDocumentSheet.maximize();
-          }
-
-          // Otherwise render the relevantDocumentSheet
-          else relevantDocumentSheet.render(true);
-        } catch (error) {
-          log(true, 'error opening entity sheet', error);
-        }
+        GmScreenCell._onClickOpen(entityUuid);
         break;
       }
       case ClickAction.setActiveGridId: {
         const newActiveGridId = e.currentTarget.dataset.tab;
-        // do nothing if we are not the GM or if nothing changes
-
         GmScreen.dataManager.setActiveGmGridId(newActiveGridId);
+        break;
       }
       default: {
         return;
@@ -355,7 +269,10 @@ export class GmScreenApplicationCommon extends Application {
     }
   }
 
-  _canDragDrop(selector: string): boolean {
+  /**
+   * @override
+   */
+  _canDragDrop(): boolean {
     return !!game.user?.isGM;
   }
 
@@ -363,18 +280,21 @@ export class GmScreenApplicationCommon extends Application {
    * Handles the dropping of a document onto a grid cell
    * @override
    */
-  async _onDrop(event: any) {
+  _onDrop(event: DragEvent): void {
     event.stopPropagation();
 
     // do nothing if this user is not the gm
     if (!game.user?.isGM) return;
+
+    // type safety checks
+    if (!event.currentTarget || !event.target || !event.dataTransfer) return;
 
     // Try to extract the data
     let data;
     try {
       data = JSON.parse(event.dataTransfer.getData('text/plain'));
     } catch (err) {
-      return false;
+      return;
     }
 
     log(false, 'onDrop', {
@@ -385,7 +305,7 @@ export class GmScreenApplicationCommon extends Application {
 
     // only move forward if this is a JournalEntry or RollTable
     if (!['JournalEntry', 'RollTable', 'Item', 'Actor'].includes(data.type)) {
-      return false;
+      return;
     }
 
     const entityUuid = `${data.pack ? `Compendium.${data.pack}` : data.type}.${data.id}`;
@@ -494,9 +414,8 @@ export class GmScreenApplicationCommon extends Application {
     }
 
     // gets the relevant document's GM Screen Sheet class constructor based on any present overrides
-    const SheetClassConstructor = (_getGmScreenSheetClass(relevantDocument) ?? relevantDocument.sheet?.constructor) as
-      | ConstructorOf<DocumentSheet>
-      | undefined;
+    const SheetClassConstructor = (GmScreenCell._getGridEntrySheetClass(relevantDocument) ??
+      relevantDocument.sheet?.constructor) as ConstructorOf<DocumentSheet> | undefined;
 
     /* If the currently cached application does not match the sheet class, 'close' that application and destroy its cache entry */
     if (this.apps[cellId] && this.apps[cellId].constructor.name !== SheetClassConstructor?.name) {
@@ -548,7 +467,7 @@ export class GmScreenApplicationCommon extends Application {
     }) as GmScreenApp;
 
     // apply all the right overrides to the sheet class so it renders inside the grid
-    applyGmScreenCellSheetOverrides(CompactDocumentSheet, cellId);
+    GmScreenCell.applyGmScreenCellSheetOverrides(CompactDocumentSheet, cellId);
 
     log(false, `created compact generic for "${relevantDocument.name}"`, {
       sheet: CompactDocumentSheet,
@@ -566,7 +485,7 @@ export class GmScreenApplicationCommon extends Application {
   /**
    * Gets the given element's X/Y coordinates in the grid
    */
-  static getGridElementsPosition(element: JQuery<HTMLElement>) {
+  static getGridElementsPosition(element: JQuery<any>) {
     const relevantGridElement = element.parents('.gm-screen-grid')[0];
 
     const vanillaGridElementStyles = window.getComputedStyle(relevantGridElement);
@@ -705,6 +624,7 @@ export class GmScreenApplicationDrawer extends GmScreenApplicationCommon {
     };
   }
 
+  // TODO ??? Still needed ???
   activateListeners(html: any): void {
     super.activateListeners(html);
 

@@ -22,10 +22,8 @@ export class GmScreen {
     },
   };
 
-  // unsure if needed
   static HOOKS = MyHooks;
 
-  // unsure if needed
   static SETTINGS = MySettings;
 
   static FLAGS = MyFlags;
@@ -54,14 +52,11 @@ export class GmScreen {
     const gmScreenModuleData = game.modules.get(MODULE_ID);
 
     if (gmScreenModuleData) {
-      gmScreenModuleData.api = {
-        toggleGmScreenVisibility: this.gmScreenApp.toggleGmScreenVisibility,
-        refreshGmScreen: this.dataManager.refresh,
-      } as GmScreenApi;
+      gmScreenModuleData.api = this.gmScreenApi;
     }
 
     if (game.user?.isGM) {
-      game.settings.set(MODULE_ID, MySettings.reset, false);
+      game.settings.set(MODULE_ID, this.SETTINGS.reset, false);
     }
     Hooks.callAll(this.HOOKS.ready);
   }
@@ -91,6 +86,16 @@ export class GmScreen {
     return this._gmScreenApp;
   }
 
+  /**
+   * Get the public api for the gm screen
+   */
+  static get gmScreenApi(): GmScreenApi {
+    return {
+      toggleGmScreenVisibility: this.gmScreenApp.toggleGmScreenVisibility,
+      refreshGmScreen: this.dataManager.refresh,
+    };
+  }
+
   /** Asynchronously preload templates */
   static async preloadTemplates() {
     return loadTemplates(Object.values(flattenObject(this.TEMPLATES)));
@@ -99,15 +104,15 @@ export class GmScreen {
   /** Register all settings needed for GM Screen Initialization */
   static registerSettings() {
     game.settings.registerMenu(MODULE_ID, 'menu', {
-      name: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.Name`,
-      label: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.Label`,
+      name: `${MODULE_ABBREV}.settings.${this.SETTINGS.gmScreenConfig}.Name`,
+      label: `${MODULE_ABBREV}.settings.${this.SETTINGS.gmScreenConfig}.Label`,
       icon: 'fas fa-table',
       type: GmScreenSettingsConfig,
       restricted: true,
-      hint: `${MODULE_ABBREV}.settings.${MySettings.gmScreenConfig}.Hint`,
+      hint: `${MODULE_ABBREV}.settings.${this.SETTINGS.gmScreenConfig}.Hint`,
     });
 
-    game.settings.register(MODULE_ID, MySettings.gmScreenConfig, {
+    game.settings.register(MODULE_ID, this.SETTINGS.gmScreenConfig, {
       default: defaultGmScreenData,
       type: defaultGmScreenData.constructor as ConstructorOf<GmScreenSettingsData>,
       scope: 'world',
@@ -117,100 +122,100 @@ export class GmScreen {
       },
     });
 
-    game.settings.register(MODULE_ID, MySettings.migrated, {
+    game.settings.register(MODULE_ID, this.SETTINGS.migrated, {
       config: false,
       default: { status: false, version: '1.2.2' },
       scope: 'world',
       type: Object as unknown as ConstructorOf<{ status: boolean; version: string }>,
     });
 
-    game.settings.register(MODULE_ID, MySettings.columns, {
-      name: `${MODULE_ABBREV}.settings.${MySettings.columns}.Name`,
+    game.settings.register(MODULE_ID, this.SETTINGS.columns, {
+      name: `${MODULE_ABBREV}.settings.${this.SETTINGS.columns}.Name`,
       default: 4,
       type: Number,
       scope: 'world',
       config: true,
-      hint: `${MODULE_ABBREV}.settings.${MySettings.columns}.Hint`,
+      hint: `${MODULE_ABBREV}.settings.${this.SETTINGS.columns}.Hint`,
     });
 
-    game.settings.register(MODULE_ID, MySettings.rows, {
-      name: `${MODULE_ABBREV}.settings.${MySettings.rows}.Name`,
+    game.settings.register(MODULE_ID, this.SETTINGS.rows, {
+      name: `${MODULE_ABBREV}.settings.${this.SETTINGS.rows}.Name`,
       default: 3,
       type: Number,
       scope: 'world',
       config: true,
-      hint: `${MODULE_ABBREV}.settings.${MySettings.rows}.Hint`,
+      hint: `${MODULE_ABBREV}.settings.${this.SETTINGS.rows}.Hint`,
     });
 
-    game.settings.register(MODULE_ID, MySettings.displayDrawer, {
-      name: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Name`,
+    game.settings.register(MODULE_ID, this.SETTINGS.displayDrawer, {
+      name: `${MODULE_ABBREV}.settings.${this.SETTINGS.displayDrawer}.Name`,
       default: true,
       type: Boolean,
       scope: 'client',
       config: true,
-      hint: `${MODULE_ABBREV}.settings.${MySettings.displayDrawer}.Hint`,
+      hint: `${MODULE_ABBREV}.settings.${this.SETTINGS.displayDrawer}.Hint`,
       onChange: debouncedReload,
     });
 
-    game.settings.register(MODULE_ID, MySettings.rightMargin, {
-      name: `${MODULE_ABBREV}.settings.${MySettings.rightMargin}.Name`,
+    game.settings.register(MODULE_ID, this.SETTINGS.rightMargin, {
+      name: `${MODULE_ABBREV}.settings.${this.SETTINGS.rightMargin}.Name`,
       default: 0,
       type: Number,
       scope: 'client',
       range: { min: 0, max: 75, step: 5 },
       config: true,
-      hint: `${MODULE_ABBREV}.settings.${MySettings.rightMargin}.Hint`,
+      hint: `${MODULE_ABBREV}.settings.${this.SETTINGS.rightMargin}.Hint`,
     });
 
-    game.settings.register(MODULE_ID, MySettings.drawerWidth, {
-      name: `${MODULE_ABBREV}.settings.${MySettings.drawerWidth}.Name`,
+    game.settings.register(MODULE_ID, this.SETTINGS.drawerWidth, {
+      name: `${MODULE_ABBREV}.settings.${this.SETTINGS.drawerWidth}.Name`,
       default: 100,
       type: Number,
       scope: 'client',
       range: { min: 25, max: 100, step: 1 },
       config: true,
-      hint: `${MODULE_ABBREV}.settings.${MySettings.drawerWidth}.Hint`,
+      hint: `${MODULE_ABBREV}.settings.${this.SETTINGS.drawerWidth}.Hint`,
     });
 
-    game.settings.register(MODULE_ID, MySettings.drawerHeight, {
-      name: `${MODULE_ABBREV}.settings.${MySettings.drawerHeight}.Name`,
+    game.settings.register(MODULE_ID, this.SETTINGS.drawerHeight, {
+      name: `${MODULE_ABBREV}.settings.${this.SETTINGS.drawerHeight}.Name`,
       default: 60,
       type: Number,
       scope: 'client',
       range: { min: 10, max: 90, step: 1 },
       config: true,
-      hint: `${MODULE_ABBREV}.settings.${MySettings.drawerHeight}.Hint`,
+      hint: `${MODULE_ABBREV}.settings.${this.SETTINGS.drawerHeight}.Hint`,
     });
 
-    game.settings.register(MODULE_ID, MySettings.drawerOpacity, {
-      name: `${MODULE_ABBREV}.settings.${MySettings.drawerOpacity}.Name`,
+    game.settings.register(MODULE_ID, this.SETTINGS.drawerOpacity, {
+      name: `${MODULE_ABBREV}.settings.${this.SETTINGS.drawerOpacity}.Name`,
       default: 1,
       type: Number,
       scope: 'client',
       range: { min: 0.1, max: 1, step: 0.05 },
       config: true,
-      hint: `${MODULE_ABBREV}.settings.${MySettings.drawerOpacity}.Hint`,
+      hint: `${MODULE_ABBREV}.settings.${this.SETTINGS.drawerOpacity}.Hint`,
     });
 
-    game.settings.register(MODULE_ID, MySettings.condensedButton, {
-      name: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Name`,
+    game.settings.register(MODULE_ID, this.SETTINGS.condensedButton, {
+      name: `${MODULE_ABBREV}.settings.${this.SETTINGS.condensedButton}.Name`,
       default: false,
       type: Boolean,
       scope: 'client',
       config: true,
-      hint: `${MODULE_ABBREV}.settings.${MySettings.condensedButton}.Hint`,
+      hint: `${MODULE_ABBREV}.settings.${this.SETTINGS.condensedButton}.Hint`,
     });
 
-    game.settings.register(MODULE_ID, MySettings.reset, {
-      name: `${MODULE_ABBREV}.settings.${MySettings.reset}.Name`,
+    game.settings.register(MODULE_ID, this.SETTINGS.reset, {
+      name: `${MODULE_ABBREV}.settings.${this.SETTINGS.reset}.Name`,
       default: false,
       type: Boolean,
       scope: 'world',
       config: true,
-      hint: `${MODULE_ABBREV}.settings.${MySettings.reset}.Hint`,
+      hint: `${MODULE_ABBREV}.settings.${this.SETTINGS.reset}.Hint`,
       onChange: (selected) => {
         if (selected) {
-          game.settings.set(MODULE_ID, MySettings.gmScreenConfig, defaultGmScreenData);
+          game.settings.set(MODULE_ID, this.SETTINGS.gmScreenConfig, defaultGmScreenData);
         }
       },
     });

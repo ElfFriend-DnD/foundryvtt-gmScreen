@@ -309,6 +309,49 @@ export class GmScreenDataManager {
   }
 
   /**
+   * Handles any cell overlap problems that new grid entry data might introduce
+   */
+  editCellInActiveGrid(gridEntry: GmScreenGridEntry) {
+    const newEntries = {
+      ...this.activeGmGrid.entries,
+      [gridEntry.entryId]: gridEntry,
+    };
+
+    // based on the X, Y, and Span values of `newCell` find all problematic entryIds
+    // BRITTLE if entryId's formula changes
+    const problemCoordinates = [...Array(gridEntry.spanCols).keys()]
+      .map((_, index) => {
+        const problemX = gridEntry.x + index;
+
+        return [...Array(gridEntry.spanRows).keys()].map((_, index) => {
+          const problemY = gridEntry.y + index;
+          return `${problemX}-${problemY}`; // problem cell's id
+        });
+      })
+      .flat();
+
+    log(false, {
+      problemCoordinates,
+    });
+
+    // get any overlapped cells and remove them
+    Object.values(newEntries).forEach((entry) => {
+      if (problemCoordinates.includes(entry.entryId) && entry.entryId !== gridEntry.entryId) {
+        delete newEntries[entry.entryId];
+      }
+    });
+
+    log(false, 'newEntries', newEntries);
+
+    const newGridData = {
+      ...this.activeGmGrid,
+      entries: newEntries,
+    };
+
+    return this.setGridData(newGridData);
+  }
+
+  /**
    * Double confirms Clearing the Active Grid
    */
   clearActiveGrid = () => {
