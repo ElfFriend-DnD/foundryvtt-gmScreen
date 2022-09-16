@@ -308,7 +308,7 @@ export class GmScreenApplicationCommon extends Application {
       return;
     }
 
-    const entityUuid = `${data.pack ? `Compendium.${data.pack}` : data.type}.${data.id}`;
+    const entityUuid = `${data.uuid}`;
 
     const gridElementPosition = GmScreenApplicationCommon.getGridElementsPosition(
       $(event.target).closest('.gm-screen-grid-cell'),
