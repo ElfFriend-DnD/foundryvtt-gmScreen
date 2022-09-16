@@ -260,7 +260,8 @@ export class GmScreenApplicationCommon extends Application {
       }
       case ClickAction.setActiveGridId: {
         const newActiveGridId = e.currentTarget.dataset.tab;
-        GmScreen.dataManager.setActiveGmGridId(newActiveGridId);
+        await GmScreen.dataManager.setActiveGmGridId(newActiveGridId);
+        this.refresh();
         break;
       }
       default: {
