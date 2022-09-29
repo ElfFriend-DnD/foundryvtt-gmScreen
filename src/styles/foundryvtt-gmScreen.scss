@@ -48,6 +48,13 @@ $transition-timing: 400ms;
       }
     }
 
+    &:after {
+      background: none;
+      background-size: 0 0;
+      min-height: 0;
+      height: 0;
+    }
+
     .gm-screen-actions {
       position: absolute;
       bottom: calc(100% - 1px);
@@ -100,7 +107,7 @@ $transition-timing: 400ms;
     }
 
     .active {
-      background: url(../../ui/parchment.jpg) repeat;
+      background: url(../../../ui/parchment.jpg) repeat;
       text-shadow: none;
     }
 
@@ -116,7 +123,7 @@ $transition-timing: 400ms;
       }
 
       button {
-        background: url(../../ui/parchment.jpg) repeat;
+        background: url(../../../ui/parchment.jpg) repeat;
       }
     }
 
@@ -341,6 +348,10 @@ $transition-timing: 400ms;
       line-height: normal;
     }
   }
+}
+
+.gm-screen-container {
+  background: url(../../../ui/parchment.jpg) repeat;
 }
 
 @import './package-overrides.scss';
