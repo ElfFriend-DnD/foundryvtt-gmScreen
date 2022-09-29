@@ -22,7 +22,6 @@ export class GmScreenCell {
    * BRITTLE
    */
   static applyGmScreenCellSheetOverrides(SheetClass: DocumentSheet, cellId: string) {
-    debugger;
     SheetClass.options.editable = false;
     SheetClass.options.popOut = false;
     //@ts-expect-error Yeah I know this isn't the best idea
@@ -72,7 +71,7 @@ export class GmScreenCell {
 
     // @ts-expect-error 'type' is expected to be undefined sometimes
     // this document's type (or "base")
-    const type: string = document.data.type || CONST.BASE_DOCUMENT_TYPE;
+    const type: string = document.type || CONST.BASE_DOCUMENT_TYPE;
 
     // @ts-expect-error 'sheetClasses' is expected to exist
     // this document type's sheet definitions
