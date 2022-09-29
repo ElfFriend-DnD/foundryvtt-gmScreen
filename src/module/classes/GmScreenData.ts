@@ -1,3 +1,4 @@
+import { JournalEntryData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs';
 import { GmScreenGrid, GmScreenGridEntry, GmScreenSettingsData, MyHooks, MySettings } from '../../types';
 import { MODULE_ABBREV, MODULE_ID } from '../constants';
 import { debouncedReload, log } from '../helpers';
@@ -410,6 +411,7 @@ export class GmScreenDataManager {
         relevantDocument instanceof Actor ||
         relevantDocument instanceof Item ||
         relevantDocument instanceof JournalEntry ||
+        relevantDocument instanceof JournalEntryPage ||
         relevantDocument instanceof RollTable
       )
     ) {

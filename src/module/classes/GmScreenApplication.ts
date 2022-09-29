@@ -304,8 +304,8 @@ export class GmScreenApplicationCommon extends Application {
       closestGridCell: $(event.currentTarget).closest('.gm-screen-grid-cell'),
     });
 
-    // only move forward if this is a JournalEntry or RollTable
-    if (!['JournalEntry', 'RollTable', 'Item', 'Actor'].includes(data.type)) {
+    // only move forward if dropped entry is of a supported type
+    if (!['JournalEntry', 'JournalEntryPage', 'RollTable', 'Item', 'Actor'].includes(data.type)) {
       return;
     }
 
