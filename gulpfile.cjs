@@ -17,6 +17,7 @@ const rollupConfig = require('./rollup.config.cjs');
 /********************/
 
 const name = 'foundryvtt-gmScreen';
+const nameInFoundry = 'gm-screen';
 const sourceDirectory = './src';
 const distDirectory = './dist';
 const stylesDirectory = `${sourceDirectory}/styles`;
@@ -135,7 +136,7 @@ async function link() {
     throw new Error('Could not find module.json');
   }
 
-  const linkDirectory = path.resolve(getDataPath(), 'Data', destinationDirectory, name);
+  const linkDirectory = path.resolve(getDataPath(), 'Data', destinationDirectory, nameInFoundry);
 
   const argv = yargs(hideBin(process.argv)).option('clean', {
     alias: 'c',
