@@ -4,6 +4,7 @@ import { log, updateCSSPropertyVariable } from '../helpers';
 import { GmScreenCell } from './GmScreenCell';
 import { GmScreen } from './GmScreen';
 import { GmScreenDataManager } from './GmScreenData';
+import { GmScreenSettingsConfig } from './GmScreenSettingsConfig';
 
 enum ClickAction {
   'clearGrid' = 'clearGrid',
@@ -164,10 +165,10 @@ export class GmScreenApplicationCommon extends Application {
       this._reorderDragDropListeners(html);
     }
 
-    // $('.gm-screen-button').on('contextmenu', () => {
-    //   const config = new GmScreenSettings({});
-    //   config.render(true);
-    // });
+    $('.gm-screen-button').on('contextmenu', () => {
+      const config = new GmScreenSettingsConfig();
+      config.render(true);
+    });
 
     $(html).on('click', 'button', this.handleClickEvent.bind(this));
     $(html).on('click', 'a', this.handleClickEvent.bind(this));
