@@ -152,6 +152,16 @@ export class GmScreenApplicationCommon extends Application {
         gridElement.style.setProperty('--grid-cell-width', colWidth);
       });
 
+    // enforce calculated width per cell. this requires a refresh after window dimension changes, though
+    const numericColWidth: number = +colWidth.replace('px', '');
+    $(html)
+      .find('.gm-screen-grid-cell')
+      .each((i, gridElement) => {
+        const columnSpanCount: number = +gridElement.style.getPropertyValue('--column-span-count');
+        const gridElementWidth = numericColWidth * columnSpanCount;
+        gridElement.style.setProperty('width', gridElementWidth.toString() + 'px');
+      });
+
     return promise;
   }
 
