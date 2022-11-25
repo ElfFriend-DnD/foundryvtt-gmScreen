@@ -36,22 +36,7 @@ export class CompactRollTableDisplay extends RollTableConfig {
 
   async _rollOnTable() {
     const rollTable = this.document as RollTable;
-    const draw = await rollTable.roll();
-    const result = draw.results[0];
-
-    if (!result) {
-      return;
-    }
-
-    const label = this._getLabelFromResult(result);
-    const content = `
-        <div class="dice-roll">
-            <div class="dice-result">
-                <div class="dice-formula">${rollTable.name} - Roll Result:</div>
-                <div class="dice-formula">${label}</div>
-            </div>
-        </div>`;
-    ChatMessage.create({ content: content, whisper: game.users.filter((u) => u.isGM) });
+    await rollTable.draw();
   }
 
   private _getLabelFromResult(result: TableResult): string {
