@@ -1,6 +1,7 @@
 import { GmScreenGridEntry } from '../../types';
 import { MODULE_ID } from '../constants';
 import { getUserCellConfigurationInput, log } from '../helpers';
+import { CompactRollTableDisplay } from './DocumentSheets/CompactRollTableSheet';
 import { GmScreen } from './GmScreen';
 import { GmScreenDataManager } from './GmScreenData';
 
@@ -95,6 +96,11 @@ export class GmScreenCell {
 
     const coreDefaultSheetClass = (possibleSheetDefinitions.find((s) => s.default) ?? possibleSheetDefinitions.pop())
       ?.cls;
+
+    // I have no idea how to incorporate this into the sheet enum in a nice way
+    if (document instanceof RollTable) {
+      return CompactRollTableDisplay;
+    }
 
     return coreDefaultSheetClass;
   }

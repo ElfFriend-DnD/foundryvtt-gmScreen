@@ -5,6 +5,7 @@ import { GmScreenCell } from './GmScreenCell';
 import { GmScreen } from './GmScreen';
 import { GmScreenDataManager } from './GmScreenData';
 import { GmScreenSettingsConfig } from './GmScreenSettingsConfig';
+import { CompactRollTableDisplay } from './DocumentSheets/CompactRollTableSheet';
 
 enum ClickAction {
   'clearGrid' = 'clearGrid',
@@ -14,6 +15,8 @@ enum ClickAction {
   'open' = 'open',
   'toggle-gm-screen' = 'toggle-gm-screen',
   'setActiveGridId' = 'setActiveGridId',
+  'rolltable' = 'rolltable',
+  'rolltable-reset' = 'rolltable-reset',
 }
 
 type GmScreenApp = ActorSheet | ItemSheet | JournalSheet | RollTableConfig;
@@ -275,8 +278,12 @@ export class GmScreenApplicationCommon extends Application {
         // this.refresh();
         break;
       }
-      default: {
-        return;
+      case ClickAction.rolltable: {
+        if (!entityUuid || !entryId) {
+          break;
+        }
+        const cellClassInstance = (await this.getCellApplicationClass(entityUuid, entryId)) as CompactRollTableDisplay;
+        await cellClassInstance._rollOnTable();
       }
     }
   }
@@ -455,19 +462,14 @@ export class GmScreenApplicationCommon extends Application {
       throw new Error('Could not create cell application as the constructor does not exist');
     }
 
-    // TODO: FIXME in _getGmScreenSheetClass
-    // if (sheet instanceof JournalSheet && !sheet?.isKankaEntry) {
-    //   log(false, `creating compact journal entry for "${relevantDocument.name}"`, {
-    //     cellId,
-    //   });
-
-    //   this.apps[cellId] = new CompactJournalEntryDisplay(relevantDocument, { cellId, editable: false });
-    // } else if (sheet instanceof RollTableConfig) {
+    // // TODO: FIXME in _getGmScreenSheetClass
+    // if (SheetClassConstructor.name === 'RollTableConfig') {
     //   log(false, `creating compact rollTableDisplay for "${relevantDocument.name}"`, {
     //     cellId,
     //   });
 
     //   this.apps[cellId] = new CompactRollTableDisplay(relevantDocument, { cellId });
+    //   return this.apps[cellId];
     // }
 
     log(false, `creating compact generic for "${relevantDocument.name}"`, {
