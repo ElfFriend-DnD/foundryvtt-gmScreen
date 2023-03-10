@@ -138,3 +138,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: './dist/${{ env.package_type }}.json, ./${{ env.package_type }}.zip'
           body: ${{ github.event.release.body }}
+          draft: ${{ github.event.release.unpublished }}
+          prerelease: ${{ github.event.release.prerelease }}
+          tag: ${{ github.event.release.tag_name }}
