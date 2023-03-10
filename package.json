@@ -1,30 +1,61 @@
 {
-	"private": true,
-	"name": "foundryvtt-gmScreen",
-	"version": "3.0.1",
-	"description": "",
-	"scripts": {
-		"publish": "gulp publish",
-		"lint": "prettier --write .",
-		"build": "gulp build",
-		"build:watch": "gulp watch",
-		"clean": "gulp clean && gulp link --clean"
-	},
-	"author": "",
-	"license": "",
-	"devDependencies": {
-		"@league-of-foundry-developers/foundry-vtt-types": "^0.8.8-7",
-		"archiver": "^5.1.0",
-		"chalk": "^4.1.0",
-		"fs-extra": "^9.0.1",
-		"gulp": "^4.0.2",
-		"gulp-git": "^2.10.1",
-		"gulp-less": "^4.0.1",
-		"gulp-sass": "^4.1.0",
-		"gulp-typescript": "^6.0.0-alpha.1",
-		"json-stringify-pretty-compact": "^2.0.0",
-		"sass": "^1.29.0",
-		"typescript": "^4.1.2",
-		"yargs": "^16.1.1"
-	}
+  "private": true,
+  "name": "foundryvtt-gmScreen",
+  "description": "",
+  "license": "",
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": {
+    "url": ""
+  },
+  "contributors": [
+    {
+      "name": "",
+      "email": ""
+    }
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "gulp build",
+    "build:watch": "gulp watch",
+    "link-project": "gulp link",
+    "clean": "gulp clean",
+    "clean:link": "gulp link --clean",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint --ext .ts,.js,.cjs .",
+    "lint:fix": "eslint --ext .ts,.js,.cjs --fix .",
+    "format": "prettier --write \"./**/*.(ts|js|cjs|json|yml|scss)\"",
+    "postinstall": "husky install"
+  },
+  "devDependencies": {
+    "@league-of-foundry-developers/foundry-vtt-types": "^9.268.0",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "@rollup/plugin-typescript": "^8.3.1",
+    "@rollup/stream": "^2.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.18.0",
+    "@typescript-eslint/parser": "^5.18.0",
+    "eslint": "^8.12.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "fs-extra": "^10.0.1",
+    "gulp": "^4.0.2",
+    "gulp-dart-sass": "^1.0.2",
+    "gulp-sourcemaps": "^3.0.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.3.7",
+    "prettier": "^2.6.2",
+    "rollup": "^2.70.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.6.3",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0",
+    "yargs": "^17.4.0"
+  },
+  "lint-staged": {
+    "*.(ts|js|cjs)": "eslint --fix",
+    "*.(json|yml|scss)": "prettier --write"
+  }
 }

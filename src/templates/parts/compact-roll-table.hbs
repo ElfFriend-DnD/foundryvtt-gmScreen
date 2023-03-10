@@ -1,6 +1,6 @@
 <form>
-  {{#if data.description}}
-  <p>{{{ GMSCR-enrich data.description }}}</p>
+  {{#if description}}
+  <p>{{{ GMSCR-enrich description }}}</p>
   {{/if}}
 
   <!-- Roll Table Results Loop -->
@@ -8,12 +8,12 @@
     <thead>
       <tr>
         <th>
-          <a data-action="rolltable" data-entity-uuid="{{entityUuid}}" title="{{ data.formula }}"><i
+          <a data-action="rolltable" data-entity-uuid="{{entityUuid}}" title="{{ formula }}"><i
               class="fas fa-dice-d20"></i></a>
         </th>
         <th>
           <span>{{ localize "TABLE.ResultDetails" }}</span>
-          {{#unless data.replacement}}
+          {{#unless replacement}}
           <a data-action="rolltable-reset" data-entity-uuid="{{entityUuid}}" title="{{ localize " TABLE.Reset" }}"><i
               class="fas fa-undo"></i></a>
           {{/unless}}

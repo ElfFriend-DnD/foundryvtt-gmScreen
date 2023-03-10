@@ -1,0 +1,357 @@
+@import './variables.scss';
+@import './mixins.scss';
+@import './settings.scss';
+
+$transition-timing: 400ms;
+
+/* Expand the GM Screen Sideways when Sidebar is Collapsed */
+:root {
+  --gm-screen-ui-right-width: 310px;
+}
+
+.gm-screen-app {
+  position: relative;
+
+  &.gm-screen-drawer {
+    width: calc(
+      var(--gm-screen-width) / 100 * (100vw - var(--gm-screen-right-offset) - var(--gm-screen-ui-right-width))
+    );
+    height: var(--gm-screen-height);
+    top: 100%;
+    position: fixed;
+    right: calc(var(--gm-screen-ui-right-width) + var(--gm-screen-right-offset));
+    transform: translateY(0);
+    transition: all $transition-timing ease-in-out;
+    z-index: 99;
+
+    &.expanded {
+      transform: translateY(-100%);
+
+      .gm-screen-actions {
+        > *:not(.gm-screen-button) {
+          transform: translateY(0);
+          transition-delay: calc($transition-timing / 2);
+        }
+
+        button {
+          border-bottom-left-radius: 0;
+          border-bottom-right-radius: 0;
+        }
+      }
+    }
+
+    &.hidden:not(.expanded) {
+      .gm-screen-actions {
+        > .gm-screen-button {
+          transform: translateY(100%);
+        }
+      }
+    }
+
+    &:after {
+      background: none;
+      background-size: 0 0;
+      min-height: 0;
+      height: 0;
+    }
+
+    .gm-screen-actions {
+      position: absolute;
+      bottom: calc(100% - 1px);
+      right: 0;
+      z-index: -1;
+
+      > *:not(.gm-screen-button) {
+        transform: translateY(100%);
+      }
+
+      > * {
+        transition: transform $transition-timing ease-in;
+      }
+    }
+  }
+
+  .gm-screen-container {
+    @include spaced-vertical(calc($space / 2));
+    padding: calc($space / 2);
+  }
+
+  .gm-screen-actions {
+    @include spaced(calc($space / 2));
+
+    display: flex;
+    width: 100%;
+    padding: 0 $space;
+    pointer-events: none;
+    justify-content: flex-start;
+
+    button {
+      background: rgba(255, 255, 240, 0.7);
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border: 0;
+      padding-left: 1em;
+      padding-right: 1em;
+      pointer-events: all;
+      white-space: nowrap;
+      width: auto;
+
+      &:focus {
+        box-shadow: none;
+      }
+
+      &:hover {
+        box-shadow: none;
+        text-shadow: 0 0 10px red;
+      }
+    }
+
+    .active {
+      background: url(../../../ui/parchment.jpg) repeat;
+      text-shadow: none;
+    }
+
+    .item:not(.active) {
+      background: rgba(255, 255, 240, 0.7) linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 50%);
+    }
+
+    .meta-actions {
+      margin-left: auto;
+
+      i {
+        margin-right: 0;
+      }
+
+      button {
+        background: url(../../../ui/parchment.jpg) repeat;
+      }
+    }
+
+    > * {
+      flex: unset;
+    }
+
+    .gm-screen-tabs {
+      display: flex;
+      gap: calc($space / 2);
+    }
+  }
+
+  .gm-screen-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(1, 1fr);
+    gap: calc($space / 2);
+    width: 100%;
+    height: 100%;
+  }
+
+  .gm-screen-grid-cell {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset 0 0 calc($space / 2) rgba(255, 255, 255, 0.2), 0 0 calc($space / 2) rgba(0, 0, 0, 0.2);
+
+    border-radius: calc($space / 2);
+
+    &:hover {
+      .gm-screen-grid-cell-hint {
+        opacity: 0.3;
+      }
+    }
+  }
+
+  .gm-screen-grid-cell-title {
+    @include truncate;
+
+    flex: 1 1 100%;
+    width: 100%;
+    margin: 0;
+    font-size: 1em;
+  }
+
+  .gm-screen-grid-cell-hint {
+    border-radius: calc($space / 2);
+    border: rgba(0, 0, 0, 0.25) dashed calc($space / 2);
+    display: flex;
+    margin: auto;
+    opacity: 0;
+    padding: $space;
+    place-content: center;
+    place-items: center;
+    transition: opacity 300ms ease-in-out 500ms;
+    height: calc(100% - #{$space * 2});
+    width: calc(100% - #{$space * 2});
+
+    h6 {
+      font-size: 1em;
+      max-width: 60ch;
+      text-align: center;
+      margin: 0;
+    }
+  }
+
+  .gm-screen-grid-cell-header {
+    @include spaced(calc($space / 2));
+
+    align-items: center;
+    display: flex;
+    width: 100%;
+    padding: calc($space / 5);
+    background-color: rgba(0, 0, 0, 0.1);
+
+    > a {
+      display: block;
+      flex: 0 0 auto;
+      line-height: normal;
+      margin: 0;
+      padding: 0 (calc($space / 5));
+      width: auto;
+    }
+  }
+
+  /**
+   * The overflows, heights, min-heights, and display flexes that follow are very specifically
+   * crafted and should not be changed on a whim. Various Applications in various systems
+   * expect different elements in the tree to overflow. This particular setup was the best
+   * needle-threading I could do.
+   */
+
+  .gm-screen-grid-cell-content-wrapper {
+    flex: 1 100%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    box-shadow: inset 0 0 calc($space / 2) rgba(255, 255, 255, 0.2), 0 0 calc($space / 2) rgba(0, 0, 0, 0.2);
+    padding: 0 calc($space / 5);
+    border-top-left-radius: calc($space / 2);
+    border-top-right-radius: calc($space / 2);
+  }
+
+  .gm-screen-grid-cell-content {
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    flex: 1; // emulates `.sheet > *` and `.window-app > *`
+
+    display: flex;
+    flex-direction: column;
+
+    // override what is usually .sheet's min/max height/width
+    min-width: unset !important;
+    min-height: unset !important;
+    max-height: unset !important; // prevent unecessary max heights
+    max-width: 100% !important;
+
+    > form {
+      width: 100%;
+      overflow: unset; // fix PF2e
+      padding: 0;
+
+      > .lightbox-image {
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        height: 100%;
+        width: 100%;
+      }
+    }
+
+    .compact-journal-entry {
+      min-height: 100%; // needed for dnd5e
+
+      > form {
+        min-height: 100%; // used for image journals
+      }
+    }
+
+    .editor {
+      height: 100%;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* dnd5e specific tweaks */
+    .sheet-body {
+      overflow: auto !important;
+    }
+
+    /* MEME Compatibility */
+    .CodeMirror-scroll {
+      overflow: unset !important;
+      margin-bottom: 0;
+      margin-right: 0;
+    }
+
+    .CodeMirror-vscrollbar {
+      overflow: hidden;
+    }
+  }
+
+  .results {
+    th {
+      @include spaced(0.5em);
+    }
+
+    .drawn {
+      opacity: 0.5;
+    }
+
+    .range {
+      text-align: center;
+    }
+  }
+}
+
+/* POPOUT MODE OVERRIDES */
+
+.gm-screen-popOut {
+  max-width: 100vw;
+  max-height: 100vh;
+
+  > .window-content {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+
+  .gm-screen-app {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: static;
+  }
+
+  .gm-screen-container {
+    flex: 1 1 100%;
+    overflow: hidden;
+  }
+
+  .gm-screen-actions {
+    position: absolute;
+    top: 2px;
+    left: 5em;
+    width: auto;
+
+    > button {
+      height: 28px;
+      line-height: normal;
+    }
+  }
+}
+
+.gm-screen-container {
+  background: url(../../../ui/parchment.jpg) repeat;
+}
+
+@import './package-overrides.scss';

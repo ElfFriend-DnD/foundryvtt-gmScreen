@@ -1,16 +1,11 @@
-import { GmScreenConfig, GmScreenGrid, GmScreenGridEntry } from '../../gridTypes';
-import { MODULE_ABBREV, MODULE_ID, MyHooks, MySettings, TEMPLATES } from '../constants';
-import {
-  getGame,
-  getGridElementsPosition,
-  getUserCellConfigurationInput,
-  getUserViewableGrids,
-  log,
-  updateCSSPropertyVariable,
-} from '../helpers';
-import { CompactJournalEntryDisplay } from './CompactJournalEntryDisplay';
-import { CompactRollTableDisplay } from './CompactRollTableDisplay';
-import { GmScreenSettings } from './GmScreenSettings';
+import { GmScreenGridEntry } from '../../types';
+import { MODULE_ABBREV, MODULE_ID } from '../constants';
+import { log, updateCSSPropertyVariable } from '../helpers';
+import { GmScreenCell } from './GmScreenCell';
+import { GmScreen } from './GmScreen';
+import { GmScreenDataManager } from './GmScreenData';
+import { GmScreenSettingsConfig } from './GmScreenSettingsConfig';
+import { CompactRollTableDisplay } from './DocumentSheets/CompactRollTableSheet';
 
 enum ClickAction {
   'clearGrid' = 'clearGrid',
@@ -20,258 +15,182 @@ enum ClickAction {
   'open' = 'open',
   'toggle-gm-screen' = 'toggle-gm-screen',
   'setActiveGridId' = 'setActiveGridId',
+  'rolltable' = 'rolltable',
+  'rolltable-reset' = 'rolltable-reset',
 }
 
 type GmScreenApp = ActorSheet | ItemSheet | JournalSheet | RollTableConfig;
 
-export class GmScreenApplication extends Application {
-  expanded: boolean;
-  data: GmScreenConfig;
+/**
+ * @abstract
+ */
+export class GmScreenApplicationCommon extends Application {
+  /** Cache of applications rendered within this gm screen */
   apps: Record<string, GmScreenApp>;
+  draggedTab: HTMLElement | undefined;
 
   constructor(options = {}) {
     super(options);
-    this.expanded = false;
-    this.data = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig);
     this.apps = {};
   }
 
-  get rows() {
-    return getGame().settings.get(MODULE_ID, MySettings.rows);
-  }
-
-  get columns() {
-    return getGame().settings.get(MODULE_ID, MySettings.columns);
-  }
-
-  get displayDrawer() {
-    return getGame().settings.get(MODULE_ID, MySettings.displayDrawer);
-  }
-
-  get userViewableGrids() {
-    return getUserViewableGrids(this.data);
-  }
-
-  get hasUserViewableGrids() {
-    return !!Object.keys(this.userViewableGrids).length;
-  }
-
-  static get defaultOptions() {
-    const columns = getGame().settings.get(MODULE_ID, MySettings.columns);
-    const rows = getGame().settings.get(MODULE_ID, MySettings.rows);
-    const displayDrawer = getGame().settings.get(MODULE_ID, MySettings.displayDrawer);
-    const gmScreenConfig = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig);
-
-    const drawerOptions = {
-      popOut: false,
-    };
-
-    const popOutOptions = {
-      classes: ['gm-screen-popOut'],
-      popOut: true,
-      width: Number(columns) * 400,
-      height: Number(rows) * 300,
-      resizable: true,
-      title: getGame().i18n.localize(`${MODULE_ABBREV}.gmScreen.Title`),
-    };
-
-    const gmOptions = {
-      dragDrop: [{ dragSelector: '.gm-screen-grid-cell', dropSelector: '.gm-screen-grid-cell' }],
-    };
+  /** Configures the ScrollY, GM Drag/Drop, and Tabs for all use cases */
+  static get defaultOptions(): ApplicationOptions {
+    const {
+      grids,
+      activeGmGridId,
+      applicationData: { columns, rows },
+    } = GmScreen.dataManager;
 
     // set all of the cells of all the grids to be scrollY managed
-    const scrollY = Object.keys(gmScreenConfig.grids).reduce((acc, gridKey) => {
-      const gridColumns = gmScreenConfig.grids[gridKey].columnOverride ?? columns;
-      const gridRows = gmScreenConfig.grids[gridKey].rowOverride ?? rows;
+    const scrollY = Object.keys(grids).reduce((acc, gridKey) => {
+      const gridColumns = grids[gridKey].columnOverride ?? columns;
+      const gridRows = grids[gridKey].rowOverride ?? rows;
 
       const totalCells = Number(gridColumns) * Number(gridRows);
 
       const gridKeyScrollY = [...new Array(totalCells)].map(
-        (_, index) => `#gm-screen-${gridKey}-cell-${index} .gm-screen-grid-cell-content`
+        (_, index) => `#gm-screen-${gridKey}-cell-${index} .gm-screen-grid-cell-content`,
       );
       return acc.concat(gridKeyScrollY);
     }, [] as string[]);
 
-    log(false, {
-      displayDrawer,
-      options: displayDrawer ? drawerOptions : popOutOptions,
-    });
-
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      ...(displayDrawer ? drawerOptions : popOutOptions),
-      ...(getGame().user?.isGM
-        ? gmOptions
-        : {
-            dragDrop: [],
-          }),
+    return {
+      ...super.defaultOptions,
+      ...(game.user?.isGM
+        ? {
+            dragDrop: [{ dropSelector: '.gm-screen-grid-cell' }],
+          }
+        : undefined),
       tabs: [
         {
-          navSelector: '.tabs',
+          navSelector: '.gm-screen-tabs',
           contentSelector: '.gm-screen-app',
-          initial: gmScreenConfig.activeGridId ?? 'default',
+          initial: activeGmGridId,
         },
       ],
-      template: TEMPLATES.screen,
+      template: GmScreen.TEMPLATES.screen,
       id: 'gm-screen-app',
       scrollY,
-    });
-  }
-
-  get activeGrid() {
-    return this.data.grids[this.data.activeGridId];
-  }
-
-  static getNumOccupiedCells(grid: GmScreenGrid) {
-    return Object.values(grid.entries).reduce((acc, entry) => {
-      const cellsTaken = (entry.spanCols || 1) * (entry.spanRows || 1);
-      return acc + cellsTaken;
-    }, 0);
+    };
   }
 
   /**
-   * Helper function to update the gmScreenConfig setting with a new grid's worth of data
-   * @param {GmScreenGrid} newGridData - the complete grid object to set
-   * @param {boolean} render - ⚠️ DEPRECATED since 2.4.0: whether or not to also render/refresh the grid
+   * This currently thinly wraps `this.render`, but might be more complicated in the future.
    */
-  async setGridData(newGridData: GmScreenGrid, render: boolean = true) {
-    const newGmScreenConfig = foundry.utils.deepClone(this.data);
+  refresh() {
+    this.render();
+  }
 
-    const updated = setProperty(newGmScreenConfig, `grids.${newGridData.id}`, newGridData);
+  /**
+   * Hydrates all visible grids with empty cells in the format the handlebars files wants to display
+   */
+  get hydratedGridEntries() {
+    const grids = GmScreen.dataManager.grids;
 
-    if (!updated) {
-      // something failed
-      log(true, 'error occurred trying to set a grid data');
+    return Object.fromEntries(
+      Object.entries(grids).map(([gridId, gridData]) => {
+        return [
+          gridId,
+          {
+            ...gridData,
+            gridEntries: GmScreen.dataManager.getHydratedGridEntries(gridData),
+          },
+        ];
+      }),
+    );
+  }
+
+  /**
+   * @override
+   */
+  getData() {
+    const { applicationData, hasUserViewableGrids } = GmScreen.dataManager;
+
+    const newAppData = {
+      ...super.getData(),
+      ...applicationData,
+      grids: this.hydratedGridEntries,
+      isGM: !!game.user?.isGM,
+      hidden: !hasUserViewableGrids,
+      drawerMode: GmScreen.dataManager.drawerMode,
+    };
+
+    log(false, 'getData', {
+      newAppData,
+    });
+
+    return newAppData;
+  }
+
+  /**
+   * Handles actually rendering the application, we want to inject our cells
+   * at the end of this method
+   * @override
+   */
+  async _render(...args: any[]) {
+    const promise = await super._render(...args);
+
+    // stop here if there's no user-viewable grids
+    if (!GmScreen.dataManager.hasUserViewableGrids) {
+      return promise;
+    }
+
+    const html = this.element;
+    // add our cell contents to the template now that our application is done rendering
+    this.injectCellContents(html);
+
+    // update a few attributes in the rendered html
+    const vanillaGridElement = document.querySelector('.gm-screen-grid');
+    if (!vanillaGridElement) {
       return;
     }
+    const vanillaGridElementStyles = getComputedStyle(vanillaGridElement);
+    const cols = vanillaGridElementStyles.gridTemplateColumns.split(' ');
+    const colWidth = cols[0];
 
-    // changing this setting will auto-refresh the screen
-    await getGame().settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
+    $(html)
+      .find('.gm-screen-grid')
+      .each((i, gridElement) => {
+        gridElement.style.setProperty('--grid-cell-width', colWidth);
+      });
 
-    // if (render) {
-    //   this.refresh();
-    // }
+    // enforce calculated width per cell. this requires a refresh after window dimension changes, though
+    const numericColWidth: number = +colWidth.replace('px', '');
+    $(html)
+      .find('.gm-screen-grid-cell')
+      .each((i, gridElement) => {
+        const columnSpanCount: number = +gridElement.style.getPropertyValue('--column-span-count');
+        const gridElementWidth = numericColWidth * columnSpanCount;
+        gridElement.style.setProperty('width', gridElementWidth.toString() + 'px');
+      });
+
+    return promise;
   }
 
   /**
-   * Adds an Entry to the proper place on the active grid's data.
-   * Replaces an existing entry if the entryId matches
-   * @param {GmScreenGridEntry} newEntry The Entry being added.
+   * @override
    */
-  async addEntryToActiveGrid(newEntry: GmScreenGridEntry) {
-    const newEntries = { ...this.activeGrid.entries };
+  activateListeners(html: JQuery<HTMLElement>) {
+    super.activateListeners(html);
 
-    newEntries[newEntry.entryId] = {
-      ...newEntries[newEntry.entryId],
-      ...newEntry,
-    };
+    if (game.user?.isGM) {
+      this._reorderDragDropListeners(html);
+    }
 
-    const newGridData: GmScreenGrid = {
-      ...this.activeGrid,
-      entries: newEntries,
-    };
-
-    log(false, 'addEntryToActiveGrid', {
-      activeGridData: this.activeGrid,
-      newEntries,
-      newEntry,
-      newGridData,
+    $('.gm-screen-button').on('contextmenu', () => {
+      const config = new GmScreenSettingsConfig();
+      config.render(true);
     });
 
-    this.setGridData(newGridData);
+    $(html).on('click', 'button', this.handleClickEvent.bind(this));
+    $(html).on('click', 'a', this.handleClickEvent.bind(this));
   }
 
   /**
-   * Remove a given entry from the Active Grid
-   * @param {string} entryId - entry to remove from the active grid's entries
+   * Handles the ability to re-order tabs if the user is the GM
    */
-  async removeEntryFromActiveGrid(entryId: string, gridCellId?: string) {
-    const clearedCell = foundry.utils.deepClone(this.activeGrid.entries[entryId]);
-    const shouldKeepCellLayout = clearedCell.spanCols || clearedCell.spanRows;
-
-    const newEntries = {
-      ...this.activeGrid.entries,
-    };
-
-    if (shouldKeepCellLayout) {
-      delete clearedCell.entityUuid;
-      newEntries[entryId] = clearedCell;
-    } else {
-      delete newEntries[entryId];
-    }
-
-    if (gridCellId) {
-      const appKey = `#${gridCellId}`;
-      await this.apps[appKey]?.close();
-      delete this.apps[appKey];
-    }
-
-    const newGridData: GmScreenGrid = {
-      ...this.activeGrid,
-      entries: newEntries,
-    };
-
-    this.setGridData(newGridData);
-  }
-
-  /**
-   * Set the GM Screen Visibility. By default will toggle the current state.
-   * @param {boolean} expanded
-   */
-  toggleGmScreenVisibility(expanded: boolean = !this.expanded) {
-    // TODO: Allow toggling open to a specific tab
-    // TODO: Provide API for other modules to know what tabs exist
-    this.expanded = expanded;
-
-    const activeGridDetails = {
-      activeGridId: this.data.activeGridId,
-      activeGridName: this.data.grids[this.data.activeGridId]?.name,
-    };
-
-    if (this.expanded) {
-      ui.windows[this.appId] = this; // add our window to the stack, pretending we are an open Application
-
-      this.bringToTop();
-
-      $('.gm-screen-app').addClass('expanded');
-
-      // on open, call MyHooks.openClose with isOpen: true and the active grid details
-      Hooks.callAll(MyHooks.openClose, this, {
-        isOpen: true,
-        ...activeGridDetails,
-      });
-    } else {
-      $('.gm-screen-app').removeClass('expanded');
-      delete ui.windows[this.appId]; // remove our window to the stack, pretending we are a closed Application
-
-      // on open, call MyHooks.openClose with isOpen: false and the active grid details
-      Hooks.callAll(MyHooks.openClose, this, {
-        isOpen: false,
-        ...activeGridDetails,
-      });
-    }
-  }
-
-  /**
-   * Double confirms Clearing the Active Grid
-   */
-  handleClear() {
-    log(false, 'handleClear');
-
-    Dialog.confirm({
-      title: getGame().i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Title`),
-      content: getGame().i18n.localize(`${MODULE_ABBREV}.warnings.clearConfirm.Content`),
-      yes: async () => {
-        this.apps = {};
-        this.setGridData({
-          ...this.activeGrid,
-          entries: {},
-        });
-      },
-      no: () => {},
-    });
-  }
-
-  _dragListeners(html: JQuery<any>) {
+  _reorderDragDropListeners(html: JQuery<any>) {
     let draggedTab: HTMLElement | undefined;
     const tabElement = html.find('.gm-screen-tabs');
 
@@ -284,7 +203,7 @@ export class GmScreenApplication extends Application {
         return;
       }
 
-      let children = Array.from($(e.target).closest('.gm-screen-tabs').children());
+      const children = Array.from($(e.target).closest('.gm-screen-tabs').children());
 
       if (children.indexOf(e.target) > children.indexOf(draggedTab)) {
         e.target.after(draggedTab);
@@ -298,8 +217,7 @@ export class GmScreenApplication extends Application {
         return;
       }
 
-      const newGmScreenConfig = foundry.utils.deepClone(this.data);
-      newGmScreenConfig.grids = {};
+      const newGrids = foundry.utils.deepClone(GmScreen.dataManager.grids);
 
       // rebuild gmScreenConfig based on the current layout of the tabs
       $(e.target)
@@ -310,21 +228,26 @@ export class GmScreenApplication extends Application {
           if (!gridId) {
             return;
           }
-          newGmScreenConfig.grids[gridId] = this.data.grids[gridId];
+          newGrids[gridId] = GmScreen.dataManager.grids[gridId];
         });
 
       draggedTab = undefined;
-      await getGame().settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
+      await game.settings.set(MODULE_ID, GmScreen.SETTINGS.gmScreenConfig, {
+        activeGridId: GmScreen.dataManager.activeGmGridId,
+        grids: newGrids,
+      });
     });
   }
 
+  /**
+   * Handles Common Mouse Events for all types of gm screen
+   */
   async handleClickEvent(e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
     e.preventDefault();
 
     const action = e.currentTarget.dataset.action as ClickAction;
-    const entityUuid = $(e.currentTarget).parents('[data-entity-uuid]')?.data()?.entityUuid;
-    const entryId = $(e.currentTarget).parents('[data-entry-id]')?.data()?.entryId;
-    const gridCellId = $(e.currentTarget).parents('[data-entry-id]')?.attr('id');
+    const entityUuid: string | undefined = $(e.currentTarget).parents('[data-entity-uuid]')?.data()?.entityUuid;
+    const entryId: string | undefined = $(e.currentTarget).parents('[data-entry-id]')?.data()?.entryId;
 
     log(false, 'handleClickEvent', {
       e,
@@ -337,144 +260,30 @@ export class GmScreenApplication extends Application {
           return;
         }
 
-        this.removeEntryFromActiveGrid(entryId, gridCellId);
-        break;
-      }
-      case ClickAction.clearGrid: {
-        this.handleClear();
+        GmScreen.dataManager.removeEntryFromActiveGrid(entryId);
         break;
       }
       case ClickAction.configureCell: {
-        try {
-          const { x, y } = getGridElementsPosition($(e.target).parent());
-
-          const cellToConfigure: GmScreenGridEntry = this.activeGrid.entries[entryId] || {
-            x,
-            y,
-            entryId: `${x}-${y}`,
-          };
-
-          log(false, 'configureCell cellToConfigure', cellToConfigure);
-
-          const { newSpanRows, newSpanCols } = await getUserCellConfigurationInput(cellToConfigure, {
-            rows: this.rows,
-            columns: this.columns,
-          });
-
-          log(false, 'new span values from dialog', {
-            newSpanRows,
-            newSpanCols,
-          });
-
-          const newCell = {
-            ...cellToConfigure,
-            spanRows: newSpanRows,
-            spanCols: newSpanCols,
-          };
-
-          const newEntries = {
-            ...this.activeGrid.entries,
-            [newCell.entryId]: newCell,
-          };
-
-          // based on the X, Y, and Span values of `newCell` find all problematic entryIds
-          // BRITTLE if entryId's formula changes
-          const problemCoordinates = [...Array(newCell.spanCols).keys()]
-            .map((_, index) => {
-              const problemX = newCell.x + index;
-
-              return [...Array(newCell.spanRows).keys()].map((_, index) => {
-                const problemY = newCell.y + index;
-                return `${problemX}-${problemY}`; // problem cell's id
-              });
-            })
-            .flat();
-
-          log(false, {
-            problemCoordinates,
-          });
-
-          // get any overlapped cells and remove them
-          Object.values(newEntries).forEach((entry) => {
-            if (problemCoordinates.includes(entry.entryId) && entry.entryId !== newCell.entryId) {
-              delete newEntries[entry.entryId];
-            }
-          });
-
-          log(false, 'newEntries', newEntries);
-
-          const newGridData = {
-            ...this.activeGrid,
-            entries: newEntries,
-          };
-
-          this.setGridData(newGridData);
-        } catch (e) {
-          log(false, 'User exited configure cell Dialog.');
-        }
+        const coordinates = GmScreenApplicationCommon.getGridElementsPosition($(e.target).parent());
+        GmScreenCell._onConfigureGridEntry(coordinates, entryId);
         break;
       }
       case ClickAction.open: {
-        if (!entityUuid) {
-          return;
-        }
-        try {
-          const relevantDocument = await this.getRelevantGmScreenDocument(entityUuid);
-          const relevantDocumentSheet = relevantDocument?.sheet;
-          log(false, 'trying to edit entity', { relevantEntitySheet: relevantDocumentSheet });
-
-          if (!relevantDocumentSheet) {
-            return;
-          }
-
-          // If the relevantEntitySheet is already rendered:
-          if (relevantDocumentSheet.rendered) {
-            relevantDocumentSheet.maximize();
-            relevantDocumentSheet.bringToTop();
-          }
-
-          // Otherwise render the relevantEntitySheet
-          else relevantDocumentSheet.render(true);
-        } catch (error) {
-          log(true, 'error opening entity sheet', error);
-        }
-        break;
-      }
-      case ClickAction.refresh: {
-        this.refresh();
+        GmScreenCell._onClickOpen(entityUuid);
         break;
       }
       case ClickAction.setActiveGridId: {
         const newActiveGridId = e.currentTarget.dataset.tab;
-        // do nothing if we are not the GM or if nothing changes
-        if (!getGame().user?.isGM || newActiveGridId === this.data.activeGridId || !newActiveGridId) {
-          return;
-        }
-
-        log(false, 'trying to set active grid', { newActiveGridId });
-
-        try {
-          const newGmScreenConfig = {
-            ...this.data,
-            activeGridId: newActiveGridId,
-          };
-
-          await getGame().settings.set(MODULE_ID, MySettings.gmScreenConfig, newGmScreenConfig);
-        } catch (error) {
-          log(true, 'error setting active tab', error);
-        }
+        await GmScreen.dataManager.setActiveGmGridId(newActiveGridId);
+        // this.refresh();
         break;
       }
-      case ClickAction['toggle-gm-screen']: {
-        try {
-          this.toggleGmScreenVisibility();
-        } catch (error) {
-          log(true, 'error toggling GM Screen', error);
+      case ClickAction.rolltable: {
+        if (!entityUuid || !entryId) {
+          break;
         }
-        break;
-      }
-      default: {
-        return;
+        const cellClassInstance = (await this.getCellApplicationClass(entityUuid, entryId)) as CompactRollTableDisplay;
+        await cellClassInstance._rollOnTable();
       }
     }
   }
@@ -482,393 +291,305 @@ export class GmScreenApplication extends Application {
   /**
    * @override
    */
-  render(...args) {
-    if (!this.hasUserViewableGrids && this.rendered) {
-      this.close();
-    }
-
-    return super.render(...args);
+  _canDragDrop(): boolean {
+    return !!game.user?.isGM;
   }
 
   /**
-   * This currently thinly wraps `this.render`, but might be more complicated in the future.
-   */
-  refresh() {
-    const newData = getGame().settings.get(MODULE_ID, MySettings.gmScreenConfig);
-    const oldData = foundry.utils.deepClone(this.data);
-    const diffData: Partial<GmScreenConfig> = foundry.utils.diffObject(oldData, newData);
-
-    log(false, 'refreshing gm screen', {
-      newData: foundry.utils.deepClone(newData),
-      data: oldData,
-      diffData,
-    });
-
-    this.data = newData;
-
-    if (Object.keys(diffData).length) {
-      if (Object.keys(diffData).every((key) => key === 'activeGridId')) {
-        log(false, 'not rerendering because only activeGridId changed');
-        return;
-      }
-
-      const diffGridIds = Object.keys(diffData?.grids ?? {});
-      const myNewGridIds = Object.keys(this.userViewableGrids);
-      const myOldGridIds = Object.keys(getUserViewableGrids(oldData));
-
-      // 1. check if the gridIds in diffData have no overlap with the gridIds I can currently see
-
-      const diffOverlapsNewGridIds = !diffGridIds.filter((gridId) => myNewGridIds.includes(gridId)).length;
-      // expect this to be false if there is overlap;
-
-      // 2. check if the gridIds I can currently see are the same as before the diff
-
-      const oldAndNewGridIdsAreEqual =
-        myNewGridIds.length === myOldGridIds.length && myNewGridIds.every((gridId) => myOldGridIds.includes(gridId));
-      // expect this to be true if same
-
-      // 3. IF 1 AND 2; don't rerender
-
-      const shouldNotRerender = diffOverlapsNewGridIds && oldAndNewGridIdsAreEqual;
-
-      log(false, 'gridIdChecks', {
-        diffGridIds,
-        myOldGridIds,
-        myNewGridIds,
-        diffOverlapsNewGridIds,
-        oldAndNewGridIdsAreEqual,
-        shouldNotRerender,
-      });
-
-      if (shouldNotRerender) {
-        log(false, 'not rerendering because none of my visible grids changed');
-        return;
-      }
-    }
-
-    this.render();
-  }
-
-  /**
+   * Handles the dropping of a document onto a grid cell
    * @override
    */
-  activateListeners(html) {
-    super.activateListeners(html);
+  _onDrop(event: DragEvent): void {
+    event.stopPropagation();
 
-    if (this.displayDrawer) {
-      // bring to top on click
-      $(html).on('mousedown', (event) => {
-        log(false, 'buttons', event.buttons);
-        if (event.buttons === 2) {
-          return;
-        }
-        this.bringToTop();
-      });
-    }
+    // do nothing if this user is not the gm
+    if (!game.user?.isGM) return;
 
-    if (getGame().user?.isGM) {
-      this._dragListeners(html);
-    }
+    // type safety checks
+    if (!event.currentTarget || !event.target || !event.dataTransfer) return;
 
-    $('.gm-screen-button').on('contextmenu', () => {
-      const config = new GmScreenSettings({});
-      config.render(true);
-    });
-
-    $(html).on('click', 'button', this.handleClickEvent.bind(this));
-    $(html).on('click', 'a', this.handleClickEvent.bind(this));
-
-    // handle select of an entity
-    $(html).on('change', 'select', async (e) => {
-      const gridElementPosition = getGridElementsPosition($(e.target).parent());
-      const newEntryId = `${gridElementPosition.x}-${gridElementPosition.y}`;
-      const newEntry: GmScreenGridEntry = {
-        ...gridElementPosition,
-        entryId: newEntryId,
-        entityUuid: e.target.value,
-      };
-      this.addEntryToActiveGrid(newEntry);
-    });
-
-    // stop here if there are no user viewable grids
-    if (!this.hasUserViewableGrids) {
+    // Try to extract the data
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer.getData('text/plain'));
+    } catch (err) {
       return;
     }
 
-    this.injectCellContents(html);
+    log(false, 'onDrop', {
+      event,
+      data,
+      closestGridCell: $(event.currentTarget).closest('.gm-screen-grid-cell'),
+    });
 
-    // populate the --grid-cell-width variable
-    const vanillaGridElement = document.querySelector('.gm-screen-grid');
-    if (!vanillaGridElement) {
+    // only move forward if dropped entry is of a supported type
+    if (!['JournalEntry', 'JournalEntryPage', 'RollTable', 'Item', 'Actor'].includes(data.type)) {
       return;
     }
-    const vanillaGridElementStyles = getComputedStyle(vanillaGridElement);
-    const cols = vanillaGridElementStyles['grid-template-columns'].split(' ');
-    const colWidth = cols[0];
 
-    $(html)
-      .find('.gm-screen-grid')
-      .each((i, gridElement) => {
-        gridElement.style.setProperty('--grid-cell-width', colWidth);
-      });
+    const entityUuid = data.uuid;
+
+    const gridElementPosition = GmScreenApplicationCommon.getGridElementsPosition(
+      $(event.target).closest('.gm-screen-grid-cell'),
+    );
+    const newEntryId = `${gridElementPosition.x}-${gridElementPosition.y}`;
+
+    const newEntry: GmScreenGridEntry = {
+      ...gridElementPosition,
+      entryId: newEntryId,
+      entityUuid,
+    };
+
+    GmScreen.dataManager.addEntryToActiveGrid(newEntry);
   }
 
   /**
-   * Utility method to help typescript understand that these are only
-   * actors, items, journals, or rolltables
-   *
-   * @param entityUuid - relevant entityUuid
+   * Injects cell applications during _renderInner;
+   * Handles finding all cells in the html and injecting their rightful contents based on
+   * data attributes which detail the uuid of the document within
    */
-  async getRelevantGmScreenDocument(entityUuid) {
-    const relevantDocument = await fromUuid(entityUuid);
-
-    if (
-      !(
-        relevantDocument instanceof Actor ||
-        relevantDocument instanceof Item ||
-        relevantDocument instanceof JournalEntry ||
-        relevantDocument instanceof RollTable
-      )
-    ) {
-      return;
-    }
-
-    return relevantDocument;
-  }
-
-  /**
-   * create and cache the custom Application when we need to during GmScreenApplication.render();
-   * and then use that cached Application instance to render
-   *
-   * @param entityUuid - Identifier for the Entity in the cell
-   * @param cellId - Identifier for the Cell
-   * @param gridCellContentElement - the element to inject into
-   * @returns
-   */
-  async getCellApplicationClass(entityUuid: string, cellId: string) {
-    const relevantDocument = await this.getRelevantGmScreenDocument(entityUuid);
-
-    if (!relevantDocument) {
-      await this.apps[cellId]?.close();
-      delete this.apps[cellId];
-
-      console.warn('One of the grid cells tried to render an entity that does not exist.', entityUuid);
-      return;
-    }
-
-    const gmScreenSpecificSheetFlag = relevantDocument.getFlag(MODULE_ID, 'gmScreenSheetClass') as string | undefined;
-
-    /* If there is an old app here which isn't this entity's, destroy it */
-    if (this.apps[cellId] && this.apps[cellId]?.object.uuid !== entityUuid) {
-      await this.apps[cellId].close();
-      delete this.apps[cellId];
-    }
-
-    const sheet = relevantDocument.sheet;
-
-    let sheetClass = sheet?.constructor;
-
-    if (gmScreenSpecificSheetFlag && (relevantDocument instanceof Item || relevantDocument instanceof Actor)) {
-      const gmScreenSpecificSheetConstructor =
-        CONFIG[relevantDocument.documentName]?.sheetClasses?.[relevantDocument.type]?.[gmScreenSpecificSheetFlag]?.cls;
-      sheetClass = gmScreenSpecificSheetConstructor ?? sheetClass;
-    }
-
-    /* If the currently cached sheet class does not match the sheet class, destroy it */
-    if (this.apps[cellId] && this.apps[cellId].constructor.name !== sheetClass?.name) {
-      await this.apps[cellId].close();
-      delete this.apps[cellId];
-    }
-
-    /* If the currently cached sheet class does match the sheet class, return it */
-    if (this.apps[cellId] && this.apps[cellId].constructor.name === sheetClass?.name) {
-      log(false, `using cached application instance for "${relevantDocument.name}"`, {
-        entityUuid,
-        app: this.apps[cellId],
-      });
-
-      return this.apps[cellId];
-    }
-
-    log(false, 'relevantEntity sheet', {
-      sheet,
-      name: sheetClass?.name,
-    });
-
-    if (sheet instanceof JournalSheet && !sheet?.isKankaEntry) {
-      log(false, `creating compact journal entry for "${relevantDocument.name}"`, {
-        cellId,
-      });
-
-      this.apps[cellId] = new CompactJournalEntryDisplay(relevantDocument, { cellId, editable: false });
-    } else if (sheet instanceof RollTableConfig) {
-      log(false, `creating compact rollTableDisplay for "${relevantDocument.name}"`, {
-        cellId,
-      });
-
-      this.apps[cellId] = new CompactRollTableDisplay(relevantDocument, { cellId });
-    } else {
-      log(false, `creating compact generic for "${relevantDocument.name}"`, {
-        cellId,
-      });
-
-      //@ts-ignore
-      const CompactDocumentSheet: ItemSheet | ActorSheet = new sheetClass(relevantDocument, {
-        editable: false,
-      });
-
-      CompactDocumentSheet.options.editable = false;
-      CompactDocumentSheet.options.popOut = false;
-      //@ts-ignore
-      CompactDocumentSheet.cellId = cellId;
-
-      //@ts-ignore
-      CompactDocumentSheet._injectHTML = function (html) {
-        $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
-
-        const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
-
-        log(false, 'CompactEntitySheet overwritten _injectHTML', {
-          targetElement: gridCellContent,
-          gridCellContent,
-          cellId: this.cellId,
-          html,
-        });
-        gridCellContent.append(html);
-        this._element = html;
-      };
-
-      //@ts-ignore
-      CompactDocumentSheet._replaceHTML = function (element, html, options) {
-        $(this.cellId).find('.gm-screen-grid-cell-title').text(this.title);
-
-        const gridCellContent = $(this.cellId).find('.gm-screen-grid-cell-content');
-        gridCellContent.html(html);
-        this._element = html;
-      };
-
-      log(false, `created compact generic for "${relevantDocument.name}"`, {
-        sheet: CompactDocumentSheet,
-      });
-
-      this.apps[cellId] = CompactDocumentSheet;
-    }
-
-    return this.apps[cellId];
-  }
-
   injectCellContents(html: JQuery<HTMLElement>) {
-    $(html)
-      .find('[data-entity-uuid]')
-      .each((index, gridEntry) => {
-        try {
-          // `this` is the parent .gm-screen-grid-cell
-          const relevantUuid = gridEntry.dataset.entityUuid;
-          if (!relevantUuid) {
-            return;
-          }
-          const cellId = `#${gridEntry.id}`;
+    const allCells = $(html).find('[data-entity-uuid]');
 
-          log(false, 'gridEntry with uuid defined found', { relevantUuid, cellId, gridEntry });
+    log(false, 'injectCellContents', allCells);
 
-          this.getCellApplicationClass(relevantUuid, cellId)
-            .then((application) => {
-              log(false, `got application for "${cellId}"`, {
-                application,
-              });
-
-              if (!application) {
-                throw new Error('no application exists to render');
-              }
-
-              const classes = application.options.classes.join(' ');
-
-              const gridCellContent = $(gridEntry).find('.gm-screen-grid-cell-content');
-              gridCellContent.addClass(classes);
-
-              application.render(true);
-            })
-            .catch((e) => {
-              log(true, 'error trying to render a gridEntry', {
-                gridEntry,
-                cellId,
-                relevantUuid,
-                error: e,
-              });
-            });
-        } catch (e) {
-          log(false, 'erroring', e, {
-            gridEntry,
-          });
+    allCells.each((index, gridEntry) => {
+      try {
+        // `this` is the parent .gm-screen-grid-cell
+        const relevantUuid = gridEntry.dataset.entityUuid;
+        if (!relevantUuid) {
+          return;
         }
-      });
+        const cellId = `#${gridEntry.id}`;
 
-    // set some CSS Variables for child element use
+        log(false, 'gridEntry with uuid defined found', { relevantUuid, cellId, gridEntry });
+
+        this.getCellApplicationClass(relevantUuid, cellId)
+          .then((application) => {
+            log(false, `got application for "${cellId}"`, {
+              application,
+            });
+
+            if (!application) {
+              throw new Error('no application exists to render');
+            }
+
+            const classes = application.options.classes.join(' ');
+
+            const gridCellContent = $(gridEntry).find('.gm-screen-grid-cell-content');
+            gridCellContent.addClass(classes);
+
+            // actually render the application
+            application.render(true);
+          })
+          .catch((e) => {
+            log(true, 'error trying to render a gridEntry', {
+              gridEntry,
+              cellId,
+              relevantUuid,
+              error: e,
+            });
+          });
+      } catch (e) {
+        log(false, 'erroring', e, {
+          gridEntry,
+        });
+      }
+    });
+
     updateCSSPropertyVariable(html, '.gm-screen-grid-cell', 'width', '--this-cell-width');
 
     return html;
   }
 
   /**
-   * All grids with entries hydrated with empty cells
+   * create and cache the custom Application when we need to during GmScreenApplication.render();
+   * and then use that cached Application instance to render
+   *
+   * @param documentUuid - Identifier for the Entity in the cell
+   * @param cellId - Identifier for the Cell
+   * @param gridCellContentElement - the element to inject into
+   * @returns the instance of the document's sheet to render
    */
-  getHydratedGrids() {
-    log(false, 'getHydratedGrids', {
-      userViewableGrids: this.userViewableGrids,
+  async getCellApplicationClass(documentUuid: string, cellId: string) {
+    const relevantDocument = await GmScreenDataManager.getRelevantGmScreenDocument(documentUuid);
+
+    // if the document does not exist, 'close' the application and destroy the cached copy
+    if (!relevantDocument) {
+      await this.apps[cellId]?.close();
+      delete this.apps[cellId];
+
+      console.warn(
+        'One of the grid cells tried to render a document that does not exist. Perhaps it was deleted or is in a compendium module that is not active?',
+        documentUuid,
+      );
+      return;
+    }
+
+    /* If there is an old app in this cell which does not belong to this document, 'close' that application and destroy its cache entry */
+    if (this.apps[cellId] && this.apps[cellId]?.object.uuid !== documentUuid) {
+      await this.apps[cellId].close();
+      delete this.apps[cellId];
+    }
+
+    // gets the relevant document's GM Screen Sheet class constructor based on any present overrides
+    const SheetClassConstructor = (GmScreenCell._getGridEntrySheetClass(relevantDocument) ??
+      relevantDocument.sheet?.constructor) as ConstructorOf<DocumentSheet> | undefined;
+
+    /* If the currently cached application does not match the sheet class, 'close' that application and destroy its cache entry */
+    if (this.apps[cellId] && this.apps[cellId].constructor.name !== SheetClassConstructor?.name) {
+      await this.apps[cellId].close();
+      delete this.apps[cellId];
+    }
+
+    /* If the currently cached application does match the expected sheet class, return it */
+    if (this.apps[cellId] && this.apps[cellId].constructor.name === SheetClassConstructor?.name) {
+      log(false, `using cached application instance for "${relevantDocument.name}"`, {
+        entityUuid: documentUuid,
+        app: this.apps[cellId],
+      });
+
+      return this.apps[cellId];
+    }
+
+    /** Otherwise, we need to make a new instance of the sheet class retrieved */
+    log(false, 'relevantEntity sheet', {
+      sheetClassConstructor: SheetClassConstructor,
+      name: SheetClassConstructor?.name,
     });
 
-    return Object.values(this.userViewableGrids).reduce<
-      Record<string, { grid: GmScreenGrid; gridEntries: Partial<GmScreenGridEntry>[] }>
-    >((acc, grid) => {
-      const gridColumns = grid.columnOverride ?? this.columns;
-      const gridRows = grid.rowOverride ?? this.rows;
+    if (!SheetClassConstructor) {
+      throw new Error('Could not create cell application as the constructor does not exist');
+    }
 
-      const emptyCellsNum = Number(gridColumns) * Number(gridRows) - GmScreenApplication.getNumOccupiedCells(grid);
-      const emptyCells: Partial<GmScreenGridEntry>[] =
-        emptyCellsNum > 0 ? [...new Array(emptyCellsNum)].map(() => ({})) : [];
+    // // TODO: FIXME in _getGmScreenSheetClass
+    // if (SheetClassConstructor.name === 'RollTableConfig') {
+    //   log(false, `creating compact rollTableDisplay for "${relevantDocument.name}"`, {
+    //     cellId,
+    //   });
 
-      acc[grid.id] = {
-        grid,
-        gridEntries: [...Object.values(grid.entries), ...emptyCells],
-      };
+    //   this.apps[cellId] = new CompactRollTableDisplay(relevantDocument, { cellId });
+    //   return this.apps[cellId];
+    // }
 
-      return acc;
-    }, {});
+    log(false, `creating compact generic for "${relevantDocument.name}"`, {
+      cellId,
+    });
+
+    const CompactDocumentSheet = new SheetClassConstructor(relevantDocument, {
+      editable: false,
+    }) as GmScreenApp;
+
+    // apply all the right overrides to the sheet class so it renders inside the grid
+    GmScreenCell.applyGmScreenCellSheetOverrides(CompactDocumentSheet, cellId);
+
+    log(false, `created compact generic for "${relevantDocument.name}"`, {
+      sheet: CompactDocumentSheet,
+    });
+
+    this.apps[cellId] = CompactDocumentSheet;
+
+    return this.apps[cellId];
+  }
+
+  toggleGmScreenVisibility() {
+    throw new Error('Each GM Screen subclass must implemement this method');
   }
 
   /**
-   * @override
+   * Gets the given element's X/Y coordinates in the grid
    */
-  getData() {
-    const rightMargin = getGame().settings.get(MODULE_ID, MySettings.rightMargin);
-    const drawerWidth = getGame().settings.get(MODULE_ID, MySettings.drawerWidth);
-    const drawerHeight = getGame().settings.get(MODULE_ID, MySettings.drawerHeight);
-    const drawerOpacity = getGame().settings.get(MODULE_ID, MySettings.drawerOpacity);
-    const condensedButton = getGame().settings.get(MODULE_ID, MySettings.condensedButton);
+  static getGridElementsPosition(element: JQuery<any>) {
+    const relevantGridElement = element.parents('.gm-screen-grid')[0];
 
-    const newAppData = {
-      ...super.getData(),
-      grids: this.getHydratedGrids(),
-      isGM: !!getGame().user?.isGM,
-      condensedButton: condensedButton,
-      data: this.data,
-      columns: this.columns,
-      rows: this.rows,
-      drawerWidth,
-      drawerHeight,
-      rightMargin,
-      drawerOpacity,
-      expanded: this.expanded,
-      hidden: !this.hasUserViewableGrids,
-      displayDrawer: this.displayDrawer,
-    };
+    const vanillaGridElementStyles = window.getComputedStyle(relevantGridElement);
 
-    log(false, 'getData', {
-      data: this.data,
-      newAppData,
+    log(false, 'getGridElementsPosition', {
+      element,
+      relevantGridElement,
+      vanillaGridElementStyles,
+      gap: vanillaGridElementStyles.gap, // wtf this is '' in firefox
+      gridRowGap: vanillaGridElementStyles.rowGap,
+      gridColGap: vanillaGridElementStyles.columnGap,
     });
 
-    return newAppData;
+    const numberRegex = /([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?/;
+    const gap = Number(vanillaGridElementStyles.rowGap.match(numberRegex)?.[0]);
+
+    //Get the css attribute grid-template-columns from the css of class grid
+    //split on whitespace and get the length, this will give you the column dimensions
+    const cols = vanillaGridElementStyles.gridTemplateColumns.split(' ');
+    const colWidth = Number(cols[0].match(numberRegex)?.[0]);
+
+    //Get the css attribute grid-template-rows from the css of class grid
+    //split on whitespace and get the length, this will give you the column dimensions
+    const rows = vanillaGridElementStyles.gridTemplateRows.split(' ');
+    const rowHeight = Number(rows[0].match(numberRegex)?.[0]);
+
+    // to figure out which column/row this element is in within the gridElement, we have to do math
+    const elementBounds = element[0].getBoundingClientRect();
+    const gridBounds = relevantGridElement.getBoundingClientRect();
+
+    const elementColumn = Math.floor((elementBounds.left - (gridBounds.left - gap)) / (colWidth + gap)) + 1;
+
+    const elementRow = Math.floor((elementBounds.top - (gridBounds.top - gap)) / (rowHeight + gap)) + 1;
+
+    log(false, 'getGridElementsPosition', {
+      setup: {
+        gap,
+        cols,
+        rows,
+        elementBounds,
+        gridBounds,
+        colWidth,
+        rowHeight,
+      },
+      results: {
+        elementColumn,
+        elementRow,
+      },
+    });
+    //Return an object with properties row and column
+    return { y: elementRow, x: elementColumn };
+  }
+}
+
+/** Extends the base GM Screen Application for the Popout Case */
+export class GmScreenApplicationPopout extends GmScreenApplicationCommon {
+  static get defaultOptions(): ApplicationOptions {
+    const { columns, rows } = GmScreen.dataManager.applicationData;
+
+    return {
+      ...super.defaultOptions,
+      classes: ['gm-screen-popOut'],
+      popOut: true,
+      width: Number(columns) * 400,
+      height: Number(rows) * 300,
+      resizable: true,
+      title: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Title`),
+    };
+  }
+
+  /** Handle toggling gm screens */
+  toggleGmScreenVisibility(shouldOpen = !this.rendered) {
+    if (shouldOpen) {
+      if (!this.rendered) {
+        this.render(true);
+      } else {
+        this.bringToTop();
+      }
+    }
+
+    if (!shouldOpen) {
+      this.close();
+    }
+
+    // on open, call MyHooks.openClose with isOpen: true and the active grid details
+    Hooks.callAll(GmScreen.HOOKS.openClose, this, {
+      isOpen: this.rendered,
+      activeGridId: GmScreen.dataManager.activeGmGridId,
+      activeGridName: GmScreen.dataManager.activeGmGrid?.name,
+    });
   }
 
   /**
@@ -879,78 +600,117 @@ export class GmScreenApplication extends Application {
 
     const gmButtons = [
       {
-        label: getGame().i18n.localize(`${MODULE_ABBREV}.gmScreen.Reset`),
+        label: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Reset`),
         class: 'clear',
         icon: 'fas fa-ban',
-        onclick: () => this.handleClear.bind(this)(),
+        onclick: () => GmScreen.dataManager.clearActiveGrid(), // TODO: `this.apps = {};` ?
       },
     ];
 
     return [
-      ...(getGame().user?.isGM ? gmButtons : []),
+      ...(game.user?.isGM ? gmButtons : []),
       {
-        label: getGame().i18n.localize(`${MODULE_ABBREV}.gmScreen.Refresh`),
+        label: game.i18n.localize(`${MODULE_ABBREV}.gmScreen.Refresh`),
         class: 'refresh',
         icon: 'fas fa-sync',
-        onclick: () => this.refresh(),
+        onclick: () => GmScreen.dataManager.refresh.bind(this)(),
       },
       ...superButtons,
     ];
   }
+}
 
-  /**
-   * @override
-   */
-  async _onDrop(event) {
-    event.stopPropagation();
+/** Extends the base GM Screen Application for the Drawer Case */
+export class GmScreenApplicationDrawer extends GmScreenApplicationCommon {
+  expanded = false;
 
-    // do nothing if this user is not the gm
-    if (!getGame().user?.isGM) return;
-
-    // Try to extract the data
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer.getData('text/plain'));
-    } catch (err) {
-      return false;
-    }
-
-    log(false, 'onDrop', {
-      event,
-      data,
-      closestGridCell: $(event.currentTarget).closest('.gm-screen-grid-cell'),
-    });
-
-    // only move forward if this is a JournalEntry or RollTable
-    if (!['JournalEntry', 'RollTable', 'Item', 'Actor'].includes(data.type)) {
-      return false;
-    }
-
-    const entityUuid = `${data.pack ? `Compendium.${data.pack}` : data.type}.${data.id}`;
-
-    const gridElementPosition = getGridElementsPosition($(event.target).closest('.gm-screen-grid-cell'));
-    const newEntryId = `${gridElementPosition.x}-${gridElementPosition.y}`;
-
-    const newEntry: GmScreenGridEntry = {
-      ...gridElementPosition,
-      entryId: newEntryId,
-      entityUuid,
+  static get defaultOptions(): ApplicationOptions {
+    return {
+      ...super.defaultOptions,
+      popOut: false,
     };
+  }
 
-    this.addEntryToActiveGrid(newEntry);
+  getData() {
+    return {
+      ...super.getData(),
+      expanded: this.expanded,
+    };
+  }
+
+  // TODO ??? Still needed ???
+  activateListeners(html: any): void {
+    super.activateListeners(html);
+
+    // bring to top on click
+    $(html).on('mousedown', (event) => {
+      log(false, 'buttons', event.buttons);
+      if (event.buttons === 2) {
+        return;
+      }
+      this.bringToTop();
+    });
   }
 
   /**
-   * @override
+   * Set the GM Screen Visibility. By default will toggle the current state.
+   * @param {boolean} expanded
    */
-  async close(...args) {
-    if (this.displayDrawer) {
-      log(false, 'intercepting close');
-      this.toggleGmScreenVisibility(false);
+  toggleGmScreenVisibility(expanded = !this.expanded) {
+    // TODO: Allow toggling open to a specific tab
+    // TODO: Provide API for other modules to know what tabs exist
+    this.expanded = expanded;
 
-      return;
+    const activeGridDetails = {
+      activeGridId: GmScreen.dataManager.activeGmGridId,
+      activeGridName: GmScreen.dataManager.activeGmGrid?.name,
+    };
+
+    if (this.expanded) {
+      ui.windows[this.appId] = this; // add our window to the stack, pretending we are an open Application
+
+      this.bringToTop();
+
+      $('.gm-screen-app').addClass('expanded');
+
+      // on open, call MyHooks.openClose with isOpen: true and the active grid details
+      Hooks.callAll(GmScreen.HOOKS.openClose, this, {
+        isOpen: true,
+        ...activeGridDetails,
+      });
+    } else {
+      $('.gm-screen-app').removeClass('expanded');
+      delete ui.windows[this.appId]; // remove our window to the stack, pretending we are a closed Application
+
+      // on open, call MyHooks.openClose with isOpen: false and the active grid details
+      Hooks.callAll(GmScreen.HOOKS.openClose, this, {
+        isOpen: false,
+        ...activeGridDetails,
+      });
     }
+  }
 
-    return super.close(...args);
+  async handleClickEvent(e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
+    super.handleClickEvent(e);
+
+    const action = e.currentTarget.dataset.action as ClickAction;
+    switch (action) {
+      case ClickAction.clearGrid: {
+        GmScreen.dataManager.clearActiveGrid();
+        break;
+      }
+      case ClickAction.refresh: {
+        GmScreen.dataManager.refresh();
+        break;
+      }
+      case ClickAction['toggle-gm-screen']: {
+        try {
+          this.toggleGmScreenVisibility();
+        } catch (error) {
+          log(true, 'error toggling GM Screen', error);
+        }
+        break;
+      }
+    }
   }
 }

@@ -1,6 +1,6 @@
 <div
-  class="gm-screen-app {{#if expanded}}expanded{{/if}} {{#if hidden}}hidden{{/if}} {{classes}} {{#if displayDrawer}}window-app gm-screen-drawer{{/if}}"
-  {{#if displayDrawer}} style="
+  class="gm-screen-app {{#if expanded}}expanded{{/if}} {{#if hidden}}hidden{{/if}} {{classes}} {{#if drawerMode}}window-app gm-screen-drawer{{/if}}"
+  {{#if drawerMode}} style="
    opacity: {{drawerOpacity}};
    --gm-screen-width: {{drawerWidth}};
    --gm-screen-height: {{drawerHeight}}vh;
@@ -11,12 +11,12 @@
 
     <div class="gm-screen-tabs">
       {{#each grids}}
-      <button type='button' class='item' data-tab='{{grid.id}}' data-action='setActiveGridId'
-        draggable="true">{{grid.name}}</button>
+      <button type='button' class='item' data-tab='{{this.id}}' data-action='setActiveGridId'
+        draggable="true">{{this.name}}</button>
       {{/each}}
     </div>
 
-    {{#if displayDrawer}}
+    {{#if drawerMode}}
     <div class="meta-actions">
       {{#if isGM}}
       <button class="clear" type='button' data-action="clearGrid" title={{localize 'GMSCR.gmScreen.Reset' }}><i

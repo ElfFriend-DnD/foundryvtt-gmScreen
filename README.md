@@ -8,10 +8,8 @@
 [![Foundry Hub Endorsements](https://img.shields.io/endpoint?logoColor=white&url=https%3A%2F%2Fwww.foundryvtt-hub.com%2Fwp-json%2Fhubapi%2Fv1%2Fpackage%2Fgm-screen%2Fshield%2Fendorsements)](https://www.foundryvtt-hub.com/package/gm-screen/)
 [![Foundry Hub Comments](https://img.shields.io/endpoint?logoColor=white&url=https%3A%2F%2Fwww.foundryvtt-hub.com%2Fwp-json%2Fhubapi%2Fv1%2Fpackage%2Fgm-screen%2Fshield%2Fcomments)](https://www.foundryvtt-hub.com/package/gm-screen/)
 
-
 ![Foundry Core Compatible Version](https://img.shields.io/badge/dynamic/json.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2FElfFriend-DnD%2Ffoundryvtt-gmScreen%2Fmain%2Fsrc%2Fmodule.json&label=Foundry%20Version&query=$.compatibleCoreVersion&colorB=orange)
 ![Manifest+ Version](https://img.shields.io/badge/dynamic/json.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2FElfFriend-DnD%2Ffoundryvtt-gmScreen%2Fmain%2Fsrc%2Fmodule.json&label=Manifest%2B%20Version&query=$.manifestPlusVersion&colorB=blue)
-
 
 [![ko-fi](https://img.shields.io/badge/-buy%20me%20a%20coke-%23FF5E5B)](https://ko-fi.com/elffriend)
 [![patreon](https://img.shields.io/badge/-patreon-%23FF424D)](https://www.patreon.com/ElfFriend_DnD)
@@ -43,14 +41,15 @@ https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/mo
 ## Screenshots
 
 ### GM View
+
 ![GM Screen Grid Tab with Combat information.](readme-img/combat-tab.png)
 ![GM Screen Grid Tab with Rules information.](readme-img/rules-tab.png)
 ![GM Screen Grid Tab with Notes information.](readme-img/notes-tab.png)
 ![GM Screen Grid Tab with a Player Cheat Sheet.](readme-img/cheat-sheet-tab.png)
 
 ### Player View (with a tab set to be shared)
-![Demonstration of the GM Screen Grid from the player's perspective.](readme-img/cheet-sheet-player.png)
 
+![Demonstration of the GM Screen Grid from the player's perspective.](readme-img/cheet-sheet-player.png)
 
 ## Configuration
 
@@ -72,6 +71,7 @@ https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/mo
 Note that changing the grid dimensions after populating the grid might cause unexpected results, and odds are you will have to clear the grid and repopulate things.
 
 ### Tab Configuration
+
 ![Screenshot of the GM Screen Tab Configuration](readme-img/tab-config.png)
 
 | **Name**             | Description                                                                                                                          |
@@ -90,7 +90,6 @@ It is possible to select a specific sheet for use when an Entity is rendered in 
 
 ![Screenshot of the Entity Sheet Configuration](readme-img/entity-sheet-config.png)
 
-
 ## Compatibility
 
 I'm honestly not sure how well this will play with modules that make changes to how journal articles or roll tables interact.
@@ -107,6 +106,7 @@ I'm honestly not sure how well this will play with modules that make changes to 
 ## API
 
 After the hook `gmScreenReady` is fired, the following api methods are expected to be on `game.modules.get('gm-screen')?.api`:
+
 ### `toggleGmScreenVisibility(isOpen: boolean)`
 
 Opens or Closes the GM Screen. By default will toggle the current state.
@@ -116,7 +116,6 @@ game.modules.get('gm-screen')?.api?.toggleGmScreenVisibility(false); // always c
 game.modules.get('gm-screen')?.api?.toggleGmScreenVisibility(true); // always opens
 game.modules.get('gm-screen')?.api?.toggleGmScreenVisibility(); // always toggles
 ```
-
 
 ### `Hooks.callAll('gmScreenOpenClose', cb)`
 
@@ -135,9 +134,71 @@ This hook is called when the GM Screen Opens of Closes with the following as the
 
 ## Acknowledgements
 
-Bootstrapped with Nick East's [create-foundry-project](https://gitlab.com/foundry-projects/foundry-pc/create-foundry-project).
+Bootstrapped with Nick East's [create-foundry-project](https://gitlab.com/foundry-projects/foundry-pc/create-foundry-project) and then again with Ghost's [Foundry Factory](https://github.com/ghost-fvtt/foundry-factory).
 
 Mad props to the [League of Extraordinary FoundryVTT Developers](https://forums.forge-vtt.com/c/package-development/11) community which helped me figure out a lot.
+
+## Development
+
+### Prerequisites
+
+In order to build this module, recent versions of `node` and `npm` are
+required. Most likely, using `yarn` also works, but only `npm` is officially
+supported. We recommend using the latest lts version of `node`. If you use `nvm`
+to manage your `node` versions, you can simply run
+
+```
+nvm install
+```
+
+in the project's root directory.
+
+You also need to install the project's dependencies. To do so, run
+
+```
+npm install
+```
+
+### Building
+
+You can build the project by running
+
+```
+npm run build
+```
+
+Alternatively, you can run
+
+```
+npm run build:watch
+```
+
+to watch for changes and automatically build as necessary.
+
+### Linking the built project to Foundry VTT
+
+In order to provide a fluent development experience, it is recommended to link
+the built module to your local Foundry VTT installation's data folder. In
+order to do so, first add a file called `foundryconfig.json` to the project root
+with the following content:
+
+```
+{
+  "dataPath": "/absolute/path/to/your/FoundryVTT"
+}
+```
+
+(if you are using Windows, make sure to use `\` as a path separator instead of
+`/`)
+
+Then run
+
+```
+npm run link-project
+```
+
+On Windows, creating symlinks requires administrator privileges, so unfortunately
+you need to run the above command in an administrator terminal for it to work.
 
 ## Contributors ✨
 
