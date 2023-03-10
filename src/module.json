@@ -93,5 +93,5 @@
   "manifest": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen/releases/latest/download/module.json",
   "readme": "https://raw.githubusercontent.com/ElfFriend-DnD/foundryvtt-gmScreen/main/README.md",
   "url": "https://github.com/ElfFriend-DnD/foundryvtt-gmScreen",
-  "license": ""
+  "license": "MIT"
 }
