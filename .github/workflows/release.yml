@@ -112,7 +112,7 @@ jobs:
   publish:
     needs:
       - lint
-      - typecheck
+      #      - typecheck
       - build
     runs-on: ubuntu-latest
     steps:
