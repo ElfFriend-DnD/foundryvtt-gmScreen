@@ -12,8 +12,12 @@
       "patreon": "ElfFriend_DnD"
     }
   ],
-  "minimumCoreVersion": "9",
-  "compatibleCoreVersion": "9",
+  "minimumCoreVersion": "10",
+  "compatibleCoreVersion": "10",
+  "compatibility": {
+    "minimum": 10,
+    "verified": 10,
+  },
   "scripts": [],
   "esmodules": ["module/foundryvtt-gmScreen.js"],
   "styles": ["styles/foundryvtt-gmScreen.css"],
