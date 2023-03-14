@@ -262,6 +262,16 @@ $transition-timing: 400ms;
       }
     }
 
+    // fix ultra large header elements
+    > header {
+      flex: 0;
+    }
+
+    .journal-page-content {
+      width: auto !important;
+      height: auto !important;
+    }
+
     .compact-journal-entry {
       min-height: 100%; // needed for dnd5e
 
