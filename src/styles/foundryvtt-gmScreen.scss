@@ -262,6 +262,18 @@ $transition-timing: 400ms;
       }
     }
 
+    // fix ultra large header elements
+    > header {
+      flex: 0;
+    }
+
+    // fix width and height overrides by foundry that are added to the page content element
+    // via styles attribute.
+    .journal-page-content {
+      width: auto !important;
+      height: auto !important;
+    }
+
     .compact-journal-entry {
       min-height: 100%; // needed for dnd5e
 
