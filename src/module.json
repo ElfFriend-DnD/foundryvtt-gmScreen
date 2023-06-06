@@ -23,7 +23,11 @@
   "esmodules": ["module/foundryvtt-gmScreen.js"],
   "styles": ["styles/foundryvtt-gmScreen.css"],
   "packs": [],
-  "dependencies": [],
+  "relationships": [
+    {
+        "requires": ""
+    }
+  ],
   "languages": [
     {
       "lang": "de",
