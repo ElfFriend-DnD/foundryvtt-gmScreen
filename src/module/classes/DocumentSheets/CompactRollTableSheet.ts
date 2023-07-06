@@ -46,10 +46,6 @@ export class CompactRollTableDisplay extends RollTableConfig {
         label = `@UUID[${result.documentCollection}.${result.documentId}]{${result.text}}`;
         break;
       }
-      case CONST.TABLE_RESULT_TYPES.ENTITY: {
-        label = `@${result.documentCollection}[${result.documentId}]{${result.text}}`;
-        break;
-      }
       default:
         label = result.text;
     }
