@@ -14,7 +14,7 @@ export class CompactRollTableDisplay extends RollTableConfig {
   }
 
   async getData() {
-    const sheetData = super.getData();
+    const sheetData = await super.getData();
 
     // TODO: Rolltable.Result and Results wrong
     const enrichedResults = (sheetData.results as unknown as RollTableConfig.Data['results'][]).map(
