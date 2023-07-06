@@ -13,12 +13,8 @@ export class CompactRollTableDisplay extends RollTableConfig {
     });
   }
 
-  getData() {
-    const sheetData = super.getData();
-
-    if (sheetData instanceof Promise) {
-      return sheetData;
-    }
+  async getData() {
+    const sheetData = await super.getData();
 
     // TODO: Rolltable.Result and Results wrong
     const enrichedResults = (sheetData.results as unknown as RollTableConfig.Data['results'][]).map(
@@ -39,22 +35,24 @@ export class CompactRollTableDisplay extends RollTableConfig {
     await rollTable.draw();
   }
 
-  private _getLabelFromResult(result: TableResult): string {
-    let label: string;
-
+  private _getLabelFromResult(result) {
+    let label;
     switch (result.type) {
       case CONST.TABLE_RESULT_TYPES.COMPENDIUM: {
         label = `@Compendium[${result.documentCollection}.${result.documentId}]{${result.text}}`;
         break;
       }
-      case CONST.TABLE_RESULT_TYPES.ENTITY: {
-        label = `@${result.documentCollection}[${result.documentId}]{${result.text}}`;
+      case CONST.TABLE_RESULT_TYPES.DOCUMENT: {
+        label = `@UUID[${result.documentCollection}.${result.documentId}]{${result.text}}`;
         break;
       }
       default:
         label = result.text;
     }
-
     return label;
+  }
+
+  activateListeners(html) {
+    DocumentSheet.prototype.activateListeners.call(this, html);
   }
 }

@@ -3,7 +3,7 @@
   "id": "gm-screen",
   "title": "GM Screen",
   "description": "Creates a Configurable modular grid that GMs can populate with journal entries, rollable tables, etc.",
-  "version": "4.0.3",
+  "version": "5.0.0",
   "author": "Andrew Krigline (akrigline)",
   "authors": [
     {
@@ -13,17 +13,19 @@
       "patreon": "ElfFriend_DnD"
     }
   ],
-  "minimumCoreVersion": "10",
-  "compatibleCoreVersion": "10",
+  "minimumCoreVersion": "11",
+  "compatibleCoreVersion": "11",
   "compatibility": {
-    "minimum": 10,
-    "verified": 10
+    "minimum": 11,
+    "verified": 11
   },
   "scripts": [],
   "esmodules": ["module/foundryvtt-gmScreen.js"],
   "styles": ["styles/foundryvtt-gmScreen.css"],
   "packs": [],
-  "dependencies": [],
+  "relationships": {
+    "requires": []
+  },
   "languages": [
     {
       "lang": "de",
